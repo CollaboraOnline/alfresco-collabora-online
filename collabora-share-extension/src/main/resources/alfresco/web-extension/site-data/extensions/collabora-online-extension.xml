@@ -1,0 +1,205 @@
+<extension>
+    <modules>
+        <module>
+            <id>Global Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>1</auto-deploy-index>
+
+            <components>
+                <component>
+                    <region-id>node-header</region-id>
+                    <source-id>document-details</source-id>
+                    <scope>template</scope>
+                    <sub-components>
+                        <sub-component id="collabora_node_header" index="25">
+                            <url>/collabora/node-header</url>
+                        </sub-component>
+                    </sub-components>
+                </component>
+            </components>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.magenta.collabora-online</sourcePackageRoot>
+                </customization>
+            </customizations>
+
+            <configurations>
+                <config evaluator="string-compare" condition="DocLibActions">
+                    <actions>
+                        <!-- Edit online in LibreOffice -->
+                        <!-- TODO: i18n of label -->
+                        <action id="document-edit-collabora-online" type="link" label="actions.document.edit-collabora-online">
+                            <param name="href">collabora-online-edit?nodeRef={node.nodeRef}</param>
+                            <param name="target">_self</param>
+                            <permissions>
+                                <permission allow="true">Write</permission>
+                            </permissions>
+                            <!-- TODO: LibreOffice mimetype check, userAgent check -->
+                            <!--<evaluator>evaluator.doclib.action.onlineEdit</evaluator>-->
+                            <evaluator>evaluator.dk.magenta.doclib.action.isMimetypeEditableLibreOffice</evaluator>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isLocked</evaluator>
+                        </action>
+
+                         <!-- Upload new version -->
+                         <action id="document-upload-new-version" type="javascript" label="actions.document.upload-new-version">
+                            <param name="function">onActionUploadNewVersion</param>
+                            <permissions>
+                               <permission allow="true">Write</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.upload</evaluator>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.metadata.isLocked</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Inline edit -->
+                         <action id="document-inline-edit" type="pagelink" label="actions.document.inline-edit">
+                            <param name="page">inline-edit?nodeRef={node.nodeRef}</param>
+                            <permissions>
+                               <permission allow="true">Write</permission>
+                            </permissions>
+                            <!-- aspect check (app:inlineeditable), mimetype check (text/plain, text/html, text/xml) -->
+                            <evaluator>evaluator.doclib.action.inlineEdit</evaluator>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isLocked</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Edit online -->
+                         <action id="document-edit-online" type="javascript" label="actions.document.edit-online">
+                            <param name="function">onActionEditOnline</param>
+                            <permissions>
+                               <permission allow="true">Write</permission>
+                            </permissions>
+                            <!-- vti module check, mimetype check, userAgent check -->
+                            <evaluator>evaluator.doclib.action.onlineEdit</evaluator>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isLocked</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isAosOnlineEditAvailable</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Edit online AOS -->
+                         <action id="document-edit-online-aos" type="javascript" label="actions.document.edit-online" icon="document-edit-online">
+                            <param name="function">onActionEditOnlineAos</param>
+                            <permissions>
+                               <permission allow="true">Write</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.isAosOnlineEditAvailable</evaluator>
+                            <evaluator>evaluator.doclib.action.notEditBrowser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isLockedForAos</evaluator>
+                            <evaluator>evaluator.doclib.action.isMimetypeEditableAos</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Edit offline -->
+                         <action id="document-edit-offline" type="javascript" label="actions.document.edit-offline">
+                            <param name="function">onActionEditOffline</param>
+                            <permissions>
+                               <permission allow="true">Write</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.offlineEdit</evaluator>
+                            <evaluator>evaluator.doclib.action.hasContent</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.notEditable</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Move to -->
+                         <action id="document-move-to" type="javascript" label="actions.document.move-to">
+                            <param name="function">onActionMoveTo</param>
+                            <permissions>
+                               <permission allow="true">Delete</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Delete -->
+                         <action id="document-delete" type="javascript" label="actions.document.delete">
+                            <param name="function">onActionDelete</param>
+                            <permissions>
+                               <permission allow="true">Delete</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.editableByCurrentUser</evaluator>
+                            <evaluator>evaluator.doclib.action.isNotPartOfHybridWorklfow</evaluator>
+                            <evaluator>evaluator.doclib.action.isDeletable</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Manage permissions (granular permissions) -->
+                         <action id="document-manage-granular-permissions" type="link" icon="document-manage-permissions" label="actions.document.manage-permissions">
+                             <param name="href">{managePermissionsUrl}</param>
+                            <permissions>
+                               <permission allow="true">ChangePermissions</permission>
+                            </permissions>
+                            <evaluator>evaluator.doclib.action.siteBased</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isWorkingCopy</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+
+                         <!-- Manage permissions (repository roles) -->
+                         <action id="document-manage-repo-permissions" type="link" icon="document-manage-permissions" label="actions.document.manage-permissions">
+                            <param name="href">{managePermissionsUrl}</param>
+                            <permissions>
+                               <permission allow="true">ChangePermissions</permission>
+                            </permissions>
+                            <evaluator negate="true">evaluator.doclib.action.siteBased</evaluator>
+                            <evaluator negate="true">evaluator.doclib.action.isWorkingCopy</evaluator>
+                            <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
+                         </action>
+                    </actions>
+                    <actionGroups>
+                        <actionGroup id="document-browse">
+                            <action index="199" id="document-edit-collabora-online"/>
+                        </actionGroup>
+                        <actionGroup id="document-details">
+                            <action index="199" id="document-edit-collabora-online"/>
+                        </actionGroup>
+                    </actionGroups>
+                </config>
+                <config evaluator="string-compare" condition="DocumentLibrary">
+                    <indicators>
+                        <!-- Being edited by current user -->
+                        <indicator id="collabora-editing" index="15" action="document-edit-collabora-online">
+                            <evaluator>evaluator.doclib.indicator.collaboraEditing</evaluator>
+                        </indicator>
+                    </indicators>
+                </config>
+            </configurations>
+        </module>
+
+        <module>
+            <id>collabora-online-Page</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>7</auto-deploy-index>
+            <evaluator type="magenta.page.module.evaluator">
+                <params>
+                    <pageId>collabora-online-edit</pageId>
+                </params>
+            </evaluator>
+            <configurations>
+                <config evaluator="string-compare" condition="WebFramework" replace="false">
+                    <web-framework>
+                        <dojo-pages>
+                            <packages>
+                                <package name="libreofficepage" location="js/magenta/libreofficepage"/>
+                            </packages>
+                        </dojo-pages>
+                    </web-framework>
+                </config>
+            </configurations>
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
+                    <sourcePackageRoot>dk.magenta.header</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+    </modules>
+</extension>

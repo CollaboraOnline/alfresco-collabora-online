@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>LibreOffice Online PutFile</shortname>
+    <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/PutFile.html</description>
+    <url>/wopi/files/{fileId}/contents</url>
+    <family>LibreOffice Online</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

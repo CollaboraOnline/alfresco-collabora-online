@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>LibreOffice Online CheckFileInfo</shortname>
+    <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html</description>
+    <url>/wopi/files/{fileId}</url>
+    <family>LibreOffice Online</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

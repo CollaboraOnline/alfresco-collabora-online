@@ -1,0 +1,305 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wopi-discovery>
+    <net-zone name="external-http">
+
+        <app name="application/vnd.lotus-wordpro">
+            <action name="edit" ext="lwp" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/svg+xml">
+            <action name="edit" ext="svg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-powerpoint">
+            <action name="edit" ext="pot" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-excel">
+            <action name="edit" ext="xla" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Writer documents -->
+        <app name="application/vnd.sun.xml.writer">
+            <action name="edit" ext="sxw" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.text">
+            <action name="edit" ext="odt"  urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.text-flat-xml">
+            <action name="edit" ext="fodt" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Calc documents -->
+        <app name="application/vnd.sun.xml.calc">
+            <action name="edit" ext="sxc" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.spreadsheet">
+            <action name="edit" ext="ods" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.spreadsheet-flat-xml">
+            <action name="edit" ext="fods" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Impress documents -->
+        <app name="application/vnd.sun.xml.impress">
+            <action name="edit" ext="sxi" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.presentation">
+            <action name="edit" ext="odp" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.presentation-flat-xml">
+            <action name="edit" ext="fodp" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Draw documents -->
+        <app name="application/vnd.sun.xml.draw">
+            <action name="edit" ext="sxd" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.graphics">
+            <action name="edit" ext="odg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.graphics-flat-xml">
+            <action name="edit" ext="fodg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Chart documents -->
+        <app name="application/vnd.oasis.opendocument.chart">
+            <action name="edit" ext="odc" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Text master documents -->
+        <app name="application/vnd.sun.xml.writer.global">
+            <action name="edit" ext="sxg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.text-master">
+            <action name="edit" ext="odm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Math documents -->
+        <!-- In fact Math documents are not supported at all.
+                 See: https://bugs.documentfoundation.org/show_bug.cgi?id=97006
+            <app name="application/vnd.sun.xml.math">
+                    <action name="edit" ext="sxm" urlsrc="${lool.wopi.url.src}"/>
+                </app>
+            <app name="application/vnd.oasis.opendocument.formula">
+                    <action name="edit" ext="odf" urlsrc="${lool.wopi.url.src}"/>
+                </app>
+            -->
+
+        <!-- Text template documents -->
+        <app name="application/vnd.sun.xml.writer.template">
+            <action name="edit" ext="stw" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.text-template">
+            <action name="edit" ext="ott" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Writer master document templates -->
+        <app name="application/vnd.oasis.opendocument.text-master-template">
+            <action name="edit" ext="otm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Spreadsheet template documents -->
+        <app name="application/vnd.sun.xml.calc.template">
+            <action name="edit" ext="stc" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.spreadsheet-template">
+            <action name="edit" ext="ots" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Presentation template documents -->
+        <app name="application/vnd.sun.xml.impress.template">
+            <action name="edit" ext="sti" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.presentation-template">
+            <action name="edit" ext="otp" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Drawing template documents -->
+        <app name="application/vnd.sun.xml.draw.template">
+            <action name="edit" ext="std" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.graphics-template">
+            <action name="edit" ext="otg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Base documents -->
+        <app name="application/vnd.oasis.opendocument.database">
+            <action name="edit" ext="odb" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Extensions -->
+        <app name="application/vnd.openofficeorg.extension">
+            <action name="edit" ext="oxt" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Microsoft Word Template -->
+        <app name="application/msword">
+            <action name="edit" ext="dot" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- OOXML wordprocessing -->
+        <app name="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+            <action name="edit" ext="docx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-word.document.macroEnabled.12">
+            <action name="edit" ext="docm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.openxmlformats-officedocument.wordprocessingml.template">
+            <action name="edit" ext="dotx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-word.template.macroEnabled.12">
+            <action name="edit" ext="dotm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- OOXML spreadsheet -->
+        <app name="application/vnd.openxmlformats-officedocument.spreadsheetml.template">
+            <action name="edit" ext="xltx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-excel.template.macroEnabled.12">
+            <action name="edit" ext="xltm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet">
+            <action name="edit" ext="xlsx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-excel.sheet.binary.macroEnabled.12">
+            <action name="edit" ext="xlsb" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-excel.sheet.macroEnabled.12">
+            <action name="edit" ext="xlsm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- OOXML presentation -->
+        <app name="application/vnd.openxmlformats-officedocument.presentationml.presentation">
+            <action name="edit" ext="pptx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-powerpoint.presentation.macroEnabled.12">
+            <action name="edit" ext="pptm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.openxmlformats-officedocument.presentationml.template">
+            <action name="edit" ext="potx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-powerpoint.template.macroEnabled.12">
+            <action name="edit" ext="potm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+
+        <!-- Others -->
+        <app name="application/vnd.wordperfect">
+            <action name="edit" ext="wpd" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-aportisdoc">
+            <action name="edit" ext="pdb" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-hwp">
+            <action name="edit" ext="hwp" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.ms-works">
+            <action name="edit" ext="wps" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-mswrite">
+            <action name="edit" ext="wri" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-dif-document">
+            <action name="edit" ext="dif" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="text/spreadsheet">
+            <action name="edit" ext="slk" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="text/csv">
+            <action name="edit" ext="csv" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-dbase">
+            <action name="edit" ext="dbf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.lotus-1-2-3">
+            <action name="edit" ext="wk1" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/cgm">
+            <action name="edit" ext="cgm" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/vnd.dxf">
+            <action name="edit" ext="dxf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/x-emf">
+            <action name="edit" ext="emf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/x-wmf">
+            <action name="edit" ext="wmf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/coreldraw">
+            <action name="edit" ext="cdr" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.visio2013">
+            <action name="edit" ext="vsd" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.visio">
+            <action name="edit" ext="vss" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-mspublisher">
+            <action name="edit" ext="pub" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-sony-bbeb">
+            <action name="edit" ext="lrf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-gnumeric">
+            <action name="edit" ext="gnumeric" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/macwriteii">
+            <action name="edit" ext="mw" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-iwork-numbers-sffnumbers">
+            <action name="edit" ext="numbers" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.oasis.opendocument.text-web">
+            <action name="edit" ext="oth" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-pagemaker">
+            <action name="edit" ext="p65" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/rtf">
+            <action name="edit" ext="rtf" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-fictionbook+xml">
+            <action name="edit" ext="fb2" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/clarisworks">
+            <action name="edit" ext="cwk" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.corel-draw">
+            <action name="edit" ext="cdr" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/x-wpg">
+            <action name="edit" ext="wpg" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/prs.plucker">
+            <action name="edit" ext="pdb" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-iwork-pages-sffpages">
+            <action name="edit" ext="pages" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.openxmlformats-officedocument.presentationml.slideshow">
+            <action name="edit" ext="ppsx" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-iwork-keynote-sffkey">
+            <action name="edit" ext="key" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-abiword">
+            <action name="edit" ext="abw" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="image/x-freehand">
+            <action name="edit" ext="fh" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.palm">
+            <action name="edit" ext="pdb" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.sun.xml.chart">
+            <action name="edit" ext="sxs" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.sun.xml.writer.web">
+            <action name="edit" ext="stw" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/x-t602">
+            <action name="edit" ext="602" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+        <app name="application/vnd.sun.xml.report.chart">
+            <action name="edit" ext="odc" urlsrc="${lool.wopi.url.src}"/>
+        </app>
+    </net-zone>
+</wopi-discovery>

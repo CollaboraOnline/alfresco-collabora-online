@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>LibreOffice Online Get Host Url</shortname>
+    <description>Get the host url for the WOPI server that the libreOffice online service needs to contact</description>
+    <url>/lool/host/url</url>
+    <family>LibreOffice Online</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

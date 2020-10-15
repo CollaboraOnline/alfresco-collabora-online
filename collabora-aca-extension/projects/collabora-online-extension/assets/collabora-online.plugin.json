@@ -1,0 +1,84 @@
+{
+  "$schema": "../../../extension.schema.json",
+  "$version": "0.1.0",
+  "$id": "collabora-online",
+  "$name": "collabora-online.plugin",
+  "$description": "Collabora Online plugin",
+  "$vendor": "Jeci",
+  "$license": "LGPL-3.0",
+  "$runtime": "1.10.0",
+
+  "actions": [
+    {
+      "id": "collabora.plugin.actions.edit",
+      "type": "COLLABORA_EDIT",
+      "payload": "$(context.selection.first.entry)"
+    }
+  ],
+
+  "features": {
+    "icons": [
+      {
+        "id": "adf:edit_collabora_online",
+        "value": "./assets/collabora-online-extension/images/collabora-online-logo.svg"
+      }
+    ],
+    "toolbar": [
+      {
+        "id": "app.toolbar.more",
+        "children": [
+          {
+            "id": "collabora.plugin.viewer.edit",
+            "type": "button",
+            "order": 91,
+            "icon": "adf:edit_collabora_online",
+            "title": "COLLABORA.EDIT",
+            "actions": {
+              "click": "collabora.plugin.actions.edit"
+            },
+            "rules": {
+              "visible": "collabora.canOpenWithCollaboraOnline"
+            }
+          }
+        ]
+      }
+    ],
+    "viewer": {
+      "toolbarActions": [
+        {
+          "id": "app.viewer.toolbar.more",
+          "children": [
+            {
+              "id": "collabora.plugin.viewer.edit",
+              "type": "button",
+              "order": 2,
+              "icon": "adf:edit_collabora_online",
+              "title": "COLLABORA.EDIT",
+              "actions": {
+                "click": "collabora.plugin.actions.edit"
+              },
+              "rules": {
+                "visible": "collabora.canOpenWithCollaboraOnline"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "contextMenu" : [
+      {
+        "id": "collabora.plugin.viewer.edit",
+        "type": "button",
+        "order": 451,
+        "icon": "adf:edit_collabora_online",
+        "title": "COLLABORA.EDIT",
+        "actions": {
+          "click": "collabora.plugin.actions.edit"
+        },
+        "rules": {
+          "visible": "collabora.canOpenWithCollaboraOnline"
+        }
+      }
+    ]
+  }
+}

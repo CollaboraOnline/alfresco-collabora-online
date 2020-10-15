@@ -1,0 +1,19 @@
+<div class="adf-viewer-toolbar adf-toolbar ng-star-inserted">
+  <mat-toolbar-row>
+    <span class="filler"></span>
+      <h5 class="fileName"> {{ fileName }} </h5>
+    <span class="filler"></span>
+    <button class="mat-icon-button" (click)="onDownload()">
+      <mat-icon>get_app</mat-icon>
+    </button>
+  </mat-toolbar-row>
+</div>
+<div id="collabora-online">
+  <div id="loolcontainer">
+    <form #form id="loleafletform" name="loleafletform" method="POST" [action]="iFrameUrl" target="loleafletframe" hidden="hidden">
+      <input #access_token type="text" name="access_token" [value]="accessToken">
+      <input #access_token_ttl type="text" name="access_token_ttl" [value]="accessTokenTTL">
+    </form>
+    <iframe id="loleafletframe" name= "loleafletframe" allowfullscreen="true"></iframe>
+  </div>
+</div>

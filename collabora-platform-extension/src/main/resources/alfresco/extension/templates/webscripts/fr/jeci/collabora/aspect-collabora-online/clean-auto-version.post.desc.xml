@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Collabora Online Clean Auto Version</shortname>
+    <description>Collabora Online - clean version create by autosave</description>
+    <url>/collabora/version/clean/{store_type}/{store_id}/{id}</url>
+    <family>Collabora Online</family>
+    <authentication>admin</authentication>
+    <transaction>required</transaction>
+    <format default="json"></format>
+</webscript>

@@ -1,0 +1,7 @@
+{
+  "$schema": "../../node_modules/ng-packagr/ng-package.schema.json",
+  "dest": "../../dist/@jeci/collabora-online-extension",
+  "lib": {
+    "entryFile": "src/public_api.ts"
+  }
+}

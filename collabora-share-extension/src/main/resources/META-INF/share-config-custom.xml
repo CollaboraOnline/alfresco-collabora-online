@@ -1,0 +1,47 @@
+<!-- Share configuration related to this particular Share module extension, such as:
+  - Doclib action config
+  - Form config
+  - Aspect and Type config
+  - Advanced Search
+
+  Note. Any configuration related to the whole Share.war webapp
+  (i.e. not specific to this share extension) should be
+  placed in the environment specific config file:
+  alfresco/tomcat/shared/classes/alfresco/web-extension/share-config-custom.xml
+-->
+<alfresco-config>
+  <!--================================================================================================================
+      Make custom types and aspects visible in "Change Type" and "Manage Aspects" actions.
+       This will also make them visible when creating rules.
+      (will be merged with out-of-the-box configured types and aspects)
+  =============================================================================================================-->
+
+  <config evaluator="string-compare" condition="DocumentLibrary">
+
+    <metadata-templates>
+      <!-- Default (fallback) -->
+      <template id="default">
+      </template>
+
+      <template id="CollaboraMetadataTemplate">
+        <evaluator>evaluator.doclib.indicator.collaboraEditing</evaluator>
+        <banner index="10" id="collaboraEditing">{editingBanner}</banner>
+        <banner index="20" id="syncTransientError" evaluator="evaluator.doclib.metadata.hasSyncTransientErrorBanner">{syncTransientError}</banner>
+        <banner index="30" id="syncFailed" evaluator="evaluator.doclib.metadata.hasSyncFailedBanner">{syncFailed}</banner>
+        <line index="10" id="date">{date}{size}</line>
+        <line index="20" id="description" view="detailed">{description}</line>
+        <line index="30" id="tags" view="detailed">{tags}</line>
+        <line index="40" id="categories" view="detailed" evaluator="evaluator.doclib.metadata.hasCategories">{categories}</line>
+        <line index="50" id="acmeDocId" view="detailed">{acme_documentId org.alfresco.tutorial.label.acme_documentId}</line>
+        <line index="60" id="social" view="detailed">{social}</line>
+      </template>
+    </metadata-templates>
+  </config>
+
+  <config evaluator="string-compare" condition="DocLibCustom">
+    <dependencies>
+      <js src="components/documentlibrary/collabora-online-metadata-template-renderer.js" />
+    </dependencies>
+  </config>
+
+</alfresco-config>

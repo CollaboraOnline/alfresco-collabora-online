@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template-instance>
+    <template-type>org/alfresco/collabora-online-edit</template-type>
+    <components>
+        <!-- My Sites -->
+        <component>
+            <region-id>collabora-online-edit</region-id>
+            <url>/components/collabora-online-edit</url>
+        </component>
+
+    </components>
+</template-instance>

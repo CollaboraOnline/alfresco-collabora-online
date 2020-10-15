@@ -1,0 +1,24 @@
+{
+  "name": "@jeci/collabora-online-extension",
+  "version": "0.1.0",
+  "scripts": {
+    "build": "../../node_modules/.bin/tsc -p tsconfig.schematics.json",
+    "copy:schemas": "cp --parents schematics/*/schema.json ../../dist/@jeci/collabora-online-extension/",
+    "copy:files": "cp --parents -p schematics/*/files/** ../../dist/@jeci/collabora-online-extension/",
+    "copy:collection": "cp schematics/collection.json ../../dist/@jeci/collabora-online-extension/schematics/collection.json",
+    "postbuild": "npm run copy:collection"
+  },
+  "peerDependencies": {
+    "@angular/common": "^7.0.3",
+    "@angular/core": "^7.0.3"
+  },
+  "schematics": "./schematics/collection.json",
+  "ng-add": {
+    "save": "devDependencies"
+  },
+  "alfresco": {
+    "extension": "assets/collabora-online.plugin.json",
+    "module": "CollaboraOnlineModule",
+    "namespace": "collabora-online-extension"
+  }
+}

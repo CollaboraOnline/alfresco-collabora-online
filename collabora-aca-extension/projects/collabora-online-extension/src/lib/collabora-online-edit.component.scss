@@ -1,0 +1,37 @@
+#loleafletframe {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	border: 0 none;
+}
+
+#loolcontainer {
+	position: fixed;
+	bottom: 0px;
+	width: 100%;
+	top: 48px;
+	left: 0;
+	background: white;
+}
+
+.mat-toolbar-row {
+	background-color:white;
+	display: flex;
+	padding-right: 40px;
+}
+.mat-icon-button{
+	background-color:transparent;
+	border-style:hidden;
+	line-heigth:37px;
+	font-size:27px;
+}
+.adf-viewer-toolbar adf-toolbar ng-star-inserted{
+	border:1px solid grey;
+}
+.fileName{
+	font-size: 14px;
+	margin:auto;
+}
+.filler{
+	flex: 1 1;
+}

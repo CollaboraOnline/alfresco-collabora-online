@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>collabora-aca-extension</artifactId>
+  <name>Collabora Online Alfresco Content App Extension</name>
+  <description>Collabora Online Extension for Alfresco Content Application</description>
+
+  <parent>
+    <groupId>fr.jeci.alfresco</groupId>
+    <artifactId>alfresco-collabora-online</artifactId>
+    <version>0.1-SNAPSHOT</version>
+  </parent>
+
+  <properties>
+    <extension.version>0.1.0</extension.version>
+  </properties>
+
+  <dependencies>
+  </dependencies>
+
+
+  <build>
+    <resources>
+      <!-- <resource>
+        <directory>./dist/@jeci</directory>
+        <targetPath>static</targetPath>
+      </resource> -->
+    </resources>
+    <plugins>
+        <plugin>
+          <groupId>com.github.eirslett</groupId>
+          <artifactId>frontend-maven-plugin</artifactId>
+          <!-- Use the latest released version:
+          https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+          <version>1.9.1</version>
+          <executions>
+
+          <execution>
+            <id>install node and npm</id>
+            <goals>
+              <goal>install-node-and-npm</goal>
+            </goals>
+            <configuration>
+              <!-- See https://nodejs.org/en/download/ for latest node and npm (lts) versions -->
+              <nodeVersion>v10.22.1</nodeVersion>
+              <npmVersion>6.14.6</npmVersion>
+            </configuration>
+          </execution>
+
+
+          <execution>
+            <id>npm install</id>
+            <goals>
+                <goal>npm</goal>
+            </goals>
+
+            <!-- optional: default phase is "generate-resources" -->
+            <phase>generate-resources</phase>
+            <configuration>
+                <arguments>install</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>npm build</id>
+            <goals>
+                <goal>npm</goal>
+            </goals>
+
+            <!-- optional: default phase is "generate-resources" -->
+            <phase>generate-resources</phase>
+
+            <configuration>
+                <!-- optional: The default argument is actually
+                "install", so unless you need to run some other npm command,
+                you can remove this whole <configuration> section.
+                -->
+                <arguments>run build</arguments>
+            </configuration>
+          </execution>
+          </executions>
+        </plugin>
+
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-assembly-plugin</artifactId>
+            <version>3.1.0</version>
+            <configuration>
+              <descriptors>
+                <descriptor>src/main/assembly/assembly.xml</descriptor>
+              </descriptors>
+              <!-- Turn off compression -->
+              <archiverConfig>
+                <!-- <compress>false</compress> -->
+              </archiverConfig>
+            </configuration>
+            <executions>
+                <execution>
+                    <id>assembly-dist</id>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>single</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+  </build>
+
+</project>

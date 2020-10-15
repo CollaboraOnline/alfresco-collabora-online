@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Collabora Node Header</shortname>
+    <description>Add label when editing with collabora online</description>
+    <url>/collabora/node-header</url>
+    <family>Collabora Online</family>
+</webscript>

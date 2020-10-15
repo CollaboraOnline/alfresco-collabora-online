@@ -1,0 +1,148 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+  <!--
+  Define beans related to this Share extension here, such as evaluators and resource bootstrapping.
+
+  Note. Any configuration related to the whole Share.war webapp
+  (i.e. not specific to this share extension) should be
+  placed in the tomcat/shared/classes/alfresco/web-extension/custom-slingshot-application-context.xml file
+  -->
+
+  <bean id="magenta.page.module.evaluator" class="dk.magenta.libreOffice.online.PageModuleEvaluator" />
+
+  <!-- Being edited with the libreoffice online -->
+  <bean id="evaluator.doclib.indicator.collaboraEditing" parent="evaluator.doclib.action.hasAspect">
+    <property name="aspects">
+      <list>
+        <value>collabora:collaboraOnline</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- Add module specific messages and labels -->
+  <bean id="collabora-online-share.resources" class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
+    <property name="resourceBundles">
+      <list>
+        <value>alfresco.web-extension.messages.collabora-online-share</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- Edit Online LibreOffice -->
+  <bean id="evaluator.dk.magenta.doclib.action.isMimetypeEditableLibreOffice" parent="evaluator.doclib.action.isMimetype">
+    <property name="mimetypes">
+      <list>
+        <value>application/clarisworks</value>
+        <value>application/coreldraw</value>
+        <value>application/macwriteii</value>
+        <value>application/msexcel</value>
+        <value>application/mspowerpoint</value>
+        <value>application/msword</value>
+        <value>application/prs.plucker</value>
+        <value>application/rtf</value>
+        <value>application/vnd.corel-draw</value>
+        <value>application/vnd.lotus-1-2-3</value>
+        <value>application/vnd.lotus-wordpro</value>
+        <value>application/vnd.ms-excel.addin.macroenabled.12</value>
+        <value>application/vnd.ms-excel.sheet.binary.macroenabled.12</value>
+        <value>application/vnd.ms-excel.sheet.binary.macroEnabled.12</value>
+        <value>application/vnd.ms-excel.sheet.macroenabled.12</value>
+        <value>application/vnd.ms-excel.sheet.macroEnabled.12</value>
+        <value>application/vnd.ms-excel.template.macroenabled.12</value>
+        <value>application/vnd.ms-excel.template.macroEnabled.12</value>
+        <value>application/vnd.ms-excel</value>
+        <value>application/vnd.ms-powerpoint.addin.macroenabled.12</value>
+        <value>application/vnd.ms-powerpoint.presentation.macroenabled.12</value>
+        <value>application/vnd.ms-powerpoint.presentation.macroEnabled.12</value>
+        <value>application/vnd.ms-powerpoint.slide.macroenabled.12</value>
+        <value>application/vnd.ms-powerpoint.slideshow.macroenabled.12</value>
+        <value>application/vnd.ms-powerpoint.template.macroenabled.12</value>
+        <value>application/vnd.ms-powerpoint.template.macroEnabled.12</value>
+        <value>application/vnd.ms-powerpoint</value>
+        <value>application/vnd.ms-word.document.macroenabled.12</value>
+        <value>application/vnd.ms-word.document.macroEnabled.12</value>
+        <value>application/vnd.ms-word.template.macroenabled.12</value>
+        <value>application/vnd.ms-word.template.macroEnabled.12</value>
+        <value>application/vnd.ms-word</value>
+        <value>application/vnd.ms-works</value>
+        <value>application/vnd.oasis.opendocument.chart</value>
+        <value>application/vnd.oasis.opendocument.database</value>
+        <value>application/vnd.oasis.opendocument.formula</value>
+        <value>application/vnd.oasis.opendocument.graphics-flat-xml</value>
+        <value>application/vnd.oasis.opendocument.graphics-template</value>
+        <value>application/vnd.oasis.opendocument.graphics</value>
+        <value>application/vnd.oasis.opendocument.image</value>
+        <value>application/vnd.oasis.opendocument.presentation-flat-xml</value>
+        <value>application/vnd.oasis.opendocument.presentation-template</value>
+        <value>application/vnd.oasis.opendocument.presentation</value>
+        <value>application/vnd.oasis.opendocument.spreadsheet-flat-xml</value>
+        <value>application/vnd.oasis.opendocument.spreadsheet-template</value>
+        <value>application/vnd.oasis.opendocument.spreadsheet</value>
+        <value>application/vnd.oasis.opendocument.text-flat-xml</value>
+        <value>application/vnd.oasis.opendocument.text-master-template</value>
+        <value>application/vnd.oasis.opendocument.text-master</value>
+        <value>application/vnd.oasis.opendocument.text-template</value>
+        <value>application/vnd.oasis.opendocument.text-web</value>
+        <value>application/vnd.oasis.opendocument.text</value>
+        <value>application/vnd.openofficeorg.extension</value>
+        <value>application/vnd.openxmlformats-officedocument.presentationml.presentation</value>
+        <value>application/vnd.openxmlformats-officedocument.presentationml.slide</value>
+        <value>application/vnd.openxmlformats-officedocument.presentationml.slideshow</value>
+        <value>application/vnd.openxmlformats-officedocument.presentationml.template</value>
+        <value>application/vnd.openxmlformats-officedocument.spreadsheetml.sheet</value>
+        <value>application/vnd.openxmlformats-officedocument.spreadsheetml.template</value>
+        <value>application/vnd.openxmlformats-officedocument.wordprocessingml.document</value>
+        <value>application/vnd.openxmlformats-officedocument.wordprocessingml.template</value>
+        <value>application/vnd.palm</value>
+        <value>application/vnd.stardivision.calc</value>
+        <value>application/vnd.stardivision.draw</value>
+        <value>application/vnd.stardivision.impress</value>
+        <value>application/vnd.stardivision.math</value>
+        <value>application/vnd.stardivision.writer sdw</value>
+        <value>application/vnd.stardivision.writer-global</value>
+        <value>application/vnd.sun.xml.calc.template</value>
+        <value>application/vnd.sun.xml.calc</value>
+        <value>application/vnd.sun.xml.chart</value>
+        <value>application/vnd.sun.xml.draw.template</value>
+        <value>application/vnd.sun.xml.draw</value>
+        <value>application/vnd.sun.xml.impress.template</value>
+        <value>application/vnd.sun.xml.impress</value>
+        <value>application/vnd.sun.xml.math</value>
+        <value>application/vnd.sun.xml.report.chart</value>
+        <value>application/vnd.sun.xml.writer.global</value>
+        <value>application/vnd.sun.xml.writer.template</value>
+        <value>application/vnd.sun.xml.writer.web</value>
+        <value>application/vnd.sun.xml.writer</value>
+        <value>application/vnd.visio</value>
+        <value>application/vnd.visio2013</value>
+        <value>application/vnd.wordperfect</value>
+        <value>application/x-abiword</value>
+        <value>application/x-aportisdoc</value>
+        <value>application/x-dbase</value>
+        <value>application/x-dif-document</value>
+        <value>application/x-fictionbook+xml</value>
+        <value>application/x-gnumeric</value>
+        <value>application/x-hwp</value>
+        <value>application/x-iwork-keynote-sffkey</value>
+        <value>application/x-iwork-numbers-sffnumbers</value>
+        <value>application/x-iwork-pages-sffpages</value>
+        <value>application/x-mspublisher</value>
+        <value>application/x-mswrite</value>
+        <value>application/x-pagemaker</value>
+        <value>application/x-sony-bbeb</value>
+        <value>application/x-t602</value>
+        <value>image/cgm</value>
+        <value>image/svg+xml</value>
+        <value>image/vnd.dxf</value>
+        <value>image/x-emf</value>
+        <value>image/x-freehand</value>
+        <value>image/x-wmf</value>
+        <value>image/x-wpg</value>
+        <value>text/csv</value>
+        <value>text/spreadsheet</value>
+      </list>
+    </property>
+  </bean>
+</beans>

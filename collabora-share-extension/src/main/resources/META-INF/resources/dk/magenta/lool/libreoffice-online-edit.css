@@ -1,0 +1,15 @@
+#loleafletframe {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	border: 0 none;
+}
+
+#loolcontainer {
+	position: fixed;
+	bottom: 50px;
+	width: 100%;
+	top: 96px;
+	left: 0;
+	background: white;
+}

@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Collabora Online Add Aspect</shortname>
+    <description>Collabora Online - add collabora:collaboraOnline aspect</description>
+    <url>/collabora/aspect/add/{store_type}/{store_id}/{id}</url>
+    <family>Collabora Online</family>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <format default="json"></format>
+</webscript>
