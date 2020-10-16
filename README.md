@@ -5,10 +5,11 @@ This project contains 3 sub-projects :
 * collabora-share-extension : extension for Share interface
 * collabora-aca-extension : extension for Angular interface, Alfresco Content Application
 
-This extension adds an action `Edit with Collabora™ Online` on documents which can open with Collabora Online and if the user has the write
-permission. The document will be opened in a iFrame.
+The extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online and if the user has the write permission. The document will be opened in an iFrame.
 
-Many users can open the same document in the same time.
+Many users can open the same document at the same time.
+
+The version `0.1-SNAPSHOT` is still in beta. It should not be used in production.
 
 ## Compilation
 
@@ -27,7 +28,7 @@ mvn install -pl collabora-aca-extension,collabora-platform-extension,collabora-s
 
 ## Installation
 
-### Extension ACS
+### ACS Extension
 
 Add `collabora-platform-extension-<version>`.jar in the folder `INSTALL_DIR/webapps/alfresco/WEB-INF/lib`.
 You must configure the following properties in `alfresco-global.properties` :
@@ -38,11 +39,11 @@ lool.wopi.alfresco.host=https://<alfresco_server_domain>:<port>/alfresco/s/
 lool.wopi.url.discovery=https://<collabora_server_domain>:<port>/hosting/discovery
 ```
 
-### Extension Share
+### Share Extension
 
 Add `collabora-share-extension-<version>.jar` in the folder `INSTALL_DIR/webapps/share/WEB-INF/lib`.
 
-### Extension ACA
+### ACA Extension
 
 Install the library `collabora-aca-extension-<version>-dist.tgz` in your project alfresco-content-application
 ```

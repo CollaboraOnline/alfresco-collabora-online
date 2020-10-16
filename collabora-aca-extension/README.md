@@ -1,7 +1,8 @@
 # ACA Extension Collabora
 
-Extension for [Alfresco-Content-Application](https://github.com/Alfresco/alfresco-content-app) to edit document with Collabora Online.
-This extension add a button and open a iFrame to modify document.
+Extension for [Alfresco-Content-Application](https://github.com/Alfresco/alfresco-content-app) to edit documents with Collabora Online.
+This extension add a button and open a iFrame to edit the document.
+
 ## Building
 
 Run the following script to build the library
@@ -25,8 +26,7 @@ Build and package the extension library locally without publishing to NPM:
 npm run package:collabora-online-extension
 ```
 
-The script produces the `dist/collabora-online-extension/collabora-online-extension-0.1.0.tgz` file
-that can be used to install dependency.
+The script produces the `dist/collabora-online-extension/collabora-online-extension-0.1.0.tgz` file that can be used to install dependency.
 
 Switch to the ACA project and run:
 
@@ -101,5 +101,4 @@ Run the ACA application
 npm start
 ```
 
-Depending on the setup, you might need to log in as an administrator
-and enable external plugins feature for your local run.
+Depending on the setup, you might need to log in as an administrator and enable external plugins feature for your local run.
