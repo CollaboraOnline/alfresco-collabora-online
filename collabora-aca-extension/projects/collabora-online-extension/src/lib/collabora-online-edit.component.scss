@@ -14,20 +14,23 @@
 	background: white;
 }
 
-.mat-toolbar-row {
-	background-color:white;
-	display: flex;
-	padding-right: 40px;
+.adf-viewer-toolbar .mat-toolbar .adf-toolbar-title {
+	width: auto;
 }
-.mat-icon-button{
-	background-color:transparent;
-	border-style:hidden;
-	line-heigth:37px;
-	font-size:27px;
+
+.adf-viewer-toolbar .adf-toolbar-divider {
+	display: none;
 }
-.adf-viewer-toolbar adf-toolbar ng-star-inserted{
-	border:1px solid grey;
+
+// todo: remove this when viewer supports extensions
+.adf-viewer-toolbar .mat-toolbar > button:last-child {
+	display: none;
 }
+
+.adf-viewer.right_side--hide .adf-viewer__sidebar__right {
+	width: 0;
+}
+
 .fileName{
 	font-size: 14px;
 	margin:auto;

@@ -15,17 +15,17 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, EventEmitter, ViewEncapsulation } from '@angular/core';
 import { CollaboraOnlineService } from './collabora-online.service'
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { MinimalNodeEntryEntity } from '@alfresco/js-api';
 
-
 @Component({
   selector: 'collabora-online-edit',
   templateUrl: './collabora-online-edit.component.html',
-  styleUrls: ['./collabora-online-edit.component.scss']
+  styleUrls: ['./collabora-online-edit.component.scss'],
+  encapsulation: ViewEncapsulation.None
 })
 export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
 
@@ -35,13 +35,18 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
 
   nodeId: string;
   node: MinimalNodeEntryEntity;
+  fileName: string;
+  mimeType: string;
   accessToken: string;
   accessTokenTTL: string;
   iFrameUrl: string;
   errorMessage: string;
   previousUrl: string;
   listenerHandlePostMessage: any;
-  fileName: string = null;
+  allowPrint = true;
+
+  //Emitted when user clicks the 'Print' button.
+  print = new EventEmitter();
 
   constructor(private collaboraOnlineService: CollaboraOnlineService,
               private route: ActivatedRoute,
@@ -54,7 +59,12 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     // Get the node
     this.node = await this.contentApi.getNodeInfo(this.nodeId).toPromise();
-    this.fileName = this.node.name;
+    if (this.node) {
+      this.fileName = this.node.name;
+      if (this.node.content) {
+        this.mimeType = this.node.content.mimeType;
+      }
+    }
 
     // Get previous url
     this.previousUrl = this.collaboraOnlineService.getPreviousUrl();
@@ -109,9 +119,26 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
     }
   }
 
-  public onDownload() {
-    if ( this.nodeId && this.fileName ){
-      this.collaboraOnlineService.onDownload(this.contentApi.getContentUrl(this.nodeId, true), this.fileName);
+  onBackButtonClick(): void {
+    this.router.navigateByUrl(this.previousUrl);
+  }
+
+  onFullscreenClick(): void {
+    const container = <any>(
+      document.documentElement.querySelector(
+        '.adf-viewer__fullscreen-container'
+      )
+    );
+    if (container) {
+      if (container.requestFullscreen) {
+        container.requestFullscreen();
+      } else if (container.webkitRequestFullscreen) {
+        container.webkitRequestFullscreen();
+      } else if (container.mozRequestFullScreen) {
+        container.mozRequestFullScreen();
+      } else if (container.msRequestFullscreen) {
+        container.msRequestFullscreen();
+      }
     }
   }
 

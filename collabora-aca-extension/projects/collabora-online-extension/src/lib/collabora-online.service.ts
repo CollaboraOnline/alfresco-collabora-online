@@ -87,18 +87,4 @@ export class CollaboraOnlineService {
     return this.previousUrl;
   }
 
-  public onDownload(url: string, fileName: string) {
-    if (url && fileName) {
-      const link = document.createElement('a');
-
-      link.style.display = 'none';
-      link.download = fileName;
-      link.href = url;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  }
-
 }

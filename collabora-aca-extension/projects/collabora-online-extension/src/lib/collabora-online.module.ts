@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { EffectsModule } from '@ngrx/effects';
+import { TranslateModule } from "@ngx-translate/core";
 
 import { ExtensionService } from '@alfresco/adf-extensions';
 
@@ -27,8 +29,7 @@ import { CollaboraEffects } from './effects/collabora-online.effects';
 import { RouterModule, Routes } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
-import { TRANSLATION_PROVIDER } from '@alfresco/adf-core';
-
+import { TRANSLATION_PROVIDER, ToolbarModule, PipeModule, TranslationService, ViewerModule, IconModule } from '@alfresco/adf-core';
 
 export const COLLABORA_ROUTES: Routes = [
   { path: "collabora-online-edit/:nodeId", component: CollaboraOnlineEditComponent }
@@ -43,6 +44,12 @@ export const COLLABORA_ROUTES: Routes = [
     RouterModule.forRoot(COLLABORA_ROUTES),
     MatIconModule,
     MatToolbarModule,
+    PipeModule,
+    ToolbarModule,
+    ViewerModule,
+    CommonModule,
+    IconModule,
+    TranslateModule.forRoot()
   ],
   providers: [
     CollaboraOnlineService,
@@ -58,12 +65,15 @@ export const COLLABORA_ROUTES: Routes = [
 })
 
 export class CollaboraOnlineModule {
-  constructor(extensions: ExtensionService) {
+  constructor(extensions: ExtensionService, translation: TranslationService) {
     extensions.setComponents({
-      'collabora-online-edit.main.component': CollaboraOnlineEditComponent,
+      'collabora-online-edit.main.component': CollaboraOnlineEditComponent
     });
     extensions.setEvaluators({
       'collabora.canOpenWithCollaboraOnline': canOpenWithCollaboraOnline
     });
+    translation.addTranslationFolder(
+      'assets/collabora-online-extension'
+    );
   }
 }
