@@ -26,12 +26,12 @@ Build and package the extension library locally without publishing to NPM:
 npm run package:collabora-online-extension
 ```
 
-The script produces the `dist/collabora-online-extension/collabora-online-extension-0.1.0.tgz` file that can be used to install dependency.
+The script produces the `dist/collabora-online-extension/collabora-online-extension-<version>.tgz` file that can be used to install dependency.
 
 Switch to the ACA project and run:
 
 ```sh
-npm i <path>/aca-extension-collabora/dist/@jeci/collabora-online-extension/jeci-collabora-online-extension-0.1.0.tgz
+npm i <path>/aca-extension-collabora/dist/@jeci/collabora-online-extension/jeci-collabora-online-extension-<version>.tgz
 ```
 
 Update the `extensions.module.ts` file in the folder `src/app/` and append the module:
