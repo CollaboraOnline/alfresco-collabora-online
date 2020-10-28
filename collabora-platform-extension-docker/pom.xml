@@ -10,7 +10,7 @@
     <parent>
         <groupId>fr.jeci.alfresco</groupId>
         <artifactId>alfresco-collabora-online</artifactId>
-        <version>0.2.0-SNAPSHOT</version>
+        <version>0.2.0</version>
     </parent>
 
     <properties>
@@ -20,7 +20,7 @@
         <dependency>
             <groupId>fr.jeci.alfresco</groupId>
             <artifactId>collabora-platform-extension</artifactId>
-            <version>0.2.0-SNAPSHOT</version>
+            <version>0.2.0</version>
         </dependency>
     </dependencies>
 
