@@ -78,7 +78,7 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
     const wopiSrcUrl = responseToken.wopi_src_url;
     this.accessToken = responseToken.access_token;
     this.accessTokenTTL = responseToken.access_token_ttl;
-    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&closebutton=1';
+    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl);
 
     // Remplissage du formulaire dynamique
     this.postForm.nativeElement.action = this.iFrameUrl
