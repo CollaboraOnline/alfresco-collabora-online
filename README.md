@@ -83,3 +83,9 @@ You can access the applications :
 * [ACS](http://localhost:8080/alfresco) : http://localhost:8080/alfresco
 * [Share](http://localhost:8080/share) : http://localhost:8080/share
 * [ACA](http://localhost:8080/) : http://localhost:8080/
+
+## About Jeci
+
+This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS). 
+
+For any question or professional services, please send us an email info@jeci.fr
