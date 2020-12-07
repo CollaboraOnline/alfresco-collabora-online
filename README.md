@@ -1,3 +1,6 @@
+
+[![L10n](https://img.shields.io/badge/L10n-Weblate-lightgrey.svg)](https://hosted.weblate.org/projects/collabora-online/)
+
 # Alfresco Collabora Online
 
 This project contains 3 sub-projects :
