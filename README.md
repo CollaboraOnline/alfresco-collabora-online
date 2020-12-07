@@ -16,7 +16,7 @@ The version `0.1-SNAPSHOT` is still in beta. It should not be used in production
 You can clone the project and compile all projects :
 
 ```
-git clone git@github.com:jecicorp/alfresco-collabora-online.git
+git clone git@github.com:CollaboraOnline/alfresco-collabora-online.git
 mvn install
 ```
 
@@ -86,6 +86,6 @@ You can access the applications :
 
 ## About Jeci
 
-This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS). 
+This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS).
 
 For any question or professional services, please send us an email info@jeci.fr
