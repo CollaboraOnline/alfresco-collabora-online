@@ -3,21 +3,21 @@
     <description>Collabora Online Model</description>
     <author>Jérémie Lesage</author>
     <version>1.0</version>
-    
+
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
     </imports>
-    
+
     <namespaces>
         <namespace uri="http://www.collaboraoffice.com/model/online/1.0" prefix="collabora" />
     </namespaces>
-    
+
     <data-types />
-    
+
     <constraints />
-    
+
     <types />
-    
+
     <aspects>
         <aspect name="collabora:collaboraOnline">
             <title>Collabora Online</title>
@@ -25,7 +25,7 @@
             <properties>
                 <property name="collabora:started_at">
                     <title>Started at</title>
-                    <description>Edition started t</description>
+                    <description>Editing started at</description>
                     <type>d:datetime</type>
                     <mandatory>false</mandatory>
                     <index enabled="false">
