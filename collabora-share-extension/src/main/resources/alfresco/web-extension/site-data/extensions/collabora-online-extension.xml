@@ -157,7 +157,7 @@
                             <action index="199" id="document-edit-collabora-online"/>
                         </actionGroup>
                         <actionGroup id="document-details">
-                            <action index="199" id="document-edit-collabora-online"/>
+                            <action index="339" subgroup="30" id="document-edit-collabora-online"/>
                         </actionGroup>
                     </actionGroups>
                 </config>
