@@ -87,6 +87,15 @@ You can access the applications :
 * [Share](http://localhost:8080/share) : http://localhost:8080/share
 * [ACA](http://localhost:8080/) : http://localhost:8080/
 
+## Release
+
+| Version | Commits                                           |
+|---------|:--------------------------------------------------|
+| 0.1.0   | Beta version                                      |
+| 0.2.0   | Delete Close button in iFrame Collabora Online    |
+|         | Add action fullscreen                             |
+| 0.2.1   | Add translations for Share and Alfresco Content Application interface (Hungarian, Turkish, Polish, Ukrainian, Spanish, Norwegian Bokmål, Dutch, Hebrew Japanese, Slovak, English New Zealand, Icelandic, Portuguese Brazil, Croatian)|
+
 ## About Jeci
 
 This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS).
