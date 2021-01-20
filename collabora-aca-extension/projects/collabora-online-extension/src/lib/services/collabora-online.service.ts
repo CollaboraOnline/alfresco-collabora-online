@@ -49,8 +49,18 @@ export class CollaboraOnlineService {
     }
   }
 
+  onView(node: MinimalNodeEntryEntity) {
+    if (node.isFile) {
+      this.triggerViewWithCollaboraOnline(node);
+    }
+  }
+
   private triggerEditCollaboraOnline(node: MinimalNodeEntryEntity) {
-    this.router.navigate(["/collabora-online-edit", node.id]);
+    this.router.navigate(["/collabora-online", 'edit', node.id]);
+  }
+
+  private triggerViewWithCollaboraOnline(node: MinimalNodeEntryEntity) {
+    this.router.navigate(["/collabora-online", 'view', node.id]);
   }
 
   public getLoolUrl() {
@@ -68,10 +78,10 @@ export class CollaboraOnlineService {
     );
   }
 
-  public getAccessToken(nodeId: string) {
+  public getAccessToken(nodeId: string, action: string) {
     return new Promise(
       (resolve, reject) => {
-        this.apiService.getInstance().webScript.executeWebScript('GET', 'lool/token?nodeRef=workspace://SpacesStore/' + nodeId + '&action=edit').then(
+        this.apiService.getInstance().webScript.executeWebScript('GET', 'lool/token?nodeRef=workspace://SpacesStore/' + nodeId + '&action=' + action).then(
           (response) => {
             resolve(response);
           },

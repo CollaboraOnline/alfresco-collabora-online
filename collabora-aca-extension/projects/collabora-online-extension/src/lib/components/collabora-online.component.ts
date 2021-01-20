@@ -15,44 +15,41 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, EventEmitter, ViewEncapsulation } from '@angular/core';
-import { CollaboraOnlineService } from './collabora-online.service'
+import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { MinimalNodeEntryEntity } from '@alfresco/js-api';
+import { CollaboraOnlineService } from '../services/collabora-online.service';
 
 @Component({
-  selector: 'collabora-online-edit',
-  templateUrl: './collabora-online-edit.component.html',
-  styleUrls: ['./collabora-online-edit.component.scss'],
+  selector: 'collabora-online',
+  templateUrl: './collabora-online.component.html',
+  styleUrls: ['./collabora-online.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
+export class CollaboraOnlineComponent implements OnInit, OnDestroy {
 
   @ViewChild('form') postForm: ElementRef;
   @ViewChild('access_token') inputToken: ElementRef;
   @ViewChild('access_token_ttl') inputTokenTTL: ElementRef;
+  @ViewChild('loleafletFrame') loleafletFrame: ElementRef;
 
+  action: string;
   nodeId: string;
   node: MinimalNodeEntryEntity;
   fileName: string;
   mimeType: string;
+  previousUrl: string;
   accessToken: string;
   accessTokenTTL: string;
   iFrameUrl: string;
-  errorMessage: string;
-  previousUrl: string;
   listenerHandlePostMessage: any;
-  allowPrint = true;
-
-  //Emitted when user clicks the 'Print' button.
-  print = new EventEmitter();
 
   constructor(private collaboraOnlineService: CollaboraOnlineService,
               private route: ActivatedRoute,
               private contentApi: ContentApiService,
               private router: Router) {
-
+    this.action = this.route.snapshot.params['action'];
     this.nodeId = this.route.snapshot.params['nodeId'];
   }
 
@@ -74,11 +71,17 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
     const wopiFileUrl = wopiHostUrl + 'wopi/files/' + this.nodeId;
 
     // Get token pour l'édition du document
-    const responseToken: any = await this.collaboraOnlineService.getAccessToken(this.nodeId);
-    const wopiSrcUrl = responseToken.wopi_src_url;
+    var responseToken: any = await this.collaboraOnlineService.getAccessToken(this.nodeId, this.action);
     this.accessToken = responseToken.access_token;
     this.accessTokenTTL = responseToken.access_token_ttl;
+    if (!responseToken.wopi_src_url || responseToken.wopi_src_url == "") {
+      responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'edit');
+    }
+    const wopiSrcUrl = responseToken.wopi_src_url;
     this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl);
+    if (this.action === 'view') {
+      this.iFrameUrl += '&permission=readonly';
+    }
 
     // Remplissage du formulaire dynamique
     this.postForm.nativeElement.action = this.iFrameUrl
@@ -101,21 +104,26 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
 
   private handlePostMessage(event: any): void {
     var message = JSON.parse(event.data);
-    var messageId = message.MessageId;
-    var messageData = message.Values;
+    var id = message.MessageId;
+    var values = message.Values;
 
-    if ( messageId === "close" ) {
-      // ignore  - deprecated
-    } else if ( messageId === "UI_Close" ) {
-      console.log("PostMessage Recev: UI_CLose - move to");
-      // Go back to previous page
-      this.router.navigateByUrl(this.previousUrl);
-    } else if ( messageId === "App_LoadingStatus" ) {
-      console.log("PostMessage Recev: App_LoadingStatus - Status:" + messageData.Status);
-    } else if ( messageId === "View_Added" ) {
-      console.log("PostMessage Recev: View_Added - Values:" + JSON.stringify(messageData));
-    } else {
-      console.log("PostMessage Recev: " + event.data);
+    switch (id) {
+      case 'UI_Close':
+        console.log("PostMessage Recev: UI_CLose - move to");
+        // Go back to previous page
+        this.router.navigateByUrl(this.previousUrl);
+        break;
+      case 'App_LoadingStatus':
+        if (values.Status === 'Frame_Ready') {
+          // Add readonly
+        }
+        console.log("PostMessage Recev: App_LoadingStatus - Status:" + values.Status);
+        break;
+      case 'View_Added':
+        console.log("PostMessage Recev: View_Added - Values:" + JSON.stringify(values));
+        break;
+      default:
+        console.log("MessageID : " + id + " - Values : " + values);
     }
   }
 
@@ -141,5 +149,4 @@ export class CollaboraOnlineEditComponent implements OnInit, OnDestroy {
       }
     }
   }
-
 }

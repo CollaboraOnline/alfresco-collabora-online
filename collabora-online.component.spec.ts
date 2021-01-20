@@ -15,25 +15,28 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Injectable } from '@angular/core';
-import { Actions, Effect, ofType } from '@ngrx/effects';
-import { map } from 'rxjs/operators';
+import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CollaboraOnlineEdit, COLLABORA_EDIT } from '../actions/collabora-online.actions';
-import { CollaboraOnlineService } from '../services/collabora-online.service';
+import { CollaboraOnlineComponent } from './collabora-online.component';
 
-@Injectable()
-export class CollaboraEffects {
-  constructor( private actions$: Actions, private collaboraOnlineService: CollaboraOnlineService) {}
+describe('CollaboraComponent', () => {
+  let component: CollaboraOnlineComponent;
+  let fixture: ComponentFixture<CollaboraOnlineComponent>;
 
-  @Effect({ dispatch: false })
-  collaboraOnlineEdit$ = this.actions$.pipe(
-    ofType<CollaboraOnlineEdit>(COLLABORA_EDIT),
-    map(action => {
-      if (action.payload) {
-        this.collaboraOnlineService.onEdit(action.payload);
-      }
+  beforeEach(async(() => {
+    TestBed.configureTestingModule({
+      declarations: [ CollaboraOnlineComponent ]
     })
-  );
+    .compileComponents();
+  }));
 
-}
+  beforeEach(() => {
+    fixture = TestBed.createComponent(CollaboraOnlineComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

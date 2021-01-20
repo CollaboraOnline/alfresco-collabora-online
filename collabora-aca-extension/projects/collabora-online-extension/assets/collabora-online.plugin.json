@@ -37,7 +37,7 @@
               "click": "collabora.plugin.actions.edit"
             },
             "rules": {
-              "visible": "collabora.canOpenWithCollaboraOnline"
+              "visible": "collabora.canEditWithCollaboraOnline"
             }
           }
         ]
@@ -58,7 +58,7 @@
                 "click": "collabora.plugin.actions.edit"
               },
               "rules": {
-                "visible": "collabora.canOpenWithCollaboraOnline"
+                "visible": "collabora.canEditWithCollaboraOnline"
               }
             }
           ]
@@ -76,7 +76,7 @@
           "click": "collabora.plugin.actions.edit"
         },
         "rules": {
-          "visible": "collabora.canOpenWithCollaboraOnline"
+          "visible": "collabora.canEditWithCollaboraOnline"
         }
       }
     ]

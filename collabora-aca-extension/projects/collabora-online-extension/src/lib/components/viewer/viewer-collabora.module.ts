@@ -15,28 +15,19 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
-import { CollaboraOnlineEditComponent } from './collabora-online-edit.component';
+import { ViewerCollaboraOnlineComponent } from './viewer-collabora-online.component';
 
-describe('CollaboraComponent', () => {
-  let component: CollaboraOnlineEditComponent;
-  let fixture: ComponentFixture<CollaboraOnlineEditComponent>;
+@NgModule({
+  declarations: [ViewerCollaboraOnlineComponent],
+  entryComponents: [ViewerCollaboraOnlineComponent],
+  exports: [ViewerCollaboraOnlineComponent],
+  imports: [
+    CommonModule
+  ],
+  providers: []
+})
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ CollaboraOnlineEditComponent ]
-    })
-    .compileComponents();
-  }));
-
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CollaboraOnlineEditComponent);
-    component = fixture.componentInstance;
-    fixture.detectChanges();
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-});
+export class ViewerCollaboraModule {}

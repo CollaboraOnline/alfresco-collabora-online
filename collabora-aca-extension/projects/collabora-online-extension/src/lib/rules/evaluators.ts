@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 import { RuleContext } from "@alfresco/adf-extensions";
-import { getMode } from "./utils";
+import { getModeByMimetype } from "./utils";
 
 export function canUseCollaboraExtension(context: RuleContext): boolean {
   if (
@@ -42,13 +42,30 @@ export function canUseCollaboraExtension(context: RuleContext): boolean {
   return true;
 }
 
-export function canOpenWithCollaboraOnline(context: RuleContext): boolean {
+export function canEditWithCollaboraOnline(context: RuleContext): boolean {
   if (canUseCollaboraExtension(context)) {
-    const { file } = context.selection
-    if (!file.entry.content.mimeType || !getMode(file.entry.content.mimeType)) {
+    const { file } = context.selection;
+
+    // check if file locked
+    if (!file.entry.properties) {
       return false;
-    } else if (getMode(file.entry.content.mimeType) == "edit") {
-      return true;
+    }
+    if (file.entry.isLocked) {
+      return false;
+    }
+    if (file.entry.properties['cm:lockType'] === 'WRITE_LOCK'
+        || file.entry.properties['cm:lockType'] === 'READ_ONLY_LOCK') {
+      return false;
+    }
+    const lockOwner = file.entry.properties['cm:lockOwner'];
+    if (lockOwner && lockOwner.id !== context.profile.id) {
+      return false;
+    }
+
+    if (!file.entry.content.mimeType || !getModeByMimetype(file.entry.content.mimeType)) {
+      return false;
+    } else if (getModeByMimetype(file.entry.content.mimeType) == "edit") {
+      return context.permissions.check(file, ['update']);
     } else return false;
   }
   return false;

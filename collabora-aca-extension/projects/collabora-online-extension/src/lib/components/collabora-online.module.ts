@@ -22,23 +22,23 @@ import { TranslateModule } from "@ngx-translate/core";
 
 import { ExtensionService } from '@alfresco/adf-extensions';
 
-import { CollaboraOnlineService } from './collabora-online.service';
-import { CollaboraOnlineEditComponent } from './collabora-online-edit.component';
-import { canOpenWithCollaboraOnline } from './evaluators';
-import { CollaboraEffects } from './effects/collabora-online.effects';
+import { CollaboraOnlineService } from '../services/collabora-online.service';
+import { CollaboraOnlineComponent } from './collabora-online.component';
+import { canEditWithCollaboraOnline } from '../rules/evaluators';
+import { CollaboraEffects } from '../effects/collabora-online.effects';
 import { RouterModule, Routes } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { TRANSLATION_PROVIDER, ToolbarModule, PipeModule, TranslationService, ViewerModule, IconModule } from '@alfresco/adf-core';
 
 export const COLLABORA_ROUTES: Routes = [
-  { path: "collabora-online-edit/:nodeId", component: CollaboraOnlineEditComponent }
+  { path: "collabora-online/:action/:nodeId", component: CollaboraOnlineComponent }
 ];
 
 @NgModule({
-  declarations: [CollaboraOnlineEditComponent],
-  entryComponents: [CollaboraOnlineEditComponent],
-  exports: [CollaboraOnlineEditComponent],
+  declarations: [CollaboraOnlineComponent],
+  entryComponents: [CollaboraOnlineComponent],
+  exports: [CollaboraOnlineComponent],
   imports: [
     EffectsModule.forFeature([CollaboraEffects]),
     RouterModule.forRoot(COLLABORA_ROUTES),
@@ -67,10 +67,10 @@ export const COLLABORA_ROUTES: Routes = [
 export class CollaboraOnlineModule {
   constructor(extensions: ExtensionService, translation: TranslationService) {
     extensions.setComponents({
-      'collabora-online-edit.main.component': CollaboraOnlineEditComponent
+      'collabora-online.main.component': CollaboraOnlineComponent
     });
     extensions.setEvaluators({
-      'collabora.canOpenWithCollaboraOnline': canOpenWithCollaboraOnline
+      'collabora.canEditWithCollaboraOnline': canEditWithCollaboraOnline
     });
     translation.addTranslationFolder(
       'assets/collabora-online-extension'
