@@ -73,6 +73,49 @@ import { CollaboraOnlineModule } from '@jeci/collabora-online-extension';
 ...
 ```
 
+#### Viewer Collabora-Online
+
+Since **version 0.3.0**, it is possible to replace the standard viewer by collabora online in mode read-only for supported format.
+
+For that you must add the module `ViewerCollaboraModule` in `viewer.module.ts` file in the folder `src/app/components/viewer`
+
+```
+...
+import { ViewerCollaboraModule } from '@jeci/collabora-online-extension';
+...
+@NgModule({
+  imports: [
+  ...
+      ViewerCollaboraModule
+  ],
+...
+```
+
+Add the component `viewer-collabora-online` in `viewer.component.html` file in in the folder `src/app/components/viewer`
+
+```
+<!-- Viewer collabora -->
+<adf-viewer-extension [supportedExtensions]="supportedExtensions" #extension>
+  <ng-template let-urlFileContent="urlFileContent">
+    <viewer-collabora-online urlFileContent="urlFileContent" [nodeId]="nodeId"></viewer-collabora-online>
+  </ng-template>
+</adf-viewer-extension>
+```
+Define the extensions supported by Collabora Online in `viewer.component.ts` file in the folder `src/app/components/viewer`
+
+```
+...
+import * as utilsCollabora from '@jeci/collabora-online-extension';
+...
+supportedExtensions: string[] = [];
+...
+ngOnInit() {
+  ...
+  this.supportedExtensions = utilsCollabora.getExtensions();
+}
+...
+```
+
 ## Test
 
 You can start the application for local test with docker-compose.
@@ -95,6 +138,7 @@ You can access the applications :
 | 0.2.0   | Delete Close button in iFrame Collabora Online    |
 |         | Add action fullscreen                             |
 | 0.2.1   | Add translations for Share and Alfresco Content Application interface (Hungarian, Turkish, Polish, Ukrainian, Spanish, Norwegian Bokmål, Dutch, Hebrew Japanese, Slovak, English New Zealand, Icelandic, Portuguese Brazil, Croatian)|
+| 0.3.0   | Add a viewer with Collabora Online                |
 
 ## About Jeci
 
