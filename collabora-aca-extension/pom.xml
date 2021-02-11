@@ -8,11 +8,11 @@
   <parent>
     <groupId>fr.jeci.alfresco</groupId>
     <artifactId>alfresco-collabora-online</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.3.0</version>
   </parent>
 
   <properties>
-    <extension.version>0.3.0-SNAPSHOT</extension.version>
+    <extension.version>0.3.0</extension.version>
   </properties>
 
   <dependencies>

@@ -1,6 +1,6 @@
 {
   "$schema": "../../../extension.schema.json",
-  "$version": "0.3.0-SNAPSHOT",
+  "$version": "0.3.0",
   "$id": "collabora-online",
   "$name": "collabora-online.plugin",
   "$description": "Collabora Online plugin",

@@ -16,7 +16,7 @@ RUN npm install ajv
 
 COPY extensions/* /usr/src/
 RUN npm install
-RUN npm run ng add /usr/src/collabora-aca-extension-0.3.0-SNAPSHOT-dist.tgz
+RUN npm run ng add /usr/src/collabora-aca-extension-0.3.0-dist.tgz
 
 RUN sed -i '/references/ s/^.*$/"$references": ["aos.plugin.json", "app.header.json", "collabora-online.plugin.json"],/' ${SRC_ACA}/src/assets/app.extensions.json && \
     sed -i '/"build"/ s/ -- --prod//' ${SRC_ACA}/package.json && \
