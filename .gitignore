@@ -16,6 +16,7 @@ buildNumber.properties
 /dist
 /tmp
 /out-tsc
+/docker-compose/
 
 # Nodejs
 node/

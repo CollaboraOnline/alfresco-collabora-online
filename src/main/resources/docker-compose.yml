@@ -5,7 +5,7 @@ services:
     image: collabora-platform-extension:development
     build:
       dockerfile: ./Dockerfile
-      context: ../../../collabora-platform-extension-docker/target
+      context: ../../collabora-platform-extension-docker/target
     volumes:
       - content_services_volume:/usr/local/tomcat/alf_data
     depends_on:
@@ -17,7 +17,7 @@ services:
     image: collabora-share-extension:development
     build:
       dockerfile: ./Dockerfile
-      context: ../../../collabora-share-extension-docker/target
+      context: ../../collabora-share-extension-docker/target
     environment:
       REPO_HOST: ${acs.host}
       REPO_PORT: 8080
@@ -31,7 +31,7 @@ services:
     image: collabora-aca-extension:development
     build:
       dockerfile: ./Dockerfile
-      context: ../../../collabora-aca-extension-docker/target
+      context: ../../collabora-aca-extension-docker/target
     environment:
       BASE_PATH: ./
       PORT: 8080
