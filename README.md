@@ -121,11 +121,21 @@ ngOnInit() {
 You can start the application for local test with docker-compose.
 
 ```
-mvn install
-docker-compose -f docker-compose/docker-compose.yml up -d
+mvn resources:resources
+pip install docker-compose
+docker-compose -f ./target/classes/docker-compose.yml up --build -d
 ```
 
-You can access the applications :
+or using podman-compose
+
+```
+pip install podman-compose
+podman-compose -f ./target/classes/docker-compose.yml build
+```
+
+
+Then you can access applications :
+
 * [ACS](http://localhost:8080/alfresco) : http://localhost:8080/alfresco
 * [Share](http://localhost:8080/share) : http://localhost:8080/share
 * [ACA](http://localhost:8080/) : http://localhost:8080/
