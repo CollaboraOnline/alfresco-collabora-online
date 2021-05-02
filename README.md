@@ -122,7 +122,7 @@ You can start the application for local test with docker-compose.
 
 ```
 mvn install
-docker-compose -f target/classes/docker-compose/docker-compose.yml up -d
+docker-compose -f docker-compose/docker-compose.yml up -d
 ```
 
 You can access the applications :

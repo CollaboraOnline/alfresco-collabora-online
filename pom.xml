@@ -233,10 +233,10 @@
               <goal>copy-resources</goal>
             </goals>
             <configuration>
-              <outputDirectory>${project.build.outputDirectory}/docker-compose</outputDirectory>
+              <outputDirectory>docker-compose</outputDirectory>
               <resources>
                 <resource>
-                  <directory>docker-compose</directory>
+                  <directory>src/main/resources</directory>
                   <filtering>true</filtering>
                 </resource>
               </resources>
