@@ -8,11 +8,9 @@ This project contains 3 sub-projects :
 * collabora-share-extension : extension for Share interface
 * collabora-aca-extension : extension for Angular interface, Alfresco Content Application
 
-The extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online and if the user has the write permission. The document will be opened in an iFrame.
+If the user has the write permission, the extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online.
 
-Many users can open the same document at the same time.
-
-The version `0.1-SNAPSHOT` is still in beta. It should not be used in production.
+The document will be opened in an iFrame. Many users can open the same document at the same time.
 
 ## Compilation
 
