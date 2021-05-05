@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>LibreOffice Online Get File Info</shortname>
-    <description>Get WOPI info for the given fileId</description>
-    <url>/wopi/files/{fileId}/contents</url>
-    <family>LibreOffice Online</family>
-    <authentication>none</authentication>
-    <format default=""></format>
-    <transaction>required</transaction>
-</webscript>
