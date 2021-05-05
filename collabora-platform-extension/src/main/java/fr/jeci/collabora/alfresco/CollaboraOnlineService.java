@@ -7,8 +7,6 @@ import java.util.Map;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.springframework.extensions.webscripts.WebScriptException;
 
-import dk.magenta.libreoffice.online.service.WOPIAccessTokenInfo;
-
 public interface CollaboraOnlineService {
 	static final String HIDE_PRINT_OPTION = "HidePrintOption";
 	static final String HIDE_SAVE_OPTION = "HideSaveOption";
@@ -18,6 +16,9 @@ public interface CollaboraOnlineService {
 	static final String DISABLE_COPY = "DisableCopy";
 	static final String POST_MESSAGE_ORIGIN = "PostMessageOrigin";
 	static final String ENABLE_OWNER_TERMINATION = "EnableOwnerTermination";
+
+	static final String LOOL_AUTOSAVE = "collabora:autosave";
+	static final String AUTOSAVE_DESCRIPTION = "Edit with Collabora";
 
 	/**
 	 * Generate and store an access token only valid for the current user/file id
