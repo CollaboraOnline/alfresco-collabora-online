@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Wopi CheckFileInfo</shortname>
+    <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html</description>
+    <url>/wopi/files/{fileId}</url>
+    <family>WOPI</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

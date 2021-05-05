@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Wopi GetFile</shortname>
+    <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetFile.html</description>
+    <url>/wopi/files/{fileId}/contents</url>
+    <family>WOPI</family>
+    <authentication>none</authentication>
+    <format default=""></format>
+    <transaction>required</transaction>
+</webscript>

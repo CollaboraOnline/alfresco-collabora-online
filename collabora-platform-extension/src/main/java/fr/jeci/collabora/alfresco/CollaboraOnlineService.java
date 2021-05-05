@@ -1,6 +1,7 @@
 package fr.jeci.collabora.alfresco;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -16,6 +17,7 @@ public interface CollaboraOnlineService {
 	static final String DISABLE_PRINT = "DisablePrint";
 	static final String DISABLE_COPY = "DisableCopy";
 	static final String POST_MESSAGE_ORIGIN = "PostMessageOrigin";
+	static final String ENABLE_OWNER_TERMINATION = "EnableOwnerTermination";
 
 	/**
 	 * Generate and store an access token only valid for the current user/file id
@@ -50,4 +52,17 @@ public interface CollaboraOnlineService {
 	 */
 	String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException;
 
+	/**
+	 * Return a map with default value for WOPI CheckFileInfo
+	 * 
+	 * @return
+	 */
+	Map<String, String> serverInfo();
+
+	/**
+	 * URL use by Collabora Online to comunicate with Alfresco
+	 * 
+	 * @return
+	 */
+	URL getAlfrescoPrivateURL();
 }
