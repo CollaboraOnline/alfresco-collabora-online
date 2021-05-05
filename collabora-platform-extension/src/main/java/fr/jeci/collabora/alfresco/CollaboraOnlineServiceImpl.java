@@ -22,8 +22,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
-import dk.magenta.libreoffice.online.service.WOPIAccessTokenInfo;
-
 public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private static final String FALSE = "false";

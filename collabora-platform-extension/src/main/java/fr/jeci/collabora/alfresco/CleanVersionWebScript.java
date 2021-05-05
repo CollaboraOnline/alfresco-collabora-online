@@ -15,7 +15,6 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import dk.magenta.libreoffice.online.LOOLPutFileWebScript;
 
 /**
  * Remove automatic and explicit versions.
@@ -34,6 +33,7 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 
     private VersionService versionService;
 
+    @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
         final Map<String, Object> model = new HashMap<>();
 
@@ -70,7 +70,7 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
             int countAuto = 0;
             int countExp = 0;
             for (Version version : history.getAllVersions()) {
-                Serializable collaboraautosave = version.getVersionProperties().get(LOOLPutFileWebScript.LOOL_AUTOSAVE);
+                Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
                 if (collaboraautosave == null) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("v." + version.getVersionLabel() + " - not lool - keep");
