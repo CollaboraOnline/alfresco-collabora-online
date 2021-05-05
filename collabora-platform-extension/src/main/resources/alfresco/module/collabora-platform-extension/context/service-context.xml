@@ -38,8 +38,8 @@
       <property name="collaboraPublicUrl" value="${collabora.public.url}"/>
       <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>
       
-      <property name="alfrescoPrivateURL" value="${alfresco.public.url}"/>
-      <property name="alfrescoPublicURL" value="${alfresco.private.url}"/>
+      <property name="alfrescoPublicURL" value="${alfresco.public.url}"/>
+      <property name="alfrescoPrivateURL" value="${alfresco.private.url}"/>
       
       <property name="tokenTtlMs" value="${lool.wopi.token.ttl}"/>
       <property name="nodeService" ref="NodeService"/>
