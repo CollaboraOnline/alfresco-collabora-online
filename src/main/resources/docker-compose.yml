@@ -53,7 +53,7 @@ services:
 
 
   ${db.host}:
-    image: postgres:9.6
+    image: ${docker.postgres.image}:${docker.postgres.version}
     environment:
       POSTGRES_DB: alfresco
       POSTGRES_USER: alfresco
@@ -65,7 +65,7 @@ services:
       - backend
 
   ${solr.host}:
-    image: docker.io/alfresco/alfresco-search-services:1.2.0
+    image: ${docker.solr.image}:${docker.solr.version}
     environment:
       SOLR_ALFRESCO_HOST: ${acs.host}
       SOLR_ALFRESCO_PORT: 8080
@@ -73,15 +73,26 @@ services:
       SOLR_SOLR_PORT: 8983
       SOLR_CREATE_ALFRESCO_DEFAULTS: alfresco,archive
     volumes:
-      - search_services_volume:/opt/alfresco-search-services/contentstore
-      - search_services_volume:/opt/alfresco-search-services/data
+      - solr_contentstore_volume:/opt/alfresco-search-services/contentstore
+      - solr_data_volume:/opt/alfresco-search-services/data
+    networks:
+      - backend
+
+  ${code.host}:
+    image: ${docker.code.image}:${docker.code.version}
+    privileged: true
+    environment:
+      extra_params: '--o:ssl.enable=false --o:server_name=${public.host}:9980'
+    ports:
+    - "9980:9980"
     networks:
       - backend
 
 volumes:
   content_services_volume:
   collabora_online_db_volume:
-  search_services_volume:
+  solr_contentstore_volume:
+  solr_data_volume:
 
 networks:
   backend:

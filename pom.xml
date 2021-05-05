@@ -17,25 +17,45 @@
     <!-- Properties used in dependency declarations, you don't need to change these -->
     <alfresco.groupId>org.alfresco</alfresco.groupId>
     <alfresco.bomDependencyArtifactId>acs-community-packaging</alfresco.bomDependencyArtifactId>
-    <alfresco.platform.version>6.1.2-ga</alfresco.platform.version>
-    <alfresco.share.version>6.1.0</alfresco.share.version>
-    <!-- Docker images -->
+
+    <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
+    <jrebel.version>1.1.8</jrebel.version>
+    <!-- Environment configuration properties -->
+
+    <public.port>8080</public.port>
+    <public.host>localhost</public.host>
+
+    <!-- Alfresco Platform Config -->
+    <acs.host>alfresco-acs</acs.host>
     <docker.acs.image>docker.io/alfresco/alfresco-content-repository-community</docker.acs.image>
+    <alfresco.platform.version>6.1.2-ga</alfresco.platform.version>
+
+    <!-- Share Config -->
+    <share.host>alfresco-share</share.host>
     <docker.share.image>docker.io/alfresco/alfresco-share</docker.share.image>
+    <alfresco.share.version>6.1.0</alfresco.share.version>
+
+    <!-- Angular / Content App Config -->
+    <appcontent.host>alfresco-app</appcontent.host>
     <docker.node.image>docker.io/library/node</docker.node.image>
     <docker.node.version>10.22</docker.node.version>
     <docker.nginx.image>docker.io/library/nginx</docker.nginx.image>
     <docker.nginx.version>stable-alpine</docker.nginx.version>
-    <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
-    <jrebel.version>1.1.8</jrebel.version>
-    <!-- Environment configuration properties -->
-    <acs.host>alfresco-acs</acs.host>
-    <share.host>alfresco-share</share.host>
-    <appcontent.host>alfresco-app</appcontent.host>
-    <public.port>8080</public.port>
-    <public.host>localhost</public.host>
+
+    <!-- Postgres Config -->
+    <docker.postgres.image>docker.io/postgres</docker.postgres.image>
+    <docker.postgres.version>9.6</docker.postgres.version>
     <db.host>alfresco-db</db.host>
+
+    <!-- Solr Config -->
     <solr.host>alfresco-solr</solr.host>
+    <docker.solr.image>docker.io/alfresco/alfresco-search-services</docker.solr.image>
+    <docker.solr.version>1.2.0</docker.solr.version>
+
+    <!-- Collabora Online Config -->
+    <code.host>collabora-online</code.host>
+    <docker.code.image>docker.io/collabora/code</docker.code.image>
+    <docker.code.version>6.4.8.3</docker.code.version>
 
     <aca.version>1.10.0</aca.version>
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
