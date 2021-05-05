@@ -15,7 +15,6 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-
 /**
  * Remove automatic and explicit versions.
  * 
@@ -23,98 +22,106 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
  *
  */
 public class CleanVersionWebScript extends DeclarativeWebScript {
-    private static final Log logger = LogFactory.getLog(CleanVersionWebScript.class);
+	private static final Log logger = LogFactory.getLog(CleanVersionWebScript.class);
 
-    private static final String PARAM_STORE_TYPE = "store_type";
-    private static final String PARAM_STORE_ID = "store_id";
-    private static final String PARAM_ID = "id";
-    private static final String PARAM_KEEP_EXP = "keep_exp";
-    private static final String PARAM_KEEP_AUTO = "keep_auto";
+	private static final String PARAM_STORE_TYPE = "store_type";
+	private static final String PARAM_STORE_ID = "store_id";
+	private static final String PARAM_ID = "id";
+	private static final String PARAM_KEEP_EXP = "keep_exp";
+	private static final String PARAM_KEEP_AUTO = "keep_auto";
 
-    private VersionService versionService;
+	private VersionService versionService;
 
-    @Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
-        final Map<String, Object> model = new HashMap<>();
+	@Override
+	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+		final Map<String, Object> model = new HashMap<>();
 
-        try {
-            final Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-            final String storeType = WebscriptHelper.getParam(templateArgs, PARAM_STORE_TYPE);
-            final String storeId = WebscriptHelper.getParam(templateArgs, PARAM_STORE_ID);
-            final String guid = WebscriptHelper.getParam(templateArgs, PARAM_ID);
-            final NodeRef nodeRef = new NodeRef(storeType, storeId, guid);
+		try {
+			final Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+			final String storeType = WebscriptHelper.getParam(templateArgs, PARAM_STORE_TYPE);
+			final String storeId = WebscriptHelper.getParam(templateArgs, PARAM_STORE_ID);
+			final String guid = WebscriptHelper.getParam(templateArgs, PARAM_ID);
+			final NodeRef nodeRef = new NodeRef(storeType, storeId, guid);
 
-            if (logger.isDebugEnabled()) {
-                logger.error("Cleaning Noderef " + nodeRef);
-            }
+			if (logger.isDebugEnabled()) {
+				logger.error("Cleaning Noderef " + nodeRef);
+			}
 
-            // Number automatique version to keep
-            Integer keepAuto = WebscriptHelper.intergerValue(req, PARAM_KEEP_AUTO);
-            keepAuto = keepAuto == null ? -1 : keepAuto;
+			// Number automatique version to keep
+			Integer keepAuto = WebscriptHelper.intergerValue(req, PARAM_KEEP_AUTO);
+			keepAuto = keepAuto == null ? -1 : keepAuto;
 
-            if (logger.isDebugEnabled()) {
-                logger.error("Keep " + keepAuto + " auto-save versions");
-            }
+			if (logger.isDebugEnabled()) {
+				logger.error("Keep " + keepAuto + " auto-save versions");
+			}
 
-            // Number explicit version to keep
-            Integer keepExp = WebscriptHelper.intergerValue(req, PARAM_KEEP_EXP);
-            keepExp = keepExp == null ? -1 : keepExp;
+			// Number explicit version to keep
+			Integer keepExp = WebscriptHelper.intergerValue(req, PARAM_KEEP_EXP);
+			keepExp = keepExp == null ? -1 : keepExp;
 
-            if (logger.isDebugEnabled()) {
-                logger.error("Keep " + keepExp + " explicit versions");
-            }
+			if (logger.isDebugEnabled()) {
+				logger.error("Keep " + keepExp + " explicit versions");
+			}
 
-            // Removing version by using Alfresco Java API
-            final VersionHistory history = versionService.getVersionHistory(nodeRef);
+			cleanVersion(nodeRef, keepAuto, keepExp);
 
-            int countAuto = 0;
-            int countExp = 0;
-            for (Version version : history.getAllVersions()) {
-                Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
-                if (collaboraautosave == null) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("v." + version.getVersionLabel() + " - not lool - keep");
-                    }
+			model.put("success", "true");
+		} catch (Exception e) {
+			logger.error("CleanVersionWebScript Error ", e);
+			model.put("success", "false");
+		}
+		return model;
 
-                    // Not Lool Version, ignoring
-                    continue;
-                }
+	}
 
-                Boolean autosave = (Boolean) collaboraautosave;
-                if (autosave && keepAuto >= 0) {
-                    // Removing old auto-save version
-                    if (++countAuto > keepAuto) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("v." + version.getVersionLabel() + " - remove auto");
-                        }
+	/**
+	 * Removing version by using Alfresco Java API
+	 * 
+	 * @param nodeRef
+	 * @param keepAuto
+	 * @param keepExp
+	 */
+	private void cleanVersion(final NodeRef nodeRef, Integer keepAuto, Integer keepExp) {
+		final VersionHistory history = versionService.getVersionHistory(nodeRef);
 
-                        versionService.deleteVersion(nodeRef, version);
-                    }
-                }
+		int countAuto = 0;
+		int countExp = 0;
+		for (Version version : history.getAllVersions()) {
+			Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
+			if (collaboraautosave == null) {
+				if (logger.isDebugEnabled()) {
+					logger.debug("v." + version.getVersionLabel() + " - not lool - keep");
+				}
 
-                if (!autosave && keepExp >= 0) {
-                    // Removing old save version (only from collabora)
-                    if (++countExp > keepExp) {
-                        if (logger.isDebugEnabled()) {
-                            logger.debug("v." + version.getVersionLabel() + " - remove explicit");
-                        }
+				// Not Lool Version, ignoring
+				continue;
+			}
 
-                        versionService.deleteVersion(nodeRef, version);
-                    }
-                }
-            }
+			if (keepAuto >= 0) {
+				Boolean autosave = (Boolean) collaboraautosave;
+				// Removing old auto-save version
+				if (Boolean.TRUE.equals(autosave) && ++countAuto > keepAuto) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("v." + version.getVersionLabel() + " - remove auto");
+					}
 
-            model.put("success", "true");
-        } catch (Exception e) {
-            logger.error("CleanVersionWebScript Error ", e);
-            model.put("success", "false");
-        }
-        return model;
+					versionService.deleteVersion(nodeRef, version);
+				}
 
-    }
+				// Removing old save version (only from collabora)
+				if (Boolean.FALSE.equals(autosave) && ++countExp > keepExp) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("v." + version.getVersionLabel() + " - remove explicit");
+					}
 
-    public void setVersionService(VersionService versionService) {
-        this.versionService = versionService;
-    }
+					versionService.deleteVersion(nodeRef, version);
+				}
+			}
+		}
+	}
+
+	public void setVersionService(VersionService versionService) {
+		this.versionService = versionService;
+	}
 
 }

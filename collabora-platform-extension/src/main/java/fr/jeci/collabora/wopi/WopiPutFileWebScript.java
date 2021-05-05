@@ -118,7 +118,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 			Date newModified = (Date) properties.get(ContentModel.PROP_MODIFIED);
 			final String dte = iso8601formater.format(Instant.ofEpochMilli(newModified.getTime()));
-			
+
 			final Map<String, String> model = new HashMap<>(1);
 			model.put("LastModifiedTime", dte);
 			jsonResponse(res, 200, model);
@@ -156,7 +156,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 							Map<String, Serializable> versionProperties = new HashMap<>(2);
 							versionProperties.put(VersionModel.PROP_VERSION_TYPE, VersionType.MINOR);
 							if (isAutosave) {
-								versionProperties.put(VersionModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
+								versionProperties.put(VersionModel.PROP_DESCRIPTION,
+										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
 							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
 							versionService.createVersion(nodeRef, versionProperties);
@@ -196,7 +197,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		// Check X_LOOL_WOPI_TIMESTAMP header
-		final LocalDate localDate = ((Date) modified).toInstant().atZone(ZoneOffset.UTC).toLocalDate();
+		final LocalDate localDate = modified.toInstant().atZone(ZoneOffset.UTC).toLocalDate();
 		if (loolTimestamp.compareTo(localDate) != 0) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("PROP_MODIFIED : " + modified);
