@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Collabora Online Get Token</shortname>
+    <description>Get a token and the WOPI src URL for the given
+        nodeRef</description>
+    <url>/lool/token?nodeRef={nodeRef}&amp;action={action}</url>
+    <family>Collabora Online</family>
+    <authentication>user</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

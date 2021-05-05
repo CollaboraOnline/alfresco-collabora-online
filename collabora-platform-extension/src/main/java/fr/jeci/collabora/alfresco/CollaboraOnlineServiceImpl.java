@@ -153,6 +153,34 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		return tokenInfo;
 	}
 
+	private HashMap<String, String> serverInfo = null;
+
+	@Override
+	public Map<String, String> serverInfo() {
+		if (serverInfo == null) {
+			this.serverInfo = new HashMap<>(7);
+
+			// We need to enable this if we want to be able to insert image into the
+			// documents
+			this.serverInfo.put(DISABLE_COPY, FALSE);
+			this.serverInfo.put(DISABLE_PRINT, FALSE);
+			this.serverInfo.put(DISABLE_EXPORT, FALSE);
+			this.serverInfo.put(HIDE_EXPORT_OPTION, FALSE);
+			this.serverInfo.put(HIDE_SAVE_OPTION, FALSE);
+			this.serverInfo.put(HIDE_PRINT_OPTION, FALSE);
+			this.serverInfo.put(POST_MESSAGE_ORIGIN, this.alfrescoPublicURL.toString());
+			
+			// Host from which token generation request originated
+			// Search https://www.collaboraoffice.com/category/community-en/ for
+			// EnableOwnerTermination
+			this.serverInfo.put(ENABLE_OWNER_TERMINATION, FALSE);
+		}
+
+		Map<String, String> infos = new HashMap<>(this.serverInfo.size());
+		infos.putAll(this.serverInfo);
+		return infos;
+	}
+
 	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.
 	 *
@@ -203,6 +231,11 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	public void setAlfrescoPrivateURL(URL alfrescoPrivateURL) {
 		this.alfrescoPrivateURL = alfrescoPrivateURL;
+	}
+
+	@Override
+	public URL getAlfrescoPrivateURL() {
+		return alfrescoPrivateURL;
 	}
 
 	public void setAlfrescoPublicURL(URL alfrescoPublicURL) {
