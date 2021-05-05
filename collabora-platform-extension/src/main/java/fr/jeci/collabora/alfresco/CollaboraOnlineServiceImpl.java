@@ -34,7 +34,6 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private long tokenTtlMs = -1;
 
 	private URL collaboraPublicUrl;
-	private URL collaboraPrivateUrl;
 	private URL alfrescoPublicURL;
 	private URL alfrescoPrivateURL;
 
@@ -189,7 +188,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	@Override
 	public String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException {
 		final ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-		return wopiDiscovery.getSrcURL(contentData.getMimetype(), action);
+		return this.wopiDiscovery.getSrcURL(contentData.getMimetype(), action);
 	}
 
 	public void setNodeService(NodeService nodeService) {
@@ -209,18 +208,6 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 */
 	public void setCollaboraPublicUrl(URL collaboraPublicUrl) {
 		this.collaboraPublicUrl = collaboraPublicUrl;
-	}
-
-	/**
-	 * If Collabora Online is on the same host or network, define the internal url
-	 * of the server.
-	 * 
-	 * collabora.private.url=http://localhost:9980/
-	 * 
-	 * @param collaboraPrivateUrl
-	 */
-	public void setCollaboraPrivateUrl(URL collaboraPrivateUrl) {
-		this.collaboraPrivateUrl = collaboraPrivateUrl;
 	}
 
 	public void setTokenTtlMs(long tokenTtlMs) {

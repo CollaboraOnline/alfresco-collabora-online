@@ -36,7 +36,6 @@
         class="fr.jeci.collabora.alfresco.CollaboraOnlineServiceImpl" init-method="init">
       <property name="tokenMap" ref="lool-fileIdAccessTokenMapSharedCache"/>
       <property name="collaboraPublicUrl" value="${collabora.public.url}"/>
-      <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>
       
       <property name="alfrescoPublicURL" value="${alfresco.public.url}"/>
       <property name="alfrescoPrivateURL" value="${alfresco.private.url}"/>
