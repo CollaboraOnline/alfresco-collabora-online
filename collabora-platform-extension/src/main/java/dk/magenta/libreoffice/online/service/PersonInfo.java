@@ -9,6 +9,7 @@ import org.alfresco.service.cmr.security.PersonService;
  *
  * @author DarkStar1.
  */
+@Deprecated
 public class PersonInfo {
     private final NodeRef nodeRef;
     private final String userName;

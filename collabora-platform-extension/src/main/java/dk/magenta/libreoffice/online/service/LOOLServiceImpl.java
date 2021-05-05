@@ -35,6 +35,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+@Deprecated
 public class LOOLServiceImpl implements LOOLService {
     private static final Log logger = LogFactory.getLog(LOOLServiceImpl.class);
 

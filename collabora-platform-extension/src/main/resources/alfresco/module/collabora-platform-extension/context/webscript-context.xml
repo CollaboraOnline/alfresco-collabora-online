@@ -19,16 +19,16 @@
 		xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
 	<bean id="lool.webscript" abstract="true" class="dk.magenta.libreoffice.online.LOOLAbstractWebScript" parent="webscript">
-		<property name="loolService" ref="LOOLService"/>
+		<property name="collaboraOnlineService" ref="CollaboraOnlineService"/>
 		<property name="nodeService" ref="NodeService"/>
 	</bean>
 
 	<bean id="webscript.dk.magenta.wopi.token.get" class="dk.magenta.libreoffice.online.LOOLGetTokenWebScript" parent="webscript">
-		<property name="loolService" ref="LOOLService"/>
+		<property name="collaboraOnlineService" ref="CollaboraOnlineService"/>
 	</bean>
 
 	<bean id="webscript.dk.magenta.wopi.file-info.get" class="dk.magenta.libreoffice.online.LOOLCheckFileInfoWebScript" parent="webscript">
-		<property name="loolService" ref="LOOLService"/>
+		<property name="collaboraOnlineService" ref="CollaboraOnlineService"/>
 		<property name="nodeService" ref="NodeService"/>
 		<property name="versionService" ref="VersionService" />
 		<property name="permissionService" ref="PermissionService" />
@@ -45,7 +45,7 @@
 	</bean>
 
 	<bean id="webscript.dk.magenta.wopi.lool-host.get" class="dk.magenta.libreoffice.online.LOOLServiceUrlInfoWebScript" parent="webscript">
-		<property name="loolServiceUrl" value="${lool.wopi.alfresco.host}"/>
+		<property name="loolServiceUrl" value="${alfresco.private.url}service/"/>
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.aspect-collabora-online.clean-auto-version.post" class="fr.jeci.collabora.alfresco.CleanVersionWebScript" parent="webscript">
