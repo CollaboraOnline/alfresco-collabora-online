@@ -9,6 +9,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 /**
  * Created by seth on 30/04/16.
  */
+@Deprecated
 public interface LOOLService {
     /**
      * Generate and store an access token only valid for the current user/file id

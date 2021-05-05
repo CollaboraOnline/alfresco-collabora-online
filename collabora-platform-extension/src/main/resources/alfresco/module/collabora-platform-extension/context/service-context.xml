@@ -32,17 +32,25 @@
       <property name="cacheStatsEnabled" value="${lool.cache.fileIdAccessTokenMapSharedCache.tx.statsEnabled}"/>
   </bean>
 
-  <!-- A simple class that is initialized by Spring -->
-  <!--Note that the discovery url is added here for some flexibility-->
-  <bean id="LOOLService"
-        class="dk.magenta.libreoffice.online.service.LOOLServiceImpl" init-method="init">
+  <bean id="CollaboraOnlineService"
+        class="fr.jeci.collabora.alfresco.CollaboraOnlineServiceImpl" init-method="init">
       <property name="tokenMap" ref="lool-fileIdAccessTokenMapSharedCache"/>
-      <property name="wopiBaseURL" value="${lool.wopi.url}"/>
-      <property name="wopiDiscoveryURL" value="${lool.wopi.url.discovery}"/>
-      <property name="alfExternalHost" value="${lool.wopi.alfresco.host}"/>
+      <property name="collaboraPublicUrl" value="${collabora.public.url}"/>
+      <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>
+      
+      <property name="alfrescoPrivateURL" value="${alfresco.public.url}"/>
+      <property name="alfrescoPublicURL" value="${alfresco.private.url}"/>
+      
       <property name="tokenTtlMs" value="${lool.wopi.token.ttl}"/>
       <property name="nodeService" ref="NodeService"/>
       <property name="permissionService" ref="PermissionService"/>
-      <property name="sysAdminParams" ref="sysAdminParams"/>
+      
+      <property name="wopiDiscovery" ref="WopiDiscovery"/>
+  </bean>
+  
+  
+  <bean id="WopiDiscovery"
+        class="fr.jeci.collabora.alfresco.WopiDiscovery" init-method="init">
+      <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>
   </bean>
 </beans>
