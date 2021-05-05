@@ -116,7 +116,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 			// Force Versionning
 			if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_VERSIONABLE)) {
-				Map<QName, Serializable> initialVersionProps = new HashMap<QName, Serializable>(1, 1.0f);
+				Map<QName, Serializable> initialVersionProps = new HashMap<>(1, 1.0f);
 				versionService.ensureVersioningEnabled(nodeRef, initialVersionProps);
 			}
 		} finally {

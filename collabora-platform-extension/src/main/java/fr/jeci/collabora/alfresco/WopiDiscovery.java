@@ -5,6 +5,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -69,6 +70,9 @@ public class WopiDiscovery {
 		try {
 			connection = (HttpURLConnection) this.wopiDiscoveryURL.openConnection();
 			final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
+			// XML parsers should not be vulnerable to XXE attacks (java:S2755)
+			builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+			builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
 			this.discoveryDoc = builder.parse(connection.getInputStream());
 		} catch (IOException | SAXException | ParserConfigurationException e) {
