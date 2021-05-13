@@ -196,10 +196,11 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.
+	 * 
+	 * https://wopi.readthedocs.io/en/latest/discovery.html#wopi-actions
 	 *
 	 * @param nodeRef
-	 * @param action
-	 * @return
+	 * @param action "view", "edit", etc.
 	 */
 	@Override
 	public String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException {
