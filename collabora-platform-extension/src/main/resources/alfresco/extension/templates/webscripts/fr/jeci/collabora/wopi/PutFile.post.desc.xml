@@ -1,7 +1,7 @@
 <webscript>
     <shortname>Wopi PutFile</shortname>
     <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/PutFile.html</description>
-    <url>/wopi/files/{fileId}/contents</url>
+    <url>/wopi/files/{file_id}/contents</url>
     <family>WOPI</family>
     <authentication>none</authentication>
     <format default="json"></format>

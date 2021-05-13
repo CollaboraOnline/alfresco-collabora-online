@@ -20,7 +20,7 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String ACCESS_TOKEN = "access_token";
-	static final String FILE_ID = "fileId";
+	static final String FILE_ID = "file_id";
 
 	protected NodeService nodeService;
 	protected CollaboraOnlineService collaboraOnlineService;
@@ -82,7 +82,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 		final String accessToken = req.getParameter(ACCESS_TOKEN);
 
 		if (fileId == null) {
-			throw new WebScriptException("No 'fileId' parameter supplied");
+			throw new WebScriptException("No 'file_id' parameter supplied");
 		}
 
 		WOPIAccessTokenInfo wopiToken = this.collaboraOnlineService.checkAccessToken(accessToken, nodeRef);
