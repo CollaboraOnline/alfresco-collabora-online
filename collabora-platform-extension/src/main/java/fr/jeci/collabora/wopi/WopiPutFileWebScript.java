@@ -99,7 +99,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		if (!checkTimestamp(hdrTimestamp, modified)) {
 			final Map<String, String> model = new HashMap<>(1);
 			model.put("LOOLStatusCode", "1010");
-			jsonResponse(res, 409, model);
+			jsonResponse(res, STATUS_CONFLICT, model);
 		}
 
 		final InputStream inputStream = req.getContent().getInputStream();
@@ -121,7 +121,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 			final Map<String, String> model = new HashMap<>(1);
 			model.put("LastModifiedTime", dte);
-			jsonResponse(res, 200, model);
+			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ContentIOException we) {
 			final String msg = "Error writing to file";
