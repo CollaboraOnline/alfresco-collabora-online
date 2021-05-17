@@ -38,6 +38,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
 
+	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
 	protected CollaboraOnlineService collaboraOnlineService;
 
