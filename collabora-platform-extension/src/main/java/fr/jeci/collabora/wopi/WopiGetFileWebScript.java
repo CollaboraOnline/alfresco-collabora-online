@@ -34,35 +34,33 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public class WopiGetFileWebScript extends AbstractWopiWebScript {
-    private static final Log logger = LogFactory.getLog(WopiGetFileWebScript.class);
+	private static final Log logger = LogFactory.getLog(WopiGetFileWebScript.class);
 
+	@Override
+	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
+		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
-    @Override
-    public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-        final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-        final NodeRef nodeRef = getFileNodeRef(wopiToken);
+		if (logger.isDebugEnabled()) {
+			logger.debug("Get File for user '" + wopiToken.getUserName() + "' and nodeRef '" + nodeRef + "'");
+		}
 
-        if (logger.isDebugEnabled()) {
-            logger.debug("Get File for user '" + wopiToken.getUserName() + "' and nodeRef '" + nodeRef + "'");
-        }
+		AuthenticationUtil.pushAuthentication();
+		try {
+			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
+			final ContentData contentProp = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+			res.setContentType(contentProp.getMimetype());
+			res.setContentEncoding(contentProp.getEncoding());
 
-        AuthenticationUtil.pushAuthentication();
-        try {
-            AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-            final ContentData contentProp = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-            res.setContentType(contentProp.getMimetype());
-            res.setContentEncoding(contentProp.getEncoding());
+			final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
 
-            final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
-
-            try (InputStream inputStream = reader.getContentInputStream();
-                    OutputStream outputStream = res.getOutputStream();) {
-                IOUtils.copy(inputStream, outputStream);
-            }
-        } finally {
-            AuthenticationUtil.popAuthentication();
-        }
-    }
-
+			try (InputStream inputStream = reader.getContentInputStream();
+					OutputStream outputStream = res.getOutputStream();) {
+				IOUtils.copy(inputStream, outputStream);
+			}
+		} finally {
+			AuthenticationUtil.popAuthentication();
+		}
+	}
 
 }
