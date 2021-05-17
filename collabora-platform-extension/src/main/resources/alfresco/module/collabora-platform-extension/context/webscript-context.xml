@@ -74,5 +74,11 @@
 		parent="abstract-wopi-webscript">
 	</bean>
 
+	<bean id="webscript.fr.jeci.collabora.wopi.PutRelativeFile.post"
+		class="fr.jeci.collabora.wopi.WopiPutRelativeFileWebScript"
+		parent="abstract-wopi-webscript">
+		<property name="copyService" ref="CopyService" />
+	</bean>
+
 
 </beans>
