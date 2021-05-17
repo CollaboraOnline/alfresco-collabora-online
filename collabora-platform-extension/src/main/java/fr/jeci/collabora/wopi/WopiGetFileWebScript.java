@@ -24,7 +24,6 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -37,7 +36,6 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 public class WopiGetFileWebScript extends AbstractWopiWebScript {
     private static final Log logger = LogFactory.getLog(WopiGetFileWebScript.class);
 
-    private ContentService contentService;
 
     @Override
     public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
@@ -66,8 +64,5 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
         }
     }
 
-    public void setContentService(ContentService contentService) {
-        this.contentService = contentService;
-    }
 
 }

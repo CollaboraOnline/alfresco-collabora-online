@@ -16,7 +16,6 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
@@ -30,15 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.repository.ContentIOException;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.version.VersionService;
-import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -47,19 +39,10 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
-
-	static final String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
-	static final String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
-	static final String X_WOPI_OVERRIDE = "X-WOPI-Override";
-
-	private ContentService contentService;
-	private VersionService versionService;
-	private RetryingTransactionHelper retryingTransactionHelper;
 
 	private DateTimeFormatter iso8601formater = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
 
@@ -131,46 +114,6 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	}
 
 	/**
-	 * Write content file to disk on set version properties.
-	 * 
-	 * @param InputStream input stream data
-	 * @param isAutosave  id true, set PROP_DESCRIPTION, "Edit with Collabora"
-	 * @param wopiToken
-	 * @param nodeRef     node to update
-	 */
-	private void writeFileToDisk(final InputStream inputStream, final boolean isAutosave,
-			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
-
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			retryingTransactionHelper
-					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
-						@Override
-						public Void execute() throws Throwable {
-							ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
-
-							// both streams are closed by putContent
-							writer.putContent(new BufferedInputStream(inputStream));
-
-							Map<String, Serializable> versionProperties = new HashMap<>(2);
-							versionProperties.put(VersionModel.PROP_VERSION_TYPE, VersionType.MINOR);
-							if (isAutosave) {
-								versionProperties.put(VersionModel.PROP_DESCRIPTION,
-										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
-							}
-							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-							versionService.createVersion(nodeRef, versionProperties);
-							return null;
-						}
-					});
-
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-	}
-
-	/**
 	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_MODIFIED
 	 * 
 	 * @param req
@@ -210,15 +153,4 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		return true;
 	}
 
-	public void setContentService(ContentService contentService) {
-		this.contentService = contentService;
-	}
-
-	public void setVersionService(VersionService versionService) {
-		this.versionService = versionService;
-	}
-
-	public void setRetryingTransactionHelper(RetryingTransactionHelper retryingTransactionHelper) {
-		this.retryingTransactionHelper = retryingTransactionHelper;
-	}
 }

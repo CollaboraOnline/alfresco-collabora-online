@@ -51,6 +51,10 @@
 		<property name="collaboraOnlineService"
 			ref="CollaboraOnlineService" />
 		<property name="nodeService" ref="NodeService" />
+		<property name="contentService" ref="ContentService" />
+		<property name="retryingTransactionHelper"
+			ref="retryingTransactionHelper" />
+		<property name="versionService" ref="VersionService" />
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.CheckFileInfo.get"
@@ -63,16 +67,11 @@
 	<bean id="webscript.fr.jeci.collabora.wopi.GetFile.get"
 		class="fr.jeci.collabora.wopi.WopiGetFileWebScript"
 		parent="abstract-wopi-webscript">
-		<property name="contentService" ref="ContentService" />
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.PutFile.post"
 		class="fr.jeci.collabora.wopi.WopiPutFileWebScript"
 		parent="abstract-wopi-webscript">
-		<property name="contentService" ref="ContentService" />
-		<property name="retryingTransactionHelper"
-			ref="retryingTransactionHelper" />
-		<property name="versionService" ref="VersionService" />
 	</bean>
 
 
