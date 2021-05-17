@@ -22,6 +22,7 @@ import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -37,6 +38,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
+
+import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
 
 public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
@@ -204,12 +207,42 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 * https://wopi.readthedocs.io/en/latest/discovery.html#wopi-actions
 	 *
 	 * @param nodeRef
-	 * @param action "view", "edit", etc.
+	 * @param action  "view", "edit", etc.
 	 */
 	@Override
 	public String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException {
-		final ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-		return this.wopiDiscovery.getSrcURL(contentData.getMimetype(), action);
+		final String filename = (String) this.nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+		if (filename == null) {
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "This node as no name: " + nodeRef);
+		}
+
+		int lastDot = filename.lastIndexOf('.');
+		if (lastDot < 0) {
+			logger.warn("This node has no extension: " + nodeRef + " fileName=" + filename + " use mimeType (legacy)");
+			final ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+			return this.wopiDiscovery.getSrcURL(contentData.getMimetype(), action);
+		}
+		List<DiscoveryAction> actions = this.wopiDiscovery.getAction(filename.substring(lastDot + 1));
+
+		if (actions == null || actions.isEmpty()) {
+			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED,
+					"No action for node=" + nodeRef + " fileName=" + filename);
+		}
+
+		DiscoveryAction found = null;
+		for (DiscoveryAction act : actions) {
+			if (act.getName().equals(action)) {
+				found = act;
+				break;
+			}
+		}
+
+		if (found == null) {
+			logger.warn("Action name not found for action=" + action + " fileName=" + filename);
+			found = actions.get(0);
+		}
+
+		return found.getUrlsrc();
 	}
 
 	public void setNodeService(NodeService nodeService) {

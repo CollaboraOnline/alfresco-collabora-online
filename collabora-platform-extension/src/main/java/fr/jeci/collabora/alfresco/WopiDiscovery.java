@@ -17,84 +17,211 @@ limitations under the License.
 package fr.jeci.collabora.alfresco;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 /**
  * Load and parse the WopiDiscovery.xml file from Collabora Online
+ * 
  */
 public class WopiDiscovery {
+	private static final Log logger = LogFactory.getLog(WopiDiscovery.class);
+
 	private static final String DEFAULT_HOSTING_DISCOVERY = "/hosting/discovery";
 
 	private Document discoveryDoc;
-	private URL wopiDiscoveryURL;
 	private URL collaboraPrivateUrl;
+
+	private List<DiscoveryApp> applications = Collections.emptyList();
+	private Map<String, List<DiscoveryAction>> actions = Collections.emptyMap();
+	private Map<String, DiscoveryAction> legacyActions = Collections.emptyMap();
 
 	public void init() {
 		try {
-			this.wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
-		} catch (MalformedURLException e) {
+			URL wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
+			URLConnection openConnection = wopiDiscoveryURL.openConnection();
+			loadDiscoveryXML(openConnection.getInputStream());
+		} catch (IOException | XMLStreamException e) {
 			throw new AlfrescoRuntimeException(
-					"Bas Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY, e);
+					"Can't load Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY, e);
 		}
 	}
 
 	/**
 	 * Return the srcurl for a given mimetype and action..
-	 *
+	 * 
+	 * @deprecated
+	 * 
 	 * @param mimeType
 	 * @param action
 	 * @return
 	 */
 	public String getSrcURL(String mimeType, String action) {
-		loadDiscoveryXML();
+		DiscoveryAction discoveryAction = this.legacyActions.get(String.format("%s/%s", mimeType, action));
+		return discoveryAction.urlsrc;
+	}
 
-		final XPathFactory xPathFactory = XPathFactory.newInstance();
-		final XPath xPath = xPathFactory.newXPath();
-		final String xPathExpr = ("/wopi-discovery/net-zone/app[@name='${mimeType}']/action[@name='${action}']/@urlsrc")
-				.replace("${mimeType}", mimeType).replace("${action}", action);
-		try {
-			return xPath.evaluate(xPathExpr, this.discoveryDoc);
-		} catch (XPathExpressionException e) {
-			throw new AlfrescoRuntimeException(
-					"wopi-discovery, XPath Error for mimeType=" + mimeType + " and action=" + action, e);
-		}
+	public Map<String, List<DiscoveryAction>> getActions() {
+		return this.actions;
+	}
+
+	public List<DiscoveryAction> getAction(String extension) {
+		return this.actions.get(extension);
 	}
 
 	/**
 	 * Load discovery.xml from Collabora Online server
+	 * 
+	 * @throws XMLStreamException
+	 * @throws IOException
 	 */
-	private void loadDiscoveryXML() {
+	protected void loadDiscoveryXML(InputStream in) throws XMLStreamException, IOException {
 		if (this.discoveryDoc != null) {
 			return;
 		}
 
-		HttpURLConnection connection;
-		try {
-			connection = (HttpURLConnection) this.wopiDiscoveryURL.openConnection();
-			final DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-			// XML parsers should not be vulnerable to XXE attacks (java:S2755)
-			builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-			builderFactory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-			final DocumentBuilder builder = builderFactory.newDocumentBuilder();
-			this.discoveryDoc = builder.parse(connection.getInputStream());
-		} catch (IOException | SAXException | ParserConfigurationException e) {
-			throw new AlfrescoRuntimeException("Can't load  discovery.xml : " + this.wopiDiscoveryURL.toString(), e);
+		XMLInputFactory factory = XMLInputFactory.newInstance();
+		factory.setProperty(XMLInputFactory.IS_COALESCING, true);
+
+		XMLStreamReader xr = factory.createXMLStreamReader(in);
+
+		List<DiscoveryApp> mApplications = new ArrayList<>(7);
+		Map<String, List<DiscoveryAction>> mActions = new HashMap<>();
+		Map<String, DiscoveryAction> mLegacyActions = new HashMap<>();
+
+		DiscoveryApp app = null;
+		DiscoveryAction action = null;
+		while (xr.hasNext()) {
+			int next = xr.next();
+			if (next == XMLStreamConstants.START_ELEMENT) {
+
+				switch (xr.getLocalName()) {
+				case "app":
+					app = new DiscoveryApp();
+					app.name = xr.getAttributeValue(null, "name");
+					app.favIconUrl = xr.getAttributeValue(null, "favIconUrl");
+
+					if (!app.name.contains("/")) {
+						mApplications.add(app);
+					}
+					break;
+
+				case "action":
+					action = new DiscoveryAction();
+					action.ext = xr.getAttributeValue(null, "ext");
+					action.name = xr.getAttributeValue(null, "name");
+					action.urlsrc = xr.getAttributeValue(null, "urlsrc");
+
+					if (app == null) {
+						logger.warn("Bad xml format, app is null for action: " + action);
+						break;
+					}
+
+					if (app.name.contains("/")) {
+						// legacy format
+						mLegacyActions.put(String.format("%s/%s", app.name, action.name), action);
+					} else {
+						app.actions.add(action);
+
+						List<DiscoveryAction> extActions = mActions.get(action.ext);
+						if (extActions == null) {
+							extActions = new ArrayList<>(1);
+							mActions.put(action.ext, extActions);
+						}
+						extActions.add(action);
+					}
+					break;
+
+				default:
+					if (logger.isDebugEnabled()) {
+						logger.debug("Not Used:" + xr.getLocalName());
+					}
+					break;
+				}
+
+			}
 		}
 
+		this.applications = mApplications;
+		this.actions = mActions;
+		this.legacyActions = mLegacyActions;
+	}
+
+	public List<DiscoveryApp> getApplications() {
+		return applications;
+	}
+
+	class DiscoveryApp {
+		private String name;
+		private String favIconUrl;
+		private List<DiscoveryAction> actions = new ArrayList<>();
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder("\n{");
+			sb.append("\nname: \"").append(name).append("\", ");
+			sb.append("\nfavIconUrl: \"").append(favIconUrl).append("\", ");
+			sb.append("\nactions: [");
+			for (DiscoveryAction action : actions) {
+				sb.append(action).append(',');
+			}
+			sb.append(']');
+			return sb.toString();
+		}
+	}
+
+	class DiscoveryAction {
+		private String ext;
+		private String name;
+		private String urlsrc;
+
+		DiscoveryAction() {
+			// empty constructor
+		}
+
+		DiscoveryAction(String ext, String name, String urlsrc) {
+			this.ext = ext;
+			this.name = name;
+			this.urlsrc = urlsrc;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder("{");
+			sb.append("\n\tname: \"").append(name).append("\", ");
+			sb.append("\n\text: \"").append(ext).append("\", ");
+			sb.append("\n\turlsrc: \"").append(urlsrc).append("\"\n\t}");
+
+			return sb.toString();
+		}
+
+		public String getExt() {
+			return ext;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getUrlsrc() {
+			return urlsrc;
+		}
 	}
 
 	public void setCollaboraPrivateUrl(URL collaboraPrivateUrl) {
