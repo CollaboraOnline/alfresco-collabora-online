@@ -152,6 +152,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 */
 	@Override
 	public WOPIAccessTokenInfo checkAccessToken(final String accessToken, final NodeRef nodeRef) {
+		if (accessToken == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "AccessToken is null");
+		}
+		
 		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
 
 		if (tokenInfo == null) {
