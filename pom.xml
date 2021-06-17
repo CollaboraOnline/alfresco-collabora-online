@@ -405,7 +405,22 @@
         <updatePolicy>daily</updatePolicy>
       </snapshots>
     </repository>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.beezim.fr/api/v4/projects/342/packages/maven</url>
+    </repository>
   </repositories>
+
+  <distributionManagement>
+    <repository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.beezim.fr/api/v4/projects/342/packages/maven</url>
+    </repository>
+    <snapshotRepository>
+      <id>gitlab-maven</id>
+      <url>https://gitlab.beezim.fr/api/v4/projects/342/packages/maven</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <pluginRepositories>
     <pluginRepository>
