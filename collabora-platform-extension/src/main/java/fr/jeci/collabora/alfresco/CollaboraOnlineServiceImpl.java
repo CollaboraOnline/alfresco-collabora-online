@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.SecureRandom;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.LocalDateTime;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
@@ -48,10 +48,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private static final Log logger = LogFactory.getLog(CollaboraOnlineServiceImpl.class);
 
-	private static final long ONE_HOUR_MS = 1000 * 60 * 60;
+	private static final int ONE_HOUR_MS = 1000 * 60 * 60;
 
-	private static final long DEFAULT_TOKEN_TTL_MS = ONE_HOUR_MS * 24;
-	private long tokenTtlMs = -1;
+	private static final int DEFAULT_TOKEN_TTL_MS = ONE_HOUR_MS * 24;
+	private int tokenTtlMs = -1;
 
 	private URL collaboraPublicUrl;
 	private URL alfrescoPublicURL;
@@ -112,7 +112,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 		final String userName = AuthenticationUtil.getRunAsUser();
 		final String fileId = nodeRef.getId();
-		final Date now = new Date();
+		LocalDateTime now = LocalDateTime.now();
 		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now), fileId,
 				userName);
 		this.tokenMap.put(tokenInfo.getAccessToken(), tokenInfo);
@@ -128,13 +128,13 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 * 
 	 * @return Now + tokenTtlMs
 	 */
-	private Date newExpiresAt(final Date now) {
+	private LocalDateTime newExpiresAt(final LocalDateTime now) {
 		if (this.tokenTtlMs < 1) {
 			this.tokenTtlMs = DEFAULT_TOKEN_TTL_MS;
 		} else if (this.tokenTtlMs < ONE_HOUR_MS) {
 			logger.warn("Token TTL is short : " + this.tokenTtlMs + " ms");
 		}
-		return new Date(now.getTime() + tokenTtlMs);
+		return now.plusMillis(this.tokenTtlMs);
 	}
 
 	/**
@@ -266,7 +266,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		this.collaboraPublicUrl = collaboraPublicUrl;
 	}
 
-	public void setTokenTtlMs(long tokenTtlMs) {
+	public void setTokenTtlMs(int tokenTtlMs) {
 		this.tokenTtlMs = tokenTtlMs;
 	}
 
