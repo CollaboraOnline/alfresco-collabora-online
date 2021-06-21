@@ -44,6 +44,7 @@ import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
 public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private static final String FALSE = "false";
+	private static final String TRUE = "true";
 
 	private static final Log logger = LogFactory.getLog(CollaboraOnlineServiceImpl.class);
 
@@ -158,7 +159,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		if (accessToken == null) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "AccessToken is null");
 		}
-		
+
 		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
 
 		if (tokenInfo == null) {
@@ -188,7 +189,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			this.serverInfo.put(HIDE_EXPORT_OPTION, FALSE);
 			this.serverInfo.put(HIDE_SAVE_OPTION, FALSE);
 			this.serverInfo.put(HIDE_PRINT_OPTION, FALSE);
-			this.serverInfo.put(USER_CAN_NOT_WRITE_RELATIVE, FALSE);
+			this.serverInfo.put(USER_CAN_NOT_WRITE_RELATIVE, TRUE);
 			this.serverInfo.put(POST_MESSAGE_ORIGIN, this.alfrescoPublicURL.toString());
 			
 			// Host from which token generation request originated
