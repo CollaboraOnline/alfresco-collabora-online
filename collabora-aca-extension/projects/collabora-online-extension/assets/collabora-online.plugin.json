@@ -1,13 +1,12 @@
 {
   "$schema": "../../../extension.schema.json",
-  "$version": "0.3.1-SNAPSHOT",
+  "$version": "0.3.1",
   "$id": "collabora-online",
   "$name": "collabora-online.plugin",
   "$description": "Collabora Online plugin",
   "$vendor": "Jeci",
   "$license": "LGPL-3.0",
   "$runtime": "1.10.0",
-
   "actions": [
     {
       "id": "collabora.plugin.actions.edit",
@@ -15,7 +14,6 @@
       "payload": "$(context.selection.first.entry)"
     }
   ],
-
   "features": {
     "icons": [
       {
@@ -65,7 +63,7 @@
         }
       ]
     },
-    "contextMenu" : [
+    "contextMenu": [
       {
         "id": "collabora.plugin.viewer.edit",
         "type": "button",
