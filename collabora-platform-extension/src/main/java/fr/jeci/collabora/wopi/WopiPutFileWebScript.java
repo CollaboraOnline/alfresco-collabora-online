@@ -39,7 +39,6 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
@@ -62,20 +61,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
-
-		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No noderef for WOPIAccessTokenInfo:" + wopiToken);
-		}
-
-		try {
-			lockMngt(req, res, nodeRef);
-		} catch (ConflictException e) {
-			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
-			res.setHeader(X_WOPI_LOCk_FAILURE_REASON, e.getLockFailureReason());
-			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
-		}
 
 		final Map<QName, Serializable> properties = runAsGetProperties(wopiToken, nodeRef);
 
@@ -116,49 +103,6 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
-	private void lockMngt(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
-			throws ConflictException {
-		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
-		if (wopiOverrideHeader == null) {
-			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
-		}
-
-		WopiOverride override;
-
-		try {
-			override = WopiOverride.valueOf(wopiOverrideHeader);
-		} catch (IllegalArgumentException e) {
-			throw new WebScriptException(X_WOPI_OVERRIDE + " unkown value " + wopiOverrideHeader);
-
-		}
-
-		final String lockId = req.getHeader(X_WOPI_LOCK);
-		String currentLockId = null;
-		switch (override) {
-		case PUT:
-			// Standard No Lock
-			break;
-		case LOCK:
-			currentLockId = this.collaboraOnlineService.lock(nodeRef, lockId);
-			break;
-		case GET_LOCK:
-			currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
-			break;
-		case REFRESH_LOCK:
-			this.collaboraOnlineService.lockRefresh(nodeRef, lockId);
-			break;
-		case UNLOCK:
-			currentLockId = this.collaboraOnlineService.lockUnlock(nodeRef, lockId);
-			break;
-		default:
-			break;
-		}
-
-		if (currentLockId != null) {
-			res.setHeader(X_WOPI_LOCK, currentLockId);
-		}
-
-	}
 
 	/**
 	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_MODIFIED
