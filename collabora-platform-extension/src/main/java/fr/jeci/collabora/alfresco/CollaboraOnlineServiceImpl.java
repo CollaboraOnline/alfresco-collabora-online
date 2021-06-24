@@ -247,6 +247,30 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		return found.getUrlsrc();
 	}
 
+	@Override
+	public String lock(NodeRef nodeRef, String lockId) throws ConflictException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String lockGet(NodeRef nodeRef) throws ConflictException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void lockRefresh(NodeRef nodeRef, String lockId) throws ConflictException {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public String lockUnlock(NodeRef nodeRef, String lockId) throws ConflictException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
 	}

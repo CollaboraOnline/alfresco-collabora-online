@@ -83,4 +83,38 @@ public interface CollaboraOnlineService {
 	 * @return
 	 */
 	URL getAlfrescoPrivateURL();
+
+	/**
+	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Lock.html
+	 * 
+	 * @param nodeRef
+	 * @param lockId  New lock_id, or current lock_id for a refresh
+	 * @ @return lockId on the node
+	 */
+	String lock(NodeRef nodeRef, String lockId) throws ConflictException;
+
+	/**
+	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetLock.html
+	 * 
+	 * @param nodeRef
+	 * @ @return lockId on the node
+	 */
+	String lockGet(NodeRef nodeRef) throws ConflictException;
+
+	/**
+	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/RefreshLock.html
+	 * 
+	 * @param nodeRef
+	 * @param lock
+	 */
+	void lockRefresh(NodeRef nodeRef, String lockId) throws ConflictException;
+
+	/**
+	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Unlock.html
+	 * 
+	 * @param nodeRef
+	 * @param lockId
+	 * @return
+	 */
+	String lockUnlock(NodeRef nodeRef, String lockId) throws ConflictException;
 }
