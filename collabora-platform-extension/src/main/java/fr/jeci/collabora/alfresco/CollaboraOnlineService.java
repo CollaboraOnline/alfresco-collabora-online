@@ -89,7 +89,7 @@ public interface CollaboraOnlineService {
 	 * 
 	 * @param nodeRef
 	 * @param lockId  New lock_id, or current lock_id for a refresh
-	 * @ @return lockId on the node
+	 * @return lockId on the node or null if lockId is blank
 	 */
 	String lock(NodeRef nodeRef, String lockId) throws ConflictException;
 
@@ -97,7 +97,7 @@ public interface CollaboraOnlineService {
 	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetLock.html
 	 * 
 	 * @param nodeRef
-	 * @ @return lockId on the node
+	 * @return lockId on the node
 	 */
 	String lockGet(NodeRef nodeRef) throws ConflictException;
 
