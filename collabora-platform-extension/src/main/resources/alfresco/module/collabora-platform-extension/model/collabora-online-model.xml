@@ -15,60 +15,64 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<model xmlns="http://www.alfresco.org/model/dictionary/1.0" name="collabora:CollaboraOnline">
-    <description>Collabora Online Model</description>
-    <author>Jérémie Lesage</author>
-    <version>1.0</version>
+<model xmlns="http://www.alfresco.org/model/dictionary/1.0"
+	name="collabora:CollaboraOnline">
+	<description>Collabora Online Model</description>
+	<author>Jérémie Lesage</author>
+	<version>1.0</version>
 
-    <imports>
-        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
-    </imports>
+	<imports>
+		<import uri="http://www.alfresco.org/model/dictionary/1.0"
+			prefix="d" />
+	</imports>
 
-    <namespaces>
-        <namespace uri="http://www.collaboraoffice.com/model/online/1.0" prefix="collabora" />
-    </namespaces>
+	<namespaces>
+		<namespace
+			uri="http://www.collaboraoffice.com/model/online/1.0"
+			prefix="collabora" />
+	</namespaces>
 
-    <data-types />
+	<data-types />
 
-    <constraints />
+	<constraints />
 
-    <types />
+	<types />
 
-    <aspects>
-        <aspect name="collabora:collaboraOnline">
-            <title>Collabora Online</title>
-            <description>Edit with Collabora Online</description>
-            <properties>
-                <property name="collabora:started_at">
-                    <title>Started at</title>
-                    <description>Editing started at</description>
-                    <type>d:datetime</type>
-                    <mandatory>false</mandatory>
-                    <index enabled="false">
-                        <tokenised>TRUE</tokenised>
-                    </index>
-                </property>
-                <property name="collabora:editors">
-                    <title>Editors</title>
-                    <description>List of current editors</description>
-                    <type>d:text</type>
-                    <mandatory>false</mandatory>
-                    <multiple>true</multiple>
-                    <index enabled="true">
-                        <tokenised>FALSE</tokenised>
-                        <facetable>true</facetable>
-                    </index>
-                </property>
-                <property name="collabora:autosave">
-                    <title>Auto Save</title>
-                    <description>Auto Save by Collabora Online</description>
-                    <type>d:boolean</type>
-                    <default>true</default>
-                </property>
-            </properties>
-            <associations />
-            <overrides />
-            <mandatory-aspects />
-        </aspect>
-    </aspects>
+	<aspects>
+		<aspect name="collabora:collaboraOnline">
+			<title>Collabora Online</title>
+			<description>Edit with Collabora Online</description>
+			<properties>
+				<property name="collabora:started_at">
+					<title>Started at</title>
+					<description>Editing started at</description>
+					<type>d:datetime</type>
+					<mandatory>false</mandatory>
+					<index enabled="false">
+						<tokenised>TRUE</tokenised>
+					</index>
+				</property>
+				<property name="collabora:editors">
+					<title>Editors</title>
+					<description>List of current editors</description>
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+					<multiple>true</multiple>
+					<index enabled="true">
+						<tokenised>FALSE</tokenised>
+						<facetable>true</facetable>
+					</index>
+				</property>
+				<property name="collabora:autosave">
+					<title>Auto Save</title>
+					<description>Auto Save by Collabora Online</description>
+					<type>d:boolean</type>
+					<default>true</default>
+				</property>
+			</properties>
+			<associations />
+			<overrides />
+			<mandatory-aspects />
+		</aspect>
+	</aspects>
 </model>
