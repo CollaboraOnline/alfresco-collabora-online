@@ -33,6 +33,7 @@ public interface CollaboraOnlineService {
 	static final String POST_MESSAGE_ORIGIN = "PostMessageOrigin";
 	static final String ENABLE_OWNER_TERMINATION = "EnableOwnerTermination";
 	static final String USER_CAN_NOT_WRITE_RELATIVE = "UserCanNotWriteRelative";
+	static final String SUPPORTS_LOCKS = "SupportsLocks";
 
 	static final String LOOL_AUTOSAVE = "collabora:autosave";
 	static final String AUTOSAVE_DESCRIPTION = "Edit with Collabora";
