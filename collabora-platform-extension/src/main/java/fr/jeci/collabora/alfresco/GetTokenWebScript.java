@@ -56,7 +56,7 @@ public class GetTokenWebScript extends DeclarativeWebScript {
 
 		final WOPIAccessTokenInfo tokenInfo = this.collaboraOnlineService.createAccessToken(nodeRef);
 		model.put(ACCESS_TOKEN, tokenInfo.getAccessToken());
-		model.put(ACCESS_TOKEN_TTL, tokenInfo.getExpiresAt().getTime());
+		model.put(ACCESS_TOKEN_TTL, tokenInfo.getExpiresAt().toDate().getTime());
 
 		try {
 			String wopiSrcUrl = this.collaboraOnlineService.getWopiSrcURL(nodeRef, action);
