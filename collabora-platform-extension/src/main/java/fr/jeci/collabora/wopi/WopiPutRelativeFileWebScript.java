@@ -41,6 +41,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
+import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 /**
@@ -65,12 +66,109 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
+		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
+		if (wopiOverrideHeader == null) {
+			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
+		}
 
-		checkHeaders(req);
+		final String wopiSize = req.getHeader(X_WOPI_SIZE);
+		if (StringUtils.isNotBlank(wopiSize)) {
+			logger.warn("Header " + X_WOPI_SIZE + " is not implements: " + wopiSize);
+		}
 
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 
-		NodeRef newNodeRef = createNodeWithValidName(req, wopiToken);
+		final NodeRef nodeRef = getFileNodeRef(wopiToken);
+
+		if (nodeRef == null) {
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
+					"No noderef for WOPIAccessTokenInfo:" + wopiToken);
+		}
+
+		try {
+			Map<String, String> model;
+			AuthenticationUtil.pushAuthentication();
+			try {
+				AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
+				model = wopiOverrideSwicth(req, res, nodeRef, wopiToken);
+			} finally {
+				AuthenticationUtil.popAuthentication();
+			}
+			jsonResponse(res, Status.STATUS_OK, model);
+
+		} catch (ConflictException e) {
+			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
+			res.setHeader(X_WOPI_LOCk_FAILURE_REASON, e.getLockFailureReason());
+			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
+		}
+
+	}
+
+	private final Map<String, String> wopiOverrideSwicth(final WebScriptRequest req, final WebScriptResponse res,
+			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException, IOException {
+		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
+		if (wopiOverrideHeader == null) {
+			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
+		}
+
+		WopiOverride override;
+
+		try {
+			override = WopiOverride.valueOf(wopiOverrideHeader);
+		} catch (IllegalArgumentException e) {
+			throw new WebScriptException(X_WOPI_OVERRIDE + " unkown value " + wopiOverrideHeader);
+		}
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("WopiOverride=" + override.name());
+		}
+
+		final String lockId = req.getHeader(X_WOPI_LOCK);
+
+		final Map<String, String> model = new HashMap<>(1);
+		String currentLockId = null;
+//		String itemVersion = null;
+		switch (override) {
+		case PUT:
+			logger.warn("PUT without LOCK for node " + nodeRef);
+			break;
+		case PUT_RELATIVE:
+			checkHeadersRelative(req);
+			NodeRef newNodeRef = createNodeWithValidName(req, wopiToken);
+			model.putAll(saveAs(req, wopiToken, newNodeRef));
+			break;
+		case LOCK:
+			currentLockId = this.collaboraOnlineService.lock(nodeRef, lockId);
+			break;
+		case GET_LOCK:
+			currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
+			break;
+		case REFRESH_LOCK:
+			this.collaboraOnlineService.lockRefresh(nodeRef, lockId);
+			break;
+		case UNLOCK:
+			currentLockId = this.collaboraOnlineService.lockUnlock(nodeRef, lockId);
+			break;
+		default:
+			break;
+		}
+
+		if (currentLockId != null) {
+			res.setHeader(X_WOPI_LOCK, currentLockId);
+		}
+
+//		if (itemVersion != null) {
+//			res.setHeader(X_WOPI_ITEM_VERSION, itemVersion);
+//		}
+
+		return model;
+
+	}
+
+	private Map<String, String> saveAs(WebScriptRequest req, final WOPIAccessTokenInfo wopiToken, NodeRef newNodeRef) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("saveAs newNodeRef=" + newNodeRef);
+		}
 
 		final InputStream inputStream = req.getContent().getInputStream();
 		if (inputStream == null) {
@@ -87,18 +185,17 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 				logger.debug("WopiPutRelativeFileWebScript newUrl = '" + newUrl + "'");
 			}
 
-			final Map<String, String> model = new HashMap<>(1);
+			final Map<String, String> model = new HashMap<>(2);
 			final Map<QName, Serializable> properties = runAsGetProperties(wopiToken, newNodeRef);
 			model.put("Name", (String) properties.get(ContentModel.PROP_NAME));
 			model.put("Url", newUrl);
-			jsonResponse(res, Status.STATUS_OK, model);
+			return model;
 
 		} catch (ContentIOException we) {
 			final String msg = "Error writing to file";
 			logger.error(msg, we);
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, msg);
 		}
-
 	}
 
 	private String generateUrl(final WOPIAccessTokenInfo wopiToken, NodeRef newNodeRef) {
@@ -222,6 +319,11 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	 */
 	private NodeRef createNode(boolean isRelative, boolean overwrite, final NodeRef sourceNodeRef,
 			String targetFileName) {
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("createNode " + sourceNodeRef + " >> " + targetFileName);
+		}
+
 		ChildAssociationRef assocRef = nodeService.getPrimaryParent(sourceNodeRef);
 		NodeRef targetParentRef = assocRef.getParentRef();
 
@@ -266,16 +368,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		return newNodeRef;
 	}
 
-	private void checkHeaders(WebScriptRequest req) {
-		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
-		if (wopiOverrideHeader == null || !wopiOverrideHeader.equals("PUT_RELATIVE")) {
-			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present and equal to 'PUT_RELATIVE'");
-		}
-
-		final String wopiSize = req.getHeader(X_WOPI_SIZE);
-		if (StringUtils.isNotBlank(wopiOverrideHeader)) {
-			logger.warn("Header " + X_WOPI_SIZE + " is not implements: " + wopiSize);
-		}
+	private void checkHeadersRelative(WebScriptRequest req) {
 
 		final String wopiFileConversion = req.getHeader(X_WOPI_FILE_CONVERSION);
 		if (StringUtils.isNotBlank(wopiFileConversion)) {
