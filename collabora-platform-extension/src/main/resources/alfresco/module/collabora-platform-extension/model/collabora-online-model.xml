@@ -45,7 +45,7 @@
 			<properties>
 				<property name="collabora:started_at">
 					<title>Started at</title>
-					<description>Editing started at</description>
+					<description>(deprecated) Editing started at</description>
 					<type>d:datetime</type>
 					<mandatory>false</mandatory>
 					<index enabled="false">
@@ -54,7 +54,7 @@
 				</property>
 				<property name="collabora:editors">
 					<title>Editors</title>
-					<description>List of current editors</description>
+					<description>(deprecated) List of current editors</description>
 					<type>d:text</type>
 					<mandatory>false</mandatory>
 					<multiple>true</multiple>
@@ -68,6 +68,26 @@
 					<description>Auto Save by Collabora Online</description>
 					<type>d:boolean</type>
 					<default>true</default>
+				</property>
+
+				<property name="collabora:lockId">
+					<title>WOPI Lock Id</title>
+					<description>Lock Id set by Collabora Online</description>
+					<type>d:text</type>
+					<mandatory>false</mandatory>
+					<index enabled="false">
+						<tokenised>TRUE</tokenised>
+					</index>
+				</property>
+				<property name="collabora:lockExpiration">
+					<title>WOPI Lock Expiration</title>
+					<description>Lock expiration datetime set by Collabora Online
+					</description>
+					<type>d:datetime</type>
+					<mandatory>false</mandatory>
+					<index enabled="true">
+						<tokenised>TRUE</tokenised>
+					</index>
 				</property>
 			</properties>
 			<associations />
