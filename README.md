@@ -27,6 +27,11 @@ To compile each project independently you can use the option `-pl`
 mvn install -pl collabora-aca-extension,collabora-platform-extension,collabora-share-extension
 ```
 
+Before version 6.x, compile with only `java8` profile :
+```
+mvn clean package -P '!java11',java8
+```
+
 ## Installation
 
 ### ACS Extension
