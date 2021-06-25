@@ -39,6 +39,14 @@ mvn clean package -P '!java11',java8
 Add `collabora-platform-extension-<version>`.jar in the folder `INSTALL_DIR/webapps/alfresco/WEB-INF/lib`.
 You must configure the following properties in `alfresco-global.properties` :
 
+from version `3.0.1` onwards :
+```
+collabora.public.url=https://<collabora_server_domain>:<port>/
+alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
+```
+
+Prio to version `0.3.1` :
+
 ```
 lool.wopi.url=https://<collabora_server_domain>:<port>/
 lool.wopi.alfresco.host=https://<alfresco_server_domain>:<port>/alfresco/s/
