@@ -33,6 +33,7 @@ import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.Utf7;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -254,7 +255,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 										ContentModel.PROP_NAME);
 								targetFileName = suggested(suggested, sourceFileName);
 							} else {
-								targetFileName = relative;
+								targetFileName = Utf7.decode(relative, Utf7.UTF7_MODIFIED);
 							}
 
 							if (logger.isDebugEnabled()) {
@@ -406,7 +407,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			String basename = sourceFileName.substring(0, lastDot);
 			targetFileName = String.format("%s.%s", basename, suggested);
 		} else {
-			targetFileName = suggested;
+			targetFileName = Utf7.decode(suggested, Utf7.UTF7_MODIFIED);
 		}
 		return targetFileName;
 	}
