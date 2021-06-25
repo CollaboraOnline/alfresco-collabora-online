@@ -27,13 +27,13 @@
 
     <!-- Alfresco Platform Config -->
     <acs.host>alfresco-acs</acs.host>
-    <docker.acs.image>docker.io/alfresco/alfresco-content-repository-community</docker.acs.image>
-    <alfresco.platform.version>6.1.2-ga</alfresco.platform.version>
+    <docker.acs.image>docker.io/jeci/alfresco-platform</docker.acs.image>
+    <alfresco.platform.version>5.2.g</alfresco.platform.version>
 
     <!-- Share Config -->
     <share.host>alfresco-share</share.host>
-    <docker.share.image>docker.io/alfresco/alfresco-share</docker.share.image>
-    <alfresco.share.version>6.1.0</alfresco.share.version>
+    <docker.share.image>docker.io/jeci/alfresco-share</docker.share.image>
+    <alfresco.share.version>5.2.f</alfresco.share.version>
 
     <!-- Angular / Content App Config -->
     <appcontent.host>alfresco-app</appcontent.host>
@@ -111,7 +111,7 @@
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>${alfresco.bomDependencyArtifactId}</artifactId>
-        <version>${alfresco.platform.version}</version>
+        <version>6.1.2-ga</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
