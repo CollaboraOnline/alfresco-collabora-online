@@ -374,7 +374,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 		// Refresh lock
 		LocalDateTime newExpireAt = LocalDateTime.now().plusMinutes(30);
-		nodeService.setProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_EXPIRATION, newExpireAt);
+		nodeService.setProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_EXPIRATION, newExpireAt.toDate());
 	}
 
 	private void doUnLock(NodeRef nodeRef, String lockId) throws ConflictException {
