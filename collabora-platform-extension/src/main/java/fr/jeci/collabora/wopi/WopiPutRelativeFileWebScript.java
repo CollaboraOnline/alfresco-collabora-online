@@ -102,7 +102,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 		} catch (ConflictException e) {
 			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
-			res.setHeader(X_WOPI_LOCk_FAILURE_REASON, e.getLockFailureReason());
+			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
 			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
 		}
 
