@@ -18,9 +18,6 @@ package fr.jeci.collabora.wopi;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,10 +28,12 @@ import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.LocalDateTime;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -84,26 +83,25 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		Map<String, String> model = this.collaboraOnlineService.serverInfo();
 		Map<QName, Serializable> properties = runAsGetProperties(wopiToken, nodeRef);
 
-		final Date lastModifiedDate = (Date) properties.get(ContentModel.PROP_MODIFIED);
-		// Convert lastModifiedTime to ISO 8601 according to:
-		// https://github.com/LibreOffice/online/blob/master/wsd/Storage.cpp#L460 or
-		// look in the
-		// std::unique_ptr<WopiStorage::WOPIFileInfo> WopiStorage::getWOPIFileInfo
-		final String dte = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC)
-				.format(Instant.ofEpochMilli(lastModifiedDate.getTime()));
+		final Version currentVersion = runAsGetCurrentVersion(wopiToken, nodeRef);
+		if (currentVersion != null) {
+			Date lastModifiedDate = currentVersion.getFrozenModifiedDate();
+			LocalDateTime modifiedDatetime = new LocalDateTime(lastModifiedDate);
+			// LocalDateTime#toString() output the date time in ISO8601 format
+			// (yyyy-MM-ddTHH:mm:ss.SSS).
+			model.put(LAST_MODIFIED_TIME, modifiedDatetime.toString());
+			model.put(VERSION, currentVersion.getVersionLabel());
+		}
 
 		// BaseFileName need extension, else COL load it in read-only mode
 		model.put(BASE_FILE_NAME, (String) properties.get(ContentModel.PROP_NAME));
 
-		model.put(LAST_MODIFIED_TIME, dte);
 		model.put(OWNER_ID, properties.get(ContentModel.PROP_CREATOR).toString());
 		final ContentData contentData = (ContentData) properties.get(ContentModel.PROP_CONTENT);
 		model.put(SIZE, Long.toString(contentData.getSize()));
 		model.put(USER_ID, wopiToken.getUserName());
 		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(wopiToken, nodeRef)));
 		model.put(USER_FRIENDLY_NAME, wopiToken.getUserName());
-		model.put(VERSION, (String) properties.get(ContentModel.PROP_VERSION_LABEL));
-
 
 		jsonResponse(res, 200, model);
 	}
