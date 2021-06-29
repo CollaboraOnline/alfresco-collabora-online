@@ -78,8 +78,11 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("WopiPutRelativeFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
+		}
 
 		if (nodeRef == null) {
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,

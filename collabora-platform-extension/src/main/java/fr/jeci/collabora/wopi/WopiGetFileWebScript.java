@@ -42,7 +42,7 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Get File for user '" + wopiToken.getUserName() + "' and nodeRef '" + nodeRef + "'");
+			logger.debug("WopiGetFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
 		}
 
 		AuthenticationUtil.pushAuthentication();

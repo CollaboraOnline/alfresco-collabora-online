@@ -75,7 +75,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Check File for user '" + wopiToken.getUserName() + "' and nodeRef '" + nodeRef + "'");
+			logger.debug("WopiCheckFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
 		}
 
 		ensureVersioningEnabled(wopiToken, nodeRef);
