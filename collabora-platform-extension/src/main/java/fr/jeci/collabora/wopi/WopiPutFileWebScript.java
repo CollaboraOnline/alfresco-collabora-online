@@ -29,6 +29,7 @@ import org.alfresco.service.cmr.version.Version;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.LocalDateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -93,9 +94,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 				Date newModified = newVersion.getFrozenModifiedDate();
 				LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
-				// LocalDateTime#toString() output the date time in ISO8601 format
-				// (yyyy-MM-ddTHH:mm:ss.SSS).
-				model.put(LAST_MODIFIED_TIME, modifiedDatetime.toString());
+				model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
 			}
 			jsonResponse(res, Status.STATUS_OK, model);
 
@@ -152,7 +151,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 		LocalDateTime loolTimestamp = null;
 		try {
-			loolTimestamp = LocalDateTime.parse(hdrTimestamp);
+			// 2011-02-24T16:16:37.300000Z
+			loolTimestamp = LocalDateTime.parse(hdrTimestamp, ISODateTimeFormat.dateTime());
 		} catch (DateTimeException e) {
 			logger.error("checkTimestamp Error : " + e.getMessage());
 		}
