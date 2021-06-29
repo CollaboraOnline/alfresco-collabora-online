@@ -141,10 +141,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	protected void jsonResponse(final WebScriptResponse res, int code, Map<String, String> response)
 			throws IOException {
 		boolean start = true;
-		StringBuilder sb = new StringBuilder();
+		StringBuilder sb = new StringBuilder("{");
 		for (Entry<String, String> e : response.entrySet()) {
 			if (start) {
-				sb.append('{');
 				start = false;
 			} else {
 				sb.append(", ");
