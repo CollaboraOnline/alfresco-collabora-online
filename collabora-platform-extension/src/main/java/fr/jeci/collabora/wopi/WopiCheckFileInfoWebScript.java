@@ -29,7 +29,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.Version;
-import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -51,7 +50,6 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private static final String BASE_FILE_NAME = "BaseFileName";
 
-	private VersionService versionService;
 	private PermissionService permissionService;
 
 	/**
@@ -131,10 +129,6 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		} finally {
 			AuthenticationUtil.popAuthentication();
 		}
-	}
-
-	public void setVersionService(VersionService versionService) {
-		this.versionService = versionService;
 	}
 
 	public void setPermissionService(PermissionService permissionService) {
