@@ -50,6 +50,13 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
+		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+		final NodeRef nodeRef = getFileNodeRef(wopiToken);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("WopiPutFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
+		}
+
 		/*
 		 * will have the value 'true' when the PutFile is triggered by autosave, and
 		 * 'false' when triggered by explicit user operation (Save button or menu
@@ -59,12 +66,9 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		final boolean isAutosave = hdrAutosave != null && Boolean.parseBoolean(hdrAutosave.trim());
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("Request " + (isAutosave ? "is" : "is not") + " AUTOSAVE");
+			logger.debug("- Request " + (isAutosave ? "is" : "is not") + " AUTOSAVE");
 		}
 
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 		checkWopiTimestamp(req, res, wopiToken, nodeRef);
 
 		final InputStream inputStream = req.getContent().getInputStream();
