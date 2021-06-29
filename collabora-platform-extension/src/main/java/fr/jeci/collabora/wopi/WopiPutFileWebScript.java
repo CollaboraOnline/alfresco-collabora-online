@@ -21,7 +21,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
@@ -34,6 +33,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.LocalDateTime;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -113,15 +113,22 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	 * @return false if error, and write response output with code 409
 	 * @throws IOException
 	 */
+	/**
+	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_FROZEN_MODIFIED
+	 * 
+	 * @param hdrTimestamp "X-LOOL-WOPI-Timestamp"
+	 * @param modified     PROP_FROZEN_MODIFIED
+	 * @return true if timestamps are equal
+	 */
 	private boolean checkTimestamp(final String hdrTimestamp, final Date modified) {
 
 		if (hdrTimestamp == null) {
 			// Ignore if no X-LOOL-WOPI-Timestamp
 			return true;
 		}
-		LocalDate loolTimestamp = null;
+		LocalDateTime loolTimestamp = null;
 		try {
-			loolTimestamp = LocalDate.from(iso8601formater.parse(hdrTimestamp));
+			loolTimestamp = LocalDateTime.parse(hdrTimestamp);
 		} catch (DateTimeException e) {
 			logger.error("checkTimestamp Error : " + e.getMessage());
 		}
@@ -131,10 +138,11 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		// Check X_LOOL_WOPI_TIMESTAMP header
-		final LocalDate localDate = modified.toInstant().atZone(ZoneOffset.UTC).toLocalDate();
+		final LocalDateTime localDate = new LocalDateTime(modified);
+
 		if (loolTimestamp.compareTo(localDate) != 0) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("PROP_MODIFIED : " + modified);
+				logger.debug("PROP_FROZEN_MODIFIED : " + modified);
 				logger.debug(X_LOOL_WOPI_TIMESTAMP + " : " + hdrTimestamp);
 			}
 			logger.error("checkTimestamp Error : " + X_LOOL_WOPI_TIMESTAMP + " is different than PROP_MODIFIED");
