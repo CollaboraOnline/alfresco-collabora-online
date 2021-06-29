@@ -18,7 +18,6 @@ package fr.jeci.collabora.wopi;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Serializable;
 import java.time.DateTimeException;
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -27,10 +26,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
+import org.alfresco.service.cmr.version.Version;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.LocalDateTime;
@@ -41,6 +39,15 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
+/**
+ * Put the binary content into Alfresco.
+ * 
+ * The X-LOOL-WOPI-Timestamp is compare with PROP_FROZEN_MODIFIED or
+ * PROP_CREATED_DATE from the current version of the target file.
+ * 
+ * @author jlesage
+ *
+ */
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
 
@@ -63,17 +70,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
-
-		final Map<QName, Serializable> properties = runAsGetProperties(wopiToken, nodeRef);
-
-		// Check if X-LOOL-WOPI-Timestamp
-		final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);
-		final Date modified = (Date) properties.get(ContentModel.PROP_MODIFIED);
-		if (!checkTimestamp(hdrTimestamp, modified)) {
-			final Map<String, String> model = new HashMap<>(1);
-			model.put("LOOLStatusCode", "1010");
-			jsonResponse(res, STATUS_CONFLICT, model);
-		}
+		checkWopiTimestamp(req, res, wopiToken, nodeRef);
 
 		final InputStream inputStream = req.getContent().getInputStream();
 		if (inputStream == null) {
@@ -82,18 +79,24 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		try {
-			writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
-
-			if (logger.isInfoEnabled()) {
-				logger.info("Modifier for the above nodeRef [" + nodeRef.toString() + "] is: "
-						+ properties.get(ContentModel.PROP_MODIFIER));
-			}
-
-			Date newModified = (Date) properties.get(ContentModel.PROP_MODIFIED);
-			final String dte = iso8601formater.format(Instant.ofEpochMilli(newModified.getTime()));
-
+			final Version newVersion = writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
 			final Map<String, String> model = new HashMap<>(1);
-			model.put("LastModifiedTime", dte);
+
+			if (newVersion == null) {
+				logger.warn("No version create for " + nodeRef);
+				model.put("warn", "No version create for " + nodeRef);
+			} else {
+
+				if (logger.isInfoEnabled()) {
+					logger.info("Modifier for the above nodeRef [" + nodeRef.toString() + "] is: "
+							+ newVersion.getFrozenModifier());
+				}
+
+				Date newModified = newVersion.getFrozenModifiedDate();
+				final String dte = iso8601formater.format(Instant.ofEpochMilli(newModified.getTime()));
+
+				model.put("LastModifiedTime", dte);
+			}
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ContentIOException we) {
@@ -103,16 +106,37 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
-
 	/**
-	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_MODIFIED
+	 * Check the creation/modification date for current version. No check is there
+	 * is no version, because the cm:modified is change for any change of a
+	 * properties.
 	 * 
 	 * @param req
 	 * @param res
+	 * @param wopiToken
 	 * @param nodeRef
-	 * @return false if error, and write response output with code 409
 	 * @throws IOException
 	 */
+	private void checkWopiTimestamp(final WebScriptRequest req, final WebScriptResponse res,
+			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) throws IOException {
+		final Version currentVersion = runAsGetCurrentVersion(wopiToken, nodeRef);
+		if (currentVersion != null) {
+			// Check if X-LOOL-WOPI-Timestamp
+			final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);
+			final Date modified = currentVersion.getFrozenModifiedDate();
+
+			if (logger.isDebugEnabled()) {
+				logger.debug(X_LOOL_WOPI_TIMESTAMP + "='" + hdrTimestamp + "'");
+			}
+
+			if (!checkTimestamp(hdrTimestamp, modified)) {
+				final Map<String, String> model = new HashMap<>(1);
+				model.put("LOOLStatusCode", "1010");
+				jsonResponse(res, STATUS_CONFLICT, model);
+			}
+		}
+	}
+
 	/**
 	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_FROZEN_MODIFIED
 	 * 
