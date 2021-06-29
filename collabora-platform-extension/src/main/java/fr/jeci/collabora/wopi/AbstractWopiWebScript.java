@@ -55,7 +55,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String X_WOPI_OVERRIDE = "X-WOPI-Override";
 	static final String X_WOPI_LOCK = "X-WOPI-Lock";
 	static final String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
-	static final String X_WOPI_LOCk_FAILURE_REASON = "X-WOPI-LockFailureReason";
+	static final String X_WOPI_LOCK_FAILURE_REASON = "X-WOPI-LockFailureReason";
 	static final String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
 
 	static final int STATUS_CONFLICT = 409;
