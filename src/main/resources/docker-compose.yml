@@ -60,7 +60,7 @@ services:
       POSTGRES_PASSWORD: alfresco
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
-      - collabora_online_db_volume:/var/lib/postgresql/data
+      - db_volume:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -90,7 +90,7 @@ services:
 
 volumes:
   content_services_volume:
-  collabora_online_db_volume:
+  db_volume:
   solr_contentstore_volume:
   solr_data_volume:
 
