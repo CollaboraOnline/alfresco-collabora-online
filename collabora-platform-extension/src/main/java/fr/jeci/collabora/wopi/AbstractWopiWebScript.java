@@ -182,17 +182,18 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	 * @param isAutosave  id true, set PROP_DESCRIPTION, "Edit with Collabora"
 	 * @param wopiToken
 	 * @param nodeRef     node to update
+	 * @return The new version create
 	 */
-	protected void writeFileToDisk(final InputStream inputStream, final boolean isAutosave,
+	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave,
 			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
 
 		AuthenticationUtil.pushAuthentication();
 		try {
 			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			retryingTransactionHelper
-					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
+			return retryingTransactionHelper
+					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Version>() {
 						@Override
-						public Void execute() throws Throwable {
+						public Version execute() throws Throwable {
 							ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
 
 							// both streams are closed by putContent
@@ -205,8 +206,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
 							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-							versionService.createVersion(nodeRef, versionProperties);
-							return null;
+							return versionService.createVersion(nodeRef, versionProperties);
 						}
 					});
 
