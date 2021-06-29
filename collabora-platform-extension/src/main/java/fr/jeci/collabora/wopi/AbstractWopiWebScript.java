@@ -33,6 +33,7 @@ import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.QName;
@@ -103,6 +104,17 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
 
 			return nodeService.getProperties(nodeRef);
+		} finally {
+			AuthenticationUtil.popAuthentication();
+		}
+	}
+
+	protected Version runAsGetCurrentVersion(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
+		AuthenticationUtil.pushAuthentication();
+		try {
+			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
+
+			return versionService.getCurrentVersion(nodeRef);
 		} finally {
 			AuthenticationUtil.popAuthentication();
 		}
