@@ -95,7 +95,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 				Date newModified = newVersion.getFrozenModifiedDate();
 				final String dte = iso8601formater.format(Instant.ofEpochMilli(newModified.getTime()));
 
-				model.put("LastModifiedTime", dte);
+				model.put(LAST_MODIFIED_TIME, dte);
 			}
 			jsonResponse(res, Status.STATUS_OK, model);
 

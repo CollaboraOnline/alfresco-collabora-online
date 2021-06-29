@@ -49,7 +49,6 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private static final String USER_ID = "UserId";
 	private static final String SIZE = "Size";
 	private static final String OWNER_ID = "OwnerId";
-	private static final String LAST_MODIFIED_TIME = "LastModifiedTime";
 
 	private static final String BASE_FILE_NAME = "BaseFileName";
 

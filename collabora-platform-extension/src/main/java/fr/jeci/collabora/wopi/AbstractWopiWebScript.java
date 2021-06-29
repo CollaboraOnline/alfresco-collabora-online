@@ -48,6 +48,7 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
+	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
 
 	static final String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
 	static final String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
@@ -56,7 +57,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
 	static final String X_WOPI_LOCk_FAILURE_REASON = "X-WOPI-LockFailureReason";
 	static final String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
-	
+
 	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
 	protected CollaboraOnlineService collaboraOnlineService;
