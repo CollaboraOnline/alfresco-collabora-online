@@ -109,7 +109,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	}
 
 	private final Map<String, String> wopiOverrideSwicth(final WebScriptRequest req, final WebScriptResponse res,
-			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException, IOException {
+			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
@@ -354,8 +354,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 					if (logger.isDebugEnabled()) {
 						logger.debug("NodeExistsException OVERWRITE !");
 					}
-//					TODO
-//					newNodeRef = e.getNodePair().getSecond();
+					// TODO newNodeRef = e.getNodePair().getSecond();
 				} else {
 					throw new WebScriptException(STATUS_CONFLICT,
 							"File with the specified name already exists: " + targetFileName);

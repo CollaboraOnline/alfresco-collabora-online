@@ -60,7 +60,6 @@
 	<bean id="webscript.fr.jeci.collabora.wopi.CheckFileInfo.get"
 		class="fr.jeci.collabora.wopi.WopiCheckFileInfoWebScript"
 		parent="abstract-wopi-webscript">
-		<property name="versionService" ref="VersionService" />
 		<property name="permissionService" ref="PermissionService" />
 	</bean>
 
