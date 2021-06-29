@@ -19,9 +19,6 @@ package fr.jeci.collabora.wopi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.DateTimeException;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,8 +47,6 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
  */
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
-
-	private DateTimeFormatter iso8601formater = DateTimeFormatter.ISO_DATE_TIME.withZone(ZoneOffset.UTC);
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
@@ -93,9 +88,10 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 				}
 
 				Date newModified = newVersion.getFrozenModifiedDate();
-				final String dte = iso8601formater.format(Instant.ofEpochMilli(newModified.getTime()));
-
-				model.put(LAST_MODIFIED_TIME, dte);
+				LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
+				// LocalDateTime#toString() output the date time in ISO8601 format
+				// (yyyy-MM-ddTHH:mm:ss.SSS).
+				model.put(LAST_MODIFIED_TIME, modifiedDatetime.toString());
 			}
 			jsonResponse(res, Status.STATUS_OK, model);
 
