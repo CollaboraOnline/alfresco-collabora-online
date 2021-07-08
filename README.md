@@ -161,7 +161,8 @@ Then you can access applications :
 | 0.2.1   | Add translations for Share and Alfresco Content Application interface (Hungarian, Turkish, Polish, Ukrainian, Spanish, Norwegian Bokmål, Dutch, Hebrew Japanese, Slovak, English New Zealand, Icelandic, Portuguese Brazil, Croatian)                            |
 | 0.3.0   | Add a viewer with Collabora Online                                                                                            |
 | 0.3.1   | Refactoring                                                                                                                   |
-|         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                 |
+|         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                  |
+| 0.4.0   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.        |
 
 ## About Jeci
 
