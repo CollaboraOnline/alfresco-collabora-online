@@ -17,6 +17,8 @@
  */
 export const modeByMimetype = new Map([
   ["image/svg+xml", "view"],
+  ["application/vnd.ms-powerpoint", "edit"],
+  ["application/vnd.ms-excel", "edit"],
   // Writer documents
   ["application/vnd.sun.xml.writer", "view"],
   ["application/vnd.oasis.opendocument.text", "edit"],
@@ -24,23 +26,20 @@ export const modeByMimetype = new Map([
   // Calc documents
   ["application/vnd.sun.xml.calc", "view"],
   ["application/vnd.oasis.opendocument.spreadsheet", "edit"],
-  ["application/vnd.oasis.opendocument.spreadsheet-flat-xml", "edit]"],
+  ["application/vnd.oasis.opendocument.spreadsheet-flat-xml", "edit"],
   // Impress documents
   ["application/vnd.sun.xml.impress", "view"],
   ["application/vnd.oasis.opendocument.presentation", "edit"],
   ["application/vnd.oasis.opendocument.presentation-flat-xml", "edit"],
   // Draw documents
-  ["application/vnd.sun.xml.draw", "view"],
-  ["application/vnd.oasis.opendocument.graphics", "view"],
-  ["application/vnd.oasis.opendocument.graphics-flat-xml", "view"],
+  ["application/vnd.sun.xml.draw", "edit"],
+  ["application/vnd.oasis.opendocument.graphics", "edit"],
+  ["application/vnd.oasis.opendocument.graphics-flat-xml", "edit"],
   // Chart documents
   ["application/vnd.oasis.opendocument.chart", "edit"],
   // Text master documents
   ["application/vnd.sun.xml.writer.global", "view"],
   ["application/vnd.oasis.opendocument.text-master", "edit"],
-  // Math documents
-  ["application/vnd.sun.xml.math", "view"],
-  ["application/vnd.oasis.opendocument.formula", "edit"],
   // Text template documents
   ["application/vnd.sun.xml.writer.template", "view"],
   ["application/vnd.oasis.opendocument.text-template", "edit"],
@@ -83,7 +82,7 @@ export const modeByMimetype = new Map([
   ["application/x-hwp", "view"],
   ["application/vnd.ms-works", "view"],
   ["application/x-mswrite", "view"],
-  ["application/x-dif-document", "view"],
+  ["application/x-dif-document", "edit"],
   ["text/spreadsheet", "edit"],
   ["text/csv", "edit"],
   ["application/x-dbase", "edit"],
@@ -115,6 +114,12 @@ export const modeByMimetype = new Map([
   ["image/x-freehand", "view"],
   ["application/vnd.sun.xml.chart", "view"],
   ["application/x-t602", "view"],
+  ["image/bmp", "view"],
+  ["image/png", "view"],
+  ["image/gif", "view"],
+  ["image/tiff", "view"],
+  ["image/jpg", "view"],
+  ["image/jpeg", "view"],
   ["application/pdf", "view_comment"]
 ]);
 
@@ -200,8 +205,8 @@ export const modeByExtension = new Map([
   ["key", "view"],
   // Draw documents
   ["sxd", "view"],
-  ["odg", "view"],
-  ["fodg", "view"],
+  ["odg", "edit"],
+  ["fodg", "edit"],
   // Drawing template documents
   ["std", "view"],
   ["otg", "edit"],
@@ -217,7 +222,14 @@ export const modeByExtension = new Map([
   ["pub", "view"],
   ["p65", "view"],
   ["wpg", "view"],
-  ["fh", "view"]
+  ["fh", "view"],
+  ["bmp", "view"],
+  ["png", "view"],
+  ["gif", "view"],
+  ["tiff", "view"],
+  ["jpg", "view"],
+  ["jpeg", "view"],
+  ["pdf", "view_comment"]
 ]);
 
 export function getModeByMimetype(mimetype: string): string {
