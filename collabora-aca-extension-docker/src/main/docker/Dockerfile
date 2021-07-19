@@ -7,22 +7,24 @@ ENV SRC_ACA="/usr/src/alfresco-content-app-${aca.version}"
 
 # Récupération des sources
 RUN curl -sSL "${GITHUB_ACA}/archive/v${aca.version}.zip" \
-     -o "alfresco-content-app-${aca.version}.zip" && \
-  unzip "alfresco-content-app-${aca.version}.zip" -d /usr/src && \
-  rm alfresco-content-app-${aca.version}.zip
+     -o "/tmp/alfresco-content-app-${aca.version}.zip" && \
+  unzip "/tmp/alfresco-content-app-${aca.version}.zip" -d /usr/src && \
+  rm /tmp/alfresco-content-app-${aca.version}.zip
+
+COPY extensions/* /usr/src/
 
 WORKDIR ${SRC_ACA}
 RUN npm install ajv
-
-COPY extensions/* /usr/src/
 RUN npm install
 RUN npm run ng add /usr/src/collabora-aca-extension-${project.version}-dist.tgz
 
-RUN sed -i '/references/ s/^.*$/"$references": ["aos.plugin.json", "app.header.json", "collabora-online.plugin.json"],/' ${SRC_ACA}/src/assets/app.extensions.json && \
-    sed -i '/"build"/ s/ -- --prod//' ${SRC_ACA}/package.json && \
-    sed -i -e '/@angular/ a\
-import { CollaboraOnlineModule } from '"'@jeci/collabora-online-extension'"\; \
--e '/imports:/ s/imports:.*/imports: [AosExtensionModule,CollaboraOnlineModule]/' ${SRC_ACA}/src/app/extensions.module.ts
+RUN sed -i '/"build"/ s/ -- --prod//'  ${SRC_ACA}/package.json \
+    && sed -i 's/--max-old-space-size=8192/--max-old-space-size=2048/' package.json \
+    && sed -i '/references/ s/^.*$/"$references": ["aos.plugin.json", "app.header.json", "collabora-online.plugin.json"],/' ${SRC_ACA}/src/assets/app.extensions.json \
+    && sed -i -e '/@angular/ a import { CollaboraOnlineModule } from '"'@jeci/collabora-online-extension'"\; -e '/imports:/ s/imports:.*/imports: [AosExtensionModule,CollaboraOnlineModule]/' ${SRC_ACA}/src/app/extensions.module.ts
+
+# Ajout du viewer collabora
+COPY assets/viewer-collabora/* ${SRC_ACA}/src/app/components/viewer/
 
 RUN npm run build
 
