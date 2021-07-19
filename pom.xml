@@ -55,7 +55,7 @@
     <!-- Collabora Online Config -->
     <code.host>collabora-online</code.host>
     <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>6.4.8.3</docker.code.version>
+    <docker.code.version>6.4.9.3</docker.code.version>
 
     <aca.version>1.10.0</aca.version>
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
