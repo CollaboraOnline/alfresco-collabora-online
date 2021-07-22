@@ -46,10 +46,10 @@
       
       <property name="wopiDiscovery" ref="WopiDiscovery"/>
   </bean>
-  
-  
+
   <bean id="WopiDiscovery"
         class="fr.jeci.collabora.alfresco.WopiDiscovery" init-method="init">
       <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>
   </bean>
+
 </beans>
