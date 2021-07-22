@@ -39,18 +39,30 @@ mvn clean package -P '!java11',java8
 Add `collabora-platform-extension-<version>`.jar in the folder `INSTALL_DIR/webapps/alfresco/WEB-INF/lib`.
 You must configure the following properties in `alfresco-global.properties` :
 
-from version `3.0.1` onwards :
+From version `0.3.1` onwards :
+
 ```
 collabora.public.url=https://<collabora_server_domain>:<port>/
 alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
 ```
 
-Prio to version `0.3.1` :
+Prior to version `0.3.1` :
 
 ```
 lool.wopi.url=https://<collabora_server_domain>:<port>/
 lool.wopi.alfresco.host=https://<alfresco_server_domain>:<port>/alfresco/s/
 lool.wopi.url.discovery=https://<collabora_server_domain>:<port>/hosting/discovery
+```
+
+#### Job to clean locks
+
+From version `0.4.1` onwards, there are a job that clean obsolete locks. To configure the job you can define in `alfresco-global.properties`
+the following properties :
+
+```
+job.fr.jeci.collabora.cleanLock.cron=0 0/5 * * * ?
+job.fr.jeci.collabora.cleanLock.cronstartdelay=240000
+job.fr.jeci.collabora.cleanLock.enabled=true
 ```
 
 ### Share Extension
