@@ -26,8 +26,6 @@
       <template id="CollaboraMetadataTemplate">
         <evaluator>evaluator.doclib.indicator.collaboraEditing</evaluator>
         <banner index="10" id="collaboraEditing">{editingBanner}</banner>
-        <banner index="20" id="syncTransientError" evaluator="evaluator.doclib.metadata.hasSyncTransientErrorBanner">{syncTransientError}</banner>
-        <banner index="30" id="syncFailed" evaluator="evaluator.doclib.metadata.hasSyncFailedBanner">{syncFailed}</banner>
         <line index="10" id="date">{date}{size}</line>
         <line index="20" id="description" view="detailed">{description}</line>
         <line index="30" id="tags" view="detailed">{tags}</line>
