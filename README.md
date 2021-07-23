@@ -174,7 +174,7 @@ Then you can access applications :
 | 0.3.0   | Add a viewer with Collabora Online                                                                                            |
 | 0.3.1   | Refactoring                                                                                                                   |
 |         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                  |
-| 0.4.0   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.        |
+| 0.4.2   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.        |
 | 0.4.1   | Add a job to clean the locks that are no longer valid                                                                         |
 | 0.4.2   | Update of file formats accepted by collabor for view or edit mode                                                             |
 |         | Fix synchronisation banners which appears in Alfresco Share 6                                                                 |
