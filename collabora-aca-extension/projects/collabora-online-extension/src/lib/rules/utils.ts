@@ -114,12 +114,6 @@ export const modeByMimetype = new Map([
   ["image/x-freehand", "view"],
   ["application/vnd.sun.xml.chart", "view"],
   ["application/x-t602", "view"],
-  ["image/bmp", "view"],
-  ["image/png", "view"],
-  ["image/gif", "view"],
-  ["image/tiff", "view"],
-  ["image/jpg", "view"],
-  ["image/jpeg", "view"],
   ["application/pdf", "view_comment"]
 ]);
 
@@ -223,12 +217,6 @@ export const modeByExtension = new Map([
   ["p65", "view"],
   ["wpg", "view"],
   ["fh", "view"],
-  ["bmp", "view"],
-  ["png", "view"],
-  ["gif", "view"],
-  ["tiff", "view"],
-  ["jpg", "view"],
-  ["jpeg", "view"],
   ["pdf", "view_comment"]
 ]);
 
