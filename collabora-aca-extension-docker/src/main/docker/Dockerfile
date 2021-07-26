@@ -24,7 +24,15 @@ RUN sed -i '/"build"/ s/ -- --prod//'  ${SRC_ACA}/package.json \
     && sed -i -e '/@angular/ a import { CollaboraOnlineModule } from '"'@jeci/collabora-online-extension'"\; -e '/imports:/ s/imports:.*/imports: [AosExtensionModule,CollaboraOnlineModule]/' ${SRC_ACA}/src/app/extensions.module.ts
 
 # Ajout du viewer collabora
-COPY assets/viewer-collabora/* ${SRC_ACA}/src/app/components/viewer/
+RUN sed -i -e '/import { NgModule } /i import { ViewerCollaboraModule } from '"'@jeci/collabora-online-extension'"\; \
+       -e '/imports:/ s/imports:.*/imports: [\n \t ViewerCollaboraModule,/' \
+       ${SRC_ACA}/src/app/components/viewer/viewer.module.ts \
+    && sed -i '/adf-viewer-open-with>/a \\n \t <!-- Viewer Collabora --> \n \t <adf-viewer-extension [supportedExtensions]="supportedExtensions" #extension> \n \t \t <ng-template let-urlFileContent="urlFileContent"> \n \t \t \t<viewer-collabora-online urlFileContent="urlFileContent" [nodeId]="nodeId"></viewer-collabora-online> \n \t \t </ng-template> \n \t </adf-viewer-extension>' \
+       ${SRC_ACA}/src/app/components/viewer/viewer.component.html \
+    && sed -i -e '/import { ContentApiService } /i import * as utilsCollabora from '"'@jeci/collabora-online-extension'"\; \
+       -e '/OnDestroy /a \\n \tsupportedExtensions: string[] = [];'\; \
+       -e '/ngOnInit() /a \\n \t  this.supportedExtensions = utilsCollabora.getExtensions();' \
+       ${SRC_ACA}/src/app/components/viewer/viewer.component.ts
 
 RUN npm run build
 
