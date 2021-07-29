@@ -4,7 +4,7 @@ stages:
   - deploy
 
 default:
-  image: docker.io/library/maven:3.8-openjdk-11
+  image: docker.io/library/maven:3.8-openjdk-8
   tags:
     - docker
     - jeci
