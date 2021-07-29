@@ -27,7 +27,7 @@ cache:
 maven-build:
   stage: build
   script:
-  - mvn clean package
+  - mvn clean package -P '!java11',java8
   artifacts:
     paths:
       - "**/target/*.jar"
