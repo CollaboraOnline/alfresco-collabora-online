@@ -6,9 +6,9 @@
 	The ASF licenses this file to You under the Apache License, Version 2.0
 	(the "License"); you may not use this file except in compliance with
 	the License.  You may obtain a copy of the License at
-	
+
 	http://www.apache.org/licenses/LICENSE-2.0
-	
+
 	Unless required by applicable law or agreed to in writing, software
 	distributed under the License is distributed on an "AS IS" BASIS,
 	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -30,8 +30,8 @@
 			<ref bean="NodeService" />
 		</property>
 	</bean>
-	<bean id="job.fr.jeci.collabora.cleanLock.jobDetail" 
-				class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+	<bean id="job.fr.jeci.collabora.cleanLock.jobDetail"
+				class="org.springframework.scheduling.quartz.JobDetailBean">
 		<property name="jobClass">
 			<value>fr.jeci.collabora.alfresco.job.CleanLockJob</value>
 		</property>
@@ -42,22 +42,17 @@
 			</map>
 		</property>
 	</bean>
-	<bean id="job.fr.jeci.collabora.cleanLock.trigger" 
-				class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+	<bean id="job.fr.jeci.collabora.cleanLock.trigger"
+				class="org.springframework.scheduling.quartz.CronTriggerBean">
 		<property name="jobDetail" ref="job.fr.jeci.collabora.cleanLock.jobDetail" />
 		<property name="cronExpression" value="${job.fr.jeci.collabora.cleanLock.cron}" />
 		<property name="startDelay" value="${job.fr.jeci.collabora.cleanLock.cronstartdelay}" />
 	</bean>
-	<bean id="job.fr.jeci.collabora.cleanLock.SchedulerAccessor" 
-				class="org.alfresco.schedule.AlfrescoSchedulerAccessorBean">
-		<property name="scheduler" ref="schedulerFactory"/>
+	<bean id="job.fr.jeci.collabora.cleanLock.SchedulerFactoryBean" class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
 		<property name="triggers">
-		<list>
-			<ref bean="job.fr.jeci.collabora.cleanLock.trigger"/>
-		</list>
+			<list>
+				<ref bean="job.fr.jeci.collabora.cleanLock.trigger"/>
+			</list>
 		</property>
-		<property name="enabled" value="${job.fr.jeci.collabora.cleanLock.enabled}" />
 	</bean>
-
-
 </beans>
