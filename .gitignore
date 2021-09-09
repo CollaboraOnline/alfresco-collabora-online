@@ -65,3 +65,4 @@ tmp/
 *.DS_Store
 Thumbs.db
 .envrc
+.direnv
