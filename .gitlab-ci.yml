@@ -30,6 +30,7 @@ maven-build:
   - mvn clean package -P '!java11',java8
   artifacts:
     paths:
+      - "**/target/*.amp"
       - "**/target/*.jar"
       - "**/target/*.tgz"
 

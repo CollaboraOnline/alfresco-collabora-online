@@ -21,6 +21,7 @@
             <groupId>fr.jeci.alfresco</groupId>
             <artifactId>collabora-platform-extension</artifactId>
             <version>0.4.2-alfresco52</version>
+            <type>amp</type>
         </dependency>
     </dependencies>
 
@@ -53,6 +54,7 @@
                             <outputDirectory>${project.build.directory}/extensions</outputDirectory>
                             <includeScope>runtime</includeScope>
                             <!-- IMPORTANT: if using amp dependencies only, add <includeTypes>amp</includeTypes> -->
+                            <includeTypes>amp</includeTypes>
                         </configuration>
                     </execution>
                 </executions>
