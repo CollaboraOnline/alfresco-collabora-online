@@ -209,6 +209,7 @@ export const modeByExtension = new Map([
   ["std", "view"],
   ["otg", "edit"],
   // Others
+  ["svg", "view"],
   ["dxf", "view"],
   ["emf", "view"],
   ["wmf", "view"],
