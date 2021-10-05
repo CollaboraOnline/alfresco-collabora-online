@@ -200,7 +200,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			this.serverInfo.put(HIDE_EXPORT_OPTION, FALSE);
 			this.serverInfo.put(HIDE_SAVE_OPTION, FALSE);
 			this.serverInfo.put(HIDE_PRINT_OPTION, FALSE);
-			this.serverInfo.put(USER_CAN_NOT_WRITE_RELATIVE, TRUE);
+			this.serverInfo.put(USER_CAN_NOT_WRITE_RELATIVE, FALSE);
 			this.serverInfo.put(POST_MESSAGE_ORIGIN, this.alfrescoPublicURL.toString());
 			this.serverInfo.put(SUPPORTS_LOCKS, TRUE);
 			
