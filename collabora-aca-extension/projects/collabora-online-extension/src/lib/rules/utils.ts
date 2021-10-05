@@ -41,9 +41,6 @@ export const modeByMimetype = new Map([
   // Text master documents
   ["application/vnd.sun.xml.writer.global", "view"],
   ["application/vnd.oasis.opendocument.text-master", "edit"],
-  // Math documents
-  ["application/vnd.sun.xml.math", "view"],
-  ["application/vnd.oasis.opendocument.formula", "edit"],
   // Text template documents
   ["application/vnd.sun.xml.writer.template", "view"],
   ["application/vnd.oasis.opendocument.text-template", "edit"],
@@ -221,10 +218,7 @@ export const modeByExtension = new Map([
   ["p65", "view"],
   ["wpg", "view"],
   ["fh", "view"],
-  ["pdf", "view_comment"],
-  // Math documents
-  ["sxm", "view"],
-  ["odf", "edit"]
+  ["pdf", "view_comment"]
 ]);
 
 export function getModeByMimetype(mimetype: string): string {
