@@ -339,6 +339,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			newNodeRef = copyService.copy(sourceNodeRef, targetParentRef, assocRef.getTypeQName(), newQname, true);
 			nodeService.setProperty(newNodeRef, ContentModel.PROP_NAME, targetFileName);
 
+			this.collaboraOnlineService.unlock(newNodeRef, true);
 		} catch (AccessDeniedException e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN, "You don't have permission to create the node");
 		} catch (InvalidNodeRefException e) {

@@ -118,4 +118,15 @@ public interface CollaboraOnlineService {
 	 * @return
 	 */
 	String lockUnlock(NodeRef nodeRef, String lockId) throws ConflictException;
+
+	/**
+	 * Remove lock without whecking the current lockId but timestamp. (Use to clean
+	 * old LOCK)
+	 * 
+	 * TODO: Use unlock to clean old lock with CRON job
+	 * 
+	 * @param nodeRef
+	 * @param force   if true, remove lock without checking timestamp
+	 */
+	void unlock(NodeRef nodeRef, boolean force);
 }
