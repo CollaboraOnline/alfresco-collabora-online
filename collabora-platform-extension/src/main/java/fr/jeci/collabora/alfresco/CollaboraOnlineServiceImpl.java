@@ -333,6 +333,22 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	}
 
+	@Override
+	public void unlock(NodeRef nodeRef, boolean force) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("UNLOCK '" + nodeRef + "'");
+		}
+
+		if (force) {
+			// Unlock
+			nodeService.removeAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
+		} else {
+			// Remove Lock Aspect
+			isNodeLock(nodeRef);
+		}
+
+	}
+
 	private boolean isNodeLock(NodeRef nodeRef) {
 		boolean hasAspect = nodeService.hasAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
 		if (!hasAspect) {
