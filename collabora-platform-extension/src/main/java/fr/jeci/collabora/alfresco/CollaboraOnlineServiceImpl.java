@@ -372,6 +372,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	private void doLock(NodeRef nodeRef, final String lockID) {
+		if (logger.isDebugEnabled()) {
+			logger.debug("LOCK doLock " + nodeRef + "#" + lockID);
+		}
+		
 		Map<QName, Serializable> props = new HashMap<>(2);
 		props.put(CollaboraOnlineModel.PROP_LOCK_ID, lockID);
 		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
@@ -380,6 +384,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	private void doRefresh(NodeRef nodeRef, String lockId) throws ConflictException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("LOCK doRefresh " + nodeRef + "#" + lockId);
+		}
+
 		final String propLockId = (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
 
 		if (!propLockId.equals(lockId)) {
@@ -394,6 +402,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	private void doUnLock(NodeRef nodeRef, String lockId) throws ConflictException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("LOCK doUnLock " + nodeRef + "#" + lockId);
+		}
+		
 		final String propLockId = (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
 
 		if (!propLockId.equals(lockId)) {

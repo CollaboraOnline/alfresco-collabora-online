@@ -101,6 +101,11 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ConflictException e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("ConflictException " + X_WOPI_LOCK + "=" + e.getCurrentLockId() + ";"
+						+ X_WOPI_LOCK_FAILURE_REASON + "=" + e.getLockFailureReason());
+			}
+
 			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
 			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
@@ -115,7 +120,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
 		}
 
-		WopiOverride override;
+		final WopiOverride override;
 
 		try {
 			override = WopiOverride.valueOf(wopiOverrideHeader);
