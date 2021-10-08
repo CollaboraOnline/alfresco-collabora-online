@@ -20,6 +20,6 @@
     <url>/wopi/files/{file_id}/contents</url>
     <family>WOPI</family>
     <authentication>none</authentication>
-    <format default=""></format>
+    <format default="json"></format>
     <transaction>required</transaction>
 </webscript>
