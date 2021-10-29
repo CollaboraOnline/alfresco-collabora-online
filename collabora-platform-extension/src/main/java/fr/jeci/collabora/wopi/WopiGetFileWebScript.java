@@ -18,7 +18,6 @@ package fr.jeci.collabora.wopi;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -37,11 +36,11 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public class WopiGetFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiGetFileWebScript.class);
-	
-    /**
-     * The default buffer size 4k
-     */
-    private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
+
+	/**
+	 * The default buffer size 4k
+	 */
+	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
@@ -67,9 +66,9 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
 						"No content reader for node=" + nodeRef);
 			}
 
-			try (InputStream inputStream = reader.getContentInputStream();
-					OutputStream outputStream = res.getOutputStream();) {
-				long copied = IOUtils.copyLarge(inputStream, outputStream, new byte[DEFAULT_BUFFER_SIZE]);
+			try (InputStream inputStream = reader.getContentInputStream();) {
+				// We don't want to close the outputStream, this is done by Tomcat
+				long copied = IOUtils.copyLarge(inputStream, res.getOutputStream(), new byte[DEFAULT_BUFFER_SIZE]);
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("Stream copied " + copied + " bytes");
