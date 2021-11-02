@@ -179,6 +179,10 @@ Then you can access applications :
 | 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                             |
 |         | Fix synchronisation banners which appears in Alfresco Share 6                                                                 |
 | 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                             |
+| 0.5.0   | Fix the bug to open big files                                                                                                 |
+|         | Action SaveAs is enabled                                                                                                      |
+|         | Update of file formats accepted by collabora 6.4.11.3                                                                         |
+|         | Change the position the icon to edit with collabora online                                                                    |
 
 ## About Jeci
 

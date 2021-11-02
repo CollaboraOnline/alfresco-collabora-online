@@ -1,6 +1,6 @@
 {
   "name": "@jeci/collabora-online-extension",
-  "version": "0.4.4",
+  "version": "0.5.0",
   "scripts": {
     "build": "../../node_modules/.bin/tsc -p tsconfig.schematics.json",
     "copy:schemas": "cp --parents schematics/*/schema.json ../../dist/@jeci/collabora-online-extension/",
