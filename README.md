@@ -183,6 +183,7 @@ Then you can access applications :
 |         | Action SaveAs is enabled                                                                                                      |
 |         | Update of file formats accepted by collabora 6.4.11.3                                                                         |
 |         | Change the position the icon to edit with collabora online                                                                    |
+| 0.5.1   | Open files directly in edit mode when the format allows it
 
 ## About Jeci
 
