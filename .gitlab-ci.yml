@@ -32,6 +32,8 @@ maven-build:
     paths:
       - "**/target/*.jar"
       - "**/target/*.tgz"
+  except:
+    - tags
 
 maven-deploy:
   stage: deploy
