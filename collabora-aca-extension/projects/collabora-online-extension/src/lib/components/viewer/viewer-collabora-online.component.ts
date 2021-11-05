@@ -45,18 +45,18 @@ export class ViewerCollaboraOnlineComponent implements OnInit {
   async ngOnInit() {
     console.log("Node id : " + this.nodeId);
     // Get url du serveur collabora online
-    const wopiHostUrl =  await this.collaboraOnlineService.getLoolUrl();
+    const wopiHostUrl = await this.collaboraOnlineService.getLoolUrl();
     const wopiFileUrl = wopiHostUrl + 'wopi/files/' + this.nodeId;
 
     // Get token pour l'édition du document
-    var responseToken: any = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'view');
+    var responseToken: any = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'edit');
     this.accessToken = responseToken.access_token;
     this.accessTokenTTL = responseToken.access_token_ttl;
     if (!responseToken.wopi_src_url || responseToken.wopi_src_url == "") {
-      responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'edit');
+      responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'view');
     }
     const wopiSrcUrl = responseToken.wopi_src_url;
-    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&permission=readonly';
+    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl);
 
     // Remplissage du formulaire dynamique
     this.postForm.nativeElement.action = this.iFrameUrl
