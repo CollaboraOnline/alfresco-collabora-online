@@ -20,7 +20,7 @@
 		https://wopi.readthedocs.io/projects/wopirest/en/latest/concepts.html#term-access-token
 		https://wopi.readthedocs.io/en/latest/discovery.html#wopi-actions
 	</description>
-	<url>/lool/token?nodeRef={nodeRef}&amp;action={action}</url>
+	<url>/cool/token?nodeRef={nodeRef}&amp;action={action}</url>
 	<family>Collabora Online</family>
 	<authentication>user</authentication>
 	<format default="json"></format>

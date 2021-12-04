@@ -8,7 +8,7 @@
             connector = remote.connect("alfresco");
         //try and get the Wopi service url first
         try {
-            var result = connector.get('/lool/host/url');
+            var result = connector.get('/cool/host/url');
             if (result.status.code == status.STATUS_OK) {
                 wopi_host_url = JSON.parse(result.response).lool_host_url;
                 if(wopi_host_url.charAt(wopi_host_url.length - 1) == '/')
@@ -22,7 +22,7 @@
         }
 
         try {
-            var result = connector.get('/lool/token?nodeRef=' + encodeURI(nodeRef) + '&action=edit');
+            var result = connector.get('/cool/token?nodeRef=' + encodeURI(nodeRef) + '&action=edit');
             if (result.status.code == status.STATUS_OK) {
                 var post = JSON.parse(result.response);
                 var wopi_src_url = post.wopi_src_url;
