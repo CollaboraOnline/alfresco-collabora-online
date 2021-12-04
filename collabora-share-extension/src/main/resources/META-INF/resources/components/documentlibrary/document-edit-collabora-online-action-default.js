@@ -25,14 +25,14 @@ YAHOO.Bubbling.fire("registerAction", {
 
                             var frame = '<iframe id="loleafletframe" name= "loleafletframe" allowfullscreen />';
 
-                            $('#loolcontainer').remove();
+                            $('#coolcontainer').remove();
 
-                            var container = '<div id="loolcontainer"></div>';
+                            var container = '<div id="coolcontainer"></div>';
                             $('body').append(container);
-                            var loolContainer = $('#loolcontainer');
+                            var coolContainer = $('#coolcontainer');
 
-                            loolContainer.append(form);
-                            loolContainer.append(frame);
+                            coolContainer.append(form);
+                            coolContainer.append(frame);
 
                             $('#loleafletframe').load(function () {
                                 console.log("Loaded loleafletframe");

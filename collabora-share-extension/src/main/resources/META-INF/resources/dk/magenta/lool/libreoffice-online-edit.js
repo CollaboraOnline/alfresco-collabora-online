@@ -58,14 +58,14 @@ if (typeof Magenta == "undefined" || !Magenta) {
 
                 var frame = '<iframe id="loleafletframe" name= "loleafletframe" allowfullscreen="true" />';
 
-                $('#loolcontainer').remove();
+                $('#coolcontainer').remove();
 
-                var container = '<div id="loolcontainer"></div>';
+                var container = '<div id="coolcontainer"></div>';
                 $('#collabora-online').append(container);
-                var loolContainer = $('#loolcontainer');
+                var coolContainer = $('#coolcontainer');
 
-                loolContainer.append(form);
-                loolContainer.append(frame);
+                coolContainer.append(form);
+                coolContainer.append(frame);
 
                 $('#loleafletframe').load(function () {
                     console.log("Loaded loleafletframe");
