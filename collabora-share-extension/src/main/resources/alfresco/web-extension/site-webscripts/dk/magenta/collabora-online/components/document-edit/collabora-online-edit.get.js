@@ -40,7 +40,7 @@
                 throw "Unable to get permission token for document edit"
         }
         catch (err) {
-            logger.log('\n\nThere was an error retrieving the lool token:\n' + err + '\n\n')
+            logger.log('\n\nThere was an error retrieving the cool token:\n' + err + '\n\n')
         }
 
         model.userId = user.id;

@@ -106,7 +106,7 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 			Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
 			if (collaboraautosave == null) {
 				if (logger.isDebugEnabled()) {
-					logger.debug("v." + version.getVersionLabel() + " - not lool - keep");
+					logger.debug("v." + version.getVersionLabel() + " - not cool - keep");
 				}
 
 				// Not Lool Version, ignoring
