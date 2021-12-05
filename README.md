@@ -12,6 +12,12 @@ If the user has the write permission, the extension adds an action `Edit with Co
 
 The document will be opened in an iFrame. Many users can open the same document at the same time.
 
+## About Jeci
+
+This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS).
+
+For any question or professional services, please send us an email info@jeci.fr
+
 ## Compilation
 
 You can clone the project and compile all projects :
@@ -46,7 +52,7 @@ collabora.public.url=https://<collabora_server_domain>:<port>/
 alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
 ```
 
-Prior to version `0.3.1` :
+Prior to version `0.6.0` :
 
 ```
 lool.wopi.url=https://<collabora_server_domain>:<port>/
@@ -176,16 +182,13 @@ Then you can access applications :
 |         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                  |
 | 0.4.0   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.        |
 | 0.4.1   | Add a job to clean the locks that are no longer valid                                                                         |
-| 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                             |
+| 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                      |
 |         | Fix synchronisation banners which appears in Alfresco Share 6                                                                 |
-| 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                             |
+| 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                     |
 | 0.5.0   | Fix the bug to open big files                                                                                                 |
 |         | Action SaveAs is enabled                                                                                                      |
 |         | Update of file formats accepted by collabora 6.4.11.3                                                                         |
 |         | Change the position the icon to edit with collabora online                                                                    |
-
-## About Jeci
-
-This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS).
-
-For any question or professional services, please send us an email info@jeci.fr
+| 0.6.0   | Change all references of 'lool' to 'cool' to match Collabora Online 21.11 update                                              |
+|         | Change reference of loleaflet to browser, also to match Collabora Online 21.11 update                                         |
+|         | Translation update for Russian (using Weblate)                                                                                |
