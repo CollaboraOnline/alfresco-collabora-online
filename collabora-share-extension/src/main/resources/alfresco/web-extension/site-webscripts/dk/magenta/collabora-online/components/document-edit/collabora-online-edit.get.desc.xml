@@ -1,6 +1,6 @@
 <webscript>
     <shortname>LibreOffice Edit Online</shortname>
-    <description>Component used to display an embedded LibreOffice loleaflet iframe for editing of content</description>
+    <description>Component used to display an embedded LibreOffice browser iframe for editing of content</description>
     <url>/components/collabora-online-edit</url>
     <family>Collabora Online</family>
 </webscript>

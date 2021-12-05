@@ -20,10 +20,10 @@ YAHOO.Bubbling.fire("registerAction", {
                         var frameSrcURL = wopi_src_url + "WOPISrc=" + encodeURIComponent(wopiFileURL);
 
                         require(["jquery"], (function ($) {
-                            var form = '<form id="loleafletform" name="loleafletform" target="loleafletframe" action="' + frameSrcURL + '" method="post">' +
+                            var form = '<form id="browserform" name="browserform" target="browserframe" action="' + frameSrcURL + '" method="post">' +
                                 '<input name="access_token" value="' + encodeURIComponent(access_token) + '" type="hidden"/></form>';
 
-                            var frame = '<iframe id="loleafletframe" name= "loleafletframe" allowfullscreen />';
+                            var frame = '<iframe id="browserframe" name= "browserframe" allowfullscreen />';
 
                             $('#coolcontainer').remove();
 
@@ -34,11 +34,11 @@ YAHOO.Bubbling.fire("registerAction", {
                             coolContainer.append(form);
                             coolContainer.append(frame);
 
-                            $('#loleafletframe').load(function () {
-                                console.log("Loaded loleafletframe");
+                            $('#browserframe').load(function () {
+                                console.log("Loaded browserframe");
                             });
 
-                            $('#loleafletform').submit();
+                            $('#browserform').submit();
                         }));
                     },
                     scope: this

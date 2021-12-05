@@ -32,7 +32,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
   @ViewChild('form') postForm: ElementRef;
   @ViewChild('access_token') inputToken: ElementRef;
   @ViewChild('access_token_ttl') inputTokenTTL: ElementRef;
-  @ViewChild('loleafletFrame') loleafletFrame: ElementRef;
+  @ViewChild('browserFrame') browserFrame: ElementRef;
 
   action: string;
   nodeId: string;
