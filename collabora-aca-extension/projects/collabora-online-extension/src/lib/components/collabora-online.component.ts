@@ -67,7 +67,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
     this.previousUrl = this.collaboraOnlineService.getPreviousUrl();
 
     // Get url du serveur collabora online
-    const wopiHostUrl =  await this.collaboraOnlineService.getLoolUrl();
+    const wopiHostUrl =  await this.collaboraOnlineService.getCoolUrl();
     const wopiFileUrl = wopiHostUrl + 'wopi/files/' + this.nodeId;
 
     // Get token pour l'édition du document

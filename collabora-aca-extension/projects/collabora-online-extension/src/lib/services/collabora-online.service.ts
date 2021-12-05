@@ -63,7 +63,7 @@ export class CollaboraOnlineService {
     this.router.navigate(["/collabora-online", 'view', node.id]);
   }
 
-  public getLoolUrl() {
+  public getCoolUrl() {
     return new Promise(
       (resolve, reject) => {
         this.apiService.getInstance().webScript.executeWebScript('GET', 'cool/host/url').then(
