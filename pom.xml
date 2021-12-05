@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.jeci.alfresco</groupId>
   <artifactId>alfresco-collabora-online</artifactId>
-  <version>0.5.0</version>
+  <version>0.6.0-SNAPSHOT</version>
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
@@ -54,9 +54,9 @@
 
     <!-- Collabora Online Config -->
     <code.host>collabora-online</code.host>
-    <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>6.4.11.3</docker.code.version>
 
+    <docker.code.image>collabora/code</docker.code.image>
+    <docker.code.version>21.11.0.5.1</docker.code.version>
     <aca.version>1.10.0</aca.version>
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
     <test.acs.endpoint.path/>

@@ -51,27 +51,27 @@ if (typeof Magenta == "undefined" || !Magenta) {
         onReady: function MLO_onReady() {
             var me = this;
             require(["jquery"], (function ($) {
-                var form = '<form id="loleafletform" name="loleafletform" target="loleafletframe" action="' + me.options.iFrameURL + '" method="post">' +
+                var form = '<form id="browserform" name="browserform" target="browserframe" action="' + me.options.iFrameURL + '" method="post">' +
                     '<input name="access_token" value="' + encodeURIComponent(me.options.access_token) + '" type="hidden"/>' +
                     '<input name="access_token_ttl" value="' + encodeURIComponent(me.options.access_token_ttl) + '" type="hidden"/>' +
                     '</form>';
 
-                var frame = '<iframe id="loleafletframe" name= "loleafletframe" allowfullscreen="true" />';
+                var frame = '<iframe id="browserframe" name= "browserframe" allowfullscreen="true" />';
 
-                $('#loolcontainer').remove();
+                $('#coolcontainer').remove();
 
-                var container = '<div id="loolcontainer"></div>';
+                var container = '<div id="coolcontainer"></div>';
                 $('#collabora-online').append(container);
-                var loolContainer = $('#loolcontainer');
+                var coolContainer = $('#coolcontainer');
 
-                loolContainer.append(form);
-                loolContainer.append(frame);
+                coolContainer.append(form);
+                coolContainer.append(frame);
 
-                $('#loleafletframe').load(function () {
-                    console.log("Loaded loleafletframe");
+                $('#browserframe').load(function () {
+                    console.log("Loaded browserframe");
                 });
 
-                $('#loleafletform').submit();
+                $('#browserform').submit();
             }));
             
             /**

@@ -32,7 +32,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
   @ViewChild('form') postForm: ElementRef;
   @ViewChild('access_token') inputToken: ElementRef;
   @ViewChild('access_token_ttl') inputTokenTTL: ElementRef;
-  @ViewChild('loleafletFrame') loleafletFrame: ElementRef;
+  @ViewChild('browserFrame') browserFrame: ElementRef;
 
   action: string;
   nodeId: string;
@@ -67,7 +67,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
     this.previousUrl = this.collaboraOnlineService.getPreviousUrl();
 
     // Get url du serveur collabora online
-    const wopiHostUrl =  await this.collaboraOnlineService.getLoolUrl();
+    const wopiHostUrl =  await this.collaboraOnlineService.getCoolUrl();
     const wopiFileUrl = wopiHostUrl + 'wopi/files/' + this.nodeId;
 
     // Get token pour l'édition du document

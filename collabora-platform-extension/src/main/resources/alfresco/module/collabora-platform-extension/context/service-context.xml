@@ -21,26 +21,26 @@
           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
   <!-- Shared Cache for fileIdAccessTokenMap -->
-  <bean name="lool-fileIdAccessTokenMapSharedCache" factory-bean="cacheFactory" factory-method="createCache">
-      <constructor-arg value="lool.cache.fileIdAccessTokenMapSharedCache"/>
+  <bean name="cool-fileIdAccessTokenMapSharedCache" factory-bean="cacheFactory" factory-method="createCache">
+      <constructor-arg value="cool.cache.fileIdAccessTokenMapSharedCache"/>
   </bean>
-  <bean name="lool-fileIdAccessTokenMapCache" class="org.alfresco.repo.cache.TransactionalCache">
-      <property name="sharedCache" ref="lool-fileIdAccessTokenMapSharedCache"/>
-      <property name="name" value="lool-fileIdAccessTokenMapCache"/>
-      <property name="maxCacheSize" value="${lool.cache.fileIdAccessTokenMapSharedCache.tx.maxItems}"/>
+  <bean name="cool-fileIdAccessTokenMapCache" class="org.alfresco.repo.cache.TransactionalCache">
+      <property name="sharedCache" ref="cool-fileIdAccessTokenMapSharedCache"/>
+      <property name="name" value="cool-fileIdAccessTokenMapCache"/>
+      <property name="maxCacheSize" value="${cool.cache.fileIdAccessTokenMapSharedCache.tx.maxItems}"/>
       <property name="cacheStats" ref="cacheStatistics"/>
-      <property name="cacheStatsEnabled" value="${lool.cache.fileIdAccessTokenMapSharedCache.tx.statsEnabled}"/>
+      <property name="cacheStatsEnabled" value="${cool.cache.fileIdAccessTokenMapSharedCache.tx.statsEnabled}"/>
   </bean>
 
   <bean id="CollaboraOnlineService"
         class="fr.jeci.collabora.alfresco.CollaboraOnlineServiceImpl" init-method="init">
-      <property name="tokenMap" ref="lool-fileIdAccessTokenMapSharedCache"/>
+      <property name="tokenMap" ref="cool-fileIdAccessTokenMapSharedCache"/>
       <property name="collaboraPublicUrl" value="${collabora.public.url}"/>
       
       <property name="alfrescoPublicURL" value="${alfresco.public.url}"/>
       <property name="alfrescoPrivateURL" value="${alfresco.private.url}"/>
       
-      <property name="tokenTtlMs" value="${lool.wopi.token.ttl}"/>
+      <property name="tokenTtlMs" value="${cool.wopi.token.ttl}"/>
       <property name="nodeService" ref="NodeService"/>
       <property name="permissionService" ref="PermissionService"/>
       

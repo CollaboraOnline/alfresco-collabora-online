@@ -8,9 +8,9 @@
             connector = remote.connect("alfresco");
         //try and get the Wopi service url first
         try {
-            var result = connector.get('/lool/host/url');
+            var result = connector.get('/cool/host/url');
             if (result.status.code == status.STATUS_OK) {
-                wopi_host_url = JSON.parse(result.response).lool_host_url;
+                wopi_host_url = JSON.parse(result.response).cool_host_url;
                 if(wopi_host_url.charAt(wopi_host_url.length - 1) == '/')
                     wopi_host_url = wopi_host_url.substring(0, wopi_host_url.length -1);
                 logger.log("\n\t\t wopi host url resolved: " + wopi_host_url);
@@ -22,7 +22,7 @@
         }
 
         try {
-            var result = connector.get('/lool/token?nodeRef=' + encodeURI(nodeRef) + '&action=edit');
+            var result = connector.get('/cool/token?nodeRef=' + encodeURI(nodeRef) + '&action=edit');
             if (result.status.code == status.STATUS_OK) {
                 var post = JSON.parse(result.response);
                 var wopi_src_url = post.wopi_src_url;
@@ -40,7 +40,7 @@
                 throw "Unable to get permission token for document edit"
         }
         catch (err) {
-            logger.log('\n\nThere was an error retrieving the lool token:\n' + err + '\n\n')
+            logger.log('\n\nThere was an error retrieving the cool token:\n' + err + '\n\n')
         }
 
         model.userId = user.id;
@@ -49,7 +49,7 @@
 
         // Widget instantiation metadata...
         var libreOfficeOnlineWidget = {
-            id: "loolWidget",
+            id: "coolWidget",
             name: "Magenta.LibreOfficeOnline",
             options: {
                 access_token: model.access_token,

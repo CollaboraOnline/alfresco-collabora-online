@@ -59,7 +59,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	 * this was modified, SHA is no longer needed) Also return all values defined
 	 * here:
 	 * https://github.com/LibreOffice/online/blob/3ce8c3158a6b9375d4b8ca862ea5b50490af4c35/wsd/Storage.cpp#L403
-	 * because LOOL uses them internally to determine permission on rendering of
+	 * because COOL uses them internally to determine permission on rendering of
 	 * certain elements. Well I assume given the variable name(s), one should be
 	 * able to semantically derive their relevance
 	 * 

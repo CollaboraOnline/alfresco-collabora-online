@@ -50,8 +50,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
 
-	static final String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
-	static final String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
+	static final String X_COOL_WOPI_IS_AUTOSAVE = "X-COOL-WOPI-IsAutosave";
+	static final String X_COOL_WOPI_TIMESTAMP = "X-COOL-WOPI-Timestamp";
 	static final String X_WOPI_OVERRIDE = "X-WOPI-Override";
 	static final String X_WOPI_LOCK = "X-WOPI-Lock";
 	static final String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
@@ -206,7 +206,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 								versionProperties.put(VersionModel.PROP_DESCRIPTION,
 										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
-							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
+							versionProperties.put(CollaboraOnlineService.COOL_AUTOSAVE, isAutosave);
 							return versionService.createVersion(nodeRef, versionProperties);
 						}
 					});

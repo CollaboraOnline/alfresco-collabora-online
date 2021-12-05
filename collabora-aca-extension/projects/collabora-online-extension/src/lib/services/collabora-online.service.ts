@@ -63,12 +63,12 @@ export class CollaboraOnlineService {
     this.router.navigate(["/collabora-online", 'view', node.id]);
   }
 
-  public getLoolUrl() {
+  public getCoolUrl() {
     return new Promise(
       (resolve, reject) => {
-        this.apiService.getInstance().webScript.executeWebScript('GET', 'lool/host/url').then(
+        this.apiService.getInstance().webScript.executeWebScript('GET', 'cool/host/url').then(
           (response) => {
-            resolve(response.lool_host_url);
+            resolve(response.cool_host_url);
           },
           (error) => {
             reject(error);
@@ -81,7 +81,7 @@ export class CollaboraOnlineService {
   public getAccessToken(nodeId: string, action: string) {
     return new Promise(
       (resolve, reject) => {
-        this.apiService.getInstance().webScript.executeWebScript('GET', 'lool/token?nodeRef=workspace://SpacesStore/' + nodeId + '&action=' + action).then(
+        this.apiService.getInstance().webScript.executeWebScript('GET', 'cool/token?nodeRef=workspace://SpacesStore/' + nodeId + '&action=' + action).then(
           (response) => {
             resolve(response);
           },
