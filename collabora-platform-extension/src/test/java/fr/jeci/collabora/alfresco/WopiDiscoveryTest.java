@@ -38,7 +38,7 @@ public class WopiDiscoveryTest {
 
 		String urlsrc = wopiDiscovery.getSrcURL("application/vnd.ms-excel", "edit");
 
-		assertEquals("http://localhost:9980/loleaflet/1430151/loleaflet.html?", urlsrc);
+		assertEquals("http://localhost:9980/browser/dist/cool.html?", urlsrc);
 
 	}
 
@@ -50,7 +50,7 @@ public class WopiDiscoveryTest {
 
 		List<DiscoveryAction> action = wopiDiscovery.getAction("ods");
 		assertFalse(action.isEmpty());
-		assertEquals("http://localhost:9980/loleaflet/1430151/loleaflet.html?", action.get(0).getUrlsrc());
+		assertEquals("http://localhost:9980/browser/dist/cool.html?", action.get(0).getUrlsrc());
 		assertEquals("edit", action.get(0).getName());
 		assertEquals("ods", action.get(0).getExt());
 
