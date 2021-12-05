@@ -103,13 +103,13 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 		int countAuto = 0;
 		int countExp = 0;
 		for (Version version : history.getAllVersions()) {
-			Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
+			Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.COOL_AUTOSAVE);
 			if (collaboraautosave == null) {
 				if (logger.isDebugEnabled()) {
 					logger.debug("v." + version.getVersionLabel() + " - not cool - keep");
 				}
 
-				// Not Lool Version, ignoring
+				// Not Cool Version, ignoring
 				continue;
 			}
 

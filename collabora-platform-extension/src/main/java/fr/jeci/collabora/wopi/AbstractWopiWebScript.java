@@ -206,7 +206,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 								versionProperties.put(VersionModel.PROP_DESCRIPTION,
 										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
-							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
+							versionProperties.put(CollaboraOnlineService.COOL_AUTOSAVE, isAutosave);
 							return versionService.createVersion(nodeRef, versionProperties);
 						}
 					});
