@@ -130,7 +130,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 			if (!checkTimestamp(hdrTimestamp, modified)) {
 				final Map<String, String> model = new HashMap<>(1);
-				model.put("LOOLStatusCode", "1010");
+				model.put("COOLStatusCode", "1010");
 				jsonResponse(res, STATUS_CONFLICT, model);
 			}
 		}
