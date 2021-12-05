@@ -32,7 +32,7 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
  *
  */
 public class ServiceUrlInfoWebScript extends DeclarativeWebScript {
-	private static final String LOOL_HOST_URL = "lool_host_url";
+	private static final String COOL_HOST_URL = "cool_host_url";
 	private static final String ALFRESCO_SERVICE = "service/";
 	
 	protected CollaboraOnlineService collaboraOnlineService;
@@ -49,7 +49,7 @@ public class ServiceUrlInfoWebScript extends DeclarativeWebScript {
 		}
 
 		Map<String, Object> model = new HashMap<>(1);
-		model.put(LOOL_HOST_URL, colServiceUrl.toString());
+		model.put(COOL_HOST_URL, colServiceUrl.toString());
 		return model;
 	}
 

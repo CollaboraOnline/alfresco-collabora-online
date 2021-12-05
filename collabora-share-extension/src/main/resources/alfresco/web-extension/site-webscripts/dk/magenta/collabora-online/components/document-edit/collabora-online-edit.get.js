@@ -10,7 +10,7 @@
         try {
             var result = connector.get('/cool/host/url');
             if (result.status.code == status.STATUS_OK) {
-                wopi_host_url = JSON.parse(result.response).lool_host_url;
+                wopi_host_url = JSON.parse(result.response).cool_host_url;
                 if(wopi_host_url.charAt(wopi_host_url.length - 1) == '/')
                     wopi_host_url = wopi_host_url.substring(0, wopi_host_url.length -1);
                 logger.log("\n\t\t wopi host url resolved: " + wopi_host_url);

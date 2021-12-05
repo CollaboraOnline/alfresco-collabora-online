@@ -68,7 +68,7 @@ export class CollaboraOnlineService {
       (resolve, reject) => {
         this.apiService.getInstance().webScript.executeWebScript('GET', 'cool/host/url').then(
           (response) => {
-            resolve(response.lool_host_url);
+            resolve(response.cool_host_url);
           },
           (error) => {
             reject(error);

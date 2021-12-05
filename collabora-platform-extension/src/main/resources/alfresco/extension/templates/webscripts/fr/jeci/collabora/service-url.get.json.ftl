@@ -1,3 +1,3 @@
 {
-  "lool_host_url": "${lool_host_url?js_string}"
+  "cool_host_url": "${cool_host_url?js_string}"
 }
