@@ -49,7 +49,7 @@
 
         // Widget instantiation metadata...
         var libreOfficeOnlineWidget = {
-            id: "loolWidget",
+            id: "coolWidget",
             name: "Magenta.LibreOfficeOnline",
             options: {
                 access_token: model.access_token,
