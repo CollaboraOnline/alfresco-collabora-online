@@ -40,7 +40,7 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 /**
  * Put the binary content into Alfresco.
  * 
- * The X-LOOL-WOPI-Timestamp is compare with PROP_FROZEN_MODIFIED or
+ * The X-COOL-WOPI-Timestamp is compare with PROP_FROZEN_MODIFIED or
  * PROP_CREATED_DATE from the current version of the target file.
  * 
  * @author jlesage
@@ -63,7 +63,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		 * 'false' when triggered by explicit user operation (Save button or menu
 		 * entry).
 		 */
-		final String hdrAutosave = req.getHeader(X_LOOL_WOPI_IS_AUTOSAVE);
+		final String hdrAutosave = req.getHeader(X_COOL_WOPI_IS_AUTOSAVE);
 		final boolean isAutosave = hdrAutosave != null && Boolean.parseBoolean(hdrAutosave.trim());
 
 		if (logger.isDebugEnabled()) {
@@ -120,12 +120,12 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) throws IOException {
 		final Version currentVersion = runAsGetCurrentVersion(wopiToken, nodeRef);
 		if (currentVersion != null) {
-			// Check if X-LOOL-WOPI-Timestamp
-			final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);
+			// Check if X-COOL-WOPI-Timestamp
+			final String hdrTimestamp = req.getHeader(X_COOL_WOPI_TIMESTAMP);
 			final Date modified = currentVersion.getFrozenModifiedDate();
 
 			if (logger.isDebugEnabled()) {
-				logger.debug(X_LOOL_WOPI_TIMESTAMP + "='" + hdrTimestamp + "'");
+				logger.debug(X_COOL_WOPI_TIMESTAMP + "='" + hdrTimestamp + "'");
 			}
 
 			if (!checkTimestamp(hdrTimestamp, modified)) {
@@ -137,16 +137,16 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	}
 
 	/**
-	 * Check if X-LOOL-WOPI-Timestamp is equal to PROP_FROZEN_MODIFIED
+	 * Check if X-COOL-WOPI-Timestamp is equal to PROP_FROZEN_MODIFIED
 	 * 
-	 * @param hdrTimestamp "X-LOOL-WOPI-Timestamp"
+	 * @param hdrTimestamp "X-COOL-WOPI-Timestamp"
 	 * @param modified     PROP_FROZEN_MODIFIED
 	 * @return true if timestamps are equal
 	 */
 	private boolean checkTimestamp(final String hdrTimestamp, final Date modified) {
 
 		if (hdrTimestamp == null) {
-			// Ignore if no X-LOOL-WOPI-Timestamp
+			// Ignore if no X-COOL-WOPI-Timestamp
 			return true;
 		}
 		LocalDateTime loolTimestamp = null;
@@ -161,15 +161,15 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			return false;
 		}
 
-		// Check X_LOOL_WOPI_TIMESTAMP header
+		// Check X_COOL_WOPI_TIMESTAMP header
 		final LocalDateTime localDate = new LocalDateTime(modified);
 
 		if (loolTimestamp.compareTo(localDate) != 0) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("PROP_FROZEN_MODIFIED : " + modified);
-				logger.debug(X_LOOL_WOPI_TIMESTAMP + " : " + hdrTimestamp);
+				logger.debug(X_COOL_WOPI_TIMESTAMP + " : " + hdrTimestamp);
 			}
-			logger.error("checkTimestamp Error : " + X_LOOL_WOPI_TIMESTAMP + " is different than PROP_MODIFIED");
+			logger.error("checkTimestamp Error : " + X_COOL_WOPI_TIMESTAMP + " is different than PROP_MODIFIED");
 			return false;
 		}
 
