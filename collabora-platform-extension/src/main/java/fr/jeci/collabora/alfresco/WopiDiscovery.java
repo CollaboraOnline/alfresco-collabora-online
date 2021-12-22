@@ -44,6 +44,7 @@ public class WopiDiscovery {
 	private static final Log logger = LogFactory.getLog(WopiDiscovery.class);
 
 	private static final String DEFAULT_HOSTING_DISCOVERY = "/hosting/discovery";
+	private static final int READ_TIMEOUT_MS = 500;
 
 	private Document discoveryDoc;
 	private URL collaboraPrivateUrl;
@@ -56,6 +57,7 @@ public class WopiDiscovery {
 		try {
 			URL wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
 			URLConnection openConnection = wopiDiscoveryURL.openConnection();
+			openConnection.setReadTimeout(READ_TIMEOUT_MS);
 			loadDiscoveryXML(openConnection.getInputStream());
 		} catch (IOException | XMLStreamException e) {
 			throw new AlfrescoRuntimeException(
