@@ -32,6 +32,9 @@ maven-build:
     paths:
       - "**/target/*.jar"
       - "**/target/*.tgz"
+  except:
+    - tags
+    - dev
 
 maven-deploy:
   stage: deploy
@@ -39,3 +42,4 @@ maven-deploy:
     - 'mvn deploy -s ci_settings.xml'
   only:
     - tags
+    - dev
