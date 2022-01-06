@@ -100,6 +100,8 @@ import { CollaboraOnlineModule } from '@jeci/collabora-online-extension';
 
 Since **version 0.3.0**, it is possible to replace the standard viewer by collabora online in mode read-only for supported format.
 
+#### Add ViewerCollaboraModule
+
 For that you must add the module `ViewerCollaboraModule` in `viewer.module.ts` file in the folder `src/app/components/viewer`
 
 ```
@@ -114,6 +116,8 @@ import { ViewerCollaboraModule } from '@jeci/collabora-online-extension';
 ...
 ```
 
+#### Add Collabora Viewer
+
 Add the component `viewer-collabora-online` in `viewer.component.html` file in in the folder `src/app/components/viewer`
 
 ```
@@ -124,6 +128,9 @@ Add the component `viewer-collabora-online` in `viewer.component.html` file in i
   </ng-template>
 </adf-viewer-extension>
 ```
+
+#### Define extensions list (prior to version 0.5.1)
+
 Define the extensions supported by Collabora Online in `viewer.component.ts` file in the folder `src/app/components/viewer`
 
 ```
@@ -139,11 +146,47 @@ ngOnInit() {
 ...
 ```
 
+#### Define extensions list (from version 0.5.1)
+
+Define the extensions supported by Collabora Online in `app.config.json` file.
+
+```
+...
+"collabora": {
+    "enable": true,
+    "edit": [ ... ],
+    "view": [ ... ]
+},
+...
+```
+
+Add the extensions list in `viewer.component.ts` file in the folder `src/app/components/viewer`
+
+```
+...
+import { CollaboraOnlineService } from '@jeci/collabora-online-extension';
+...
+supportedExtensions: string[] = [];
+...
+constructor(
+...
+  private collaboraOnlineService : CollaboraOnlineService,
+...  
+)
+...
+ngOnInit() {
+  ...
+  this.supportedExtensions = this.collaboraOnlineService.getExtensions();
+}
+...
+```
+
 ## Test
 
 You can start the application for local test with docker-compose.
 
 ```
+mvn clean package
 mvn resources:resources
 pip install docker-compose
 docker-compose -f ./target/classes/docker-compose.yml up --build -d
@@ -183,7 +226,8 @@ Then you can access applications :
 |         | Action SaveAs is enabled                                                                                                      |
 |         | Update of file formats accepted by collabora 6.4.11.3                                                                         |
 |         | Change the position the icon to edit with collabora online                                                                    |
-| 0.5.1   | Open files directly in edit mode when the format allows it
+| 0.5.1   | Open files directly in edit mode when the format allows it                                                                    |
+|         | Config the extension that open or edit with Collabora Online in `app.config.json`                                             |
 
 ## About Jeci
 

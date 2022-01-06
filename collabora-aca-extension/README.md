@@ -78,7 +78,7 @@ In `angular.json` file add these lines :
               ...
               {
                "glob": "collabora-online.plugin.json",
-               "input": "node_modules/@jeci/ccollabora-online-extension/assets",
+               "input": "node_modules/@jeci/collabora-online-extension/assets",
                "output": "/assets/plugins"
               },
               {

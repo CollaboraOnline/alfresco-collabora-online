@@ -12,6 +12,7 @@ RUN curl -sSL "${GITHUB_ACA}/archive/v${aca.version}.zip" \
   rm /tmp/alfresco-content-app-${aca.version}.zip
 
 COPY extensions/* /usr/src/
+COPY app.config.json ${SRC_ACA}/src/app.config.json
 
 WORKDIR ${SRC_ACA}
 RUN npm install ajv
@@ -29,9 +30,10 @@ RUN sed -i -e '/import { NgModule } /i import { ViewerCollaboraModule } from '"'
        ${SRC_ACA}/src/app/components/viewer/viewer.module.ts \
     && sed -i '/adf-viewer-open-with>/a \\n \t <!-- Viewer Collabora --> \n \t <adf-viewer-extension [supportedExtensions]="supportedExtensions" #extension> \n \t \t <ng-template let-urlFileContent="urlFileContent"> \n \t \t \t<viewer-collabora-online urlFileContent="urlFileContent" [nodeId]="nodeId"></viewer-collabora-online> \n \t \t </ng-template> \n \t </adf-viewer-extension>' \
        ${SRC_ACA}/src/app/components/viewer/viewer.component.html \
-    && sed -i -e '/import { ContentApiService } /i import * as utilsCollabora from '"'@jeci/collabora-online-extension'"\; \
-       -e '/OnDestroy /a \\n \tsupportedExtensions: string[] = [];'\; \
-       -e '/ngOnInit() /a \\n \t  this.supportedExtensions = utilsCollabora.getExtensions();' \
+    && sed -i -e '/import { ContentApiService } / i import { CollaboraOnlineService } from '"'@jeci/collabora-online-extension'"\; \
+         -e '/OnDestroy / a \\n \tsupportedExtensions: string[] = [];'\; \
+         -e '/^  constructor/ a \    private collaboraOnlineService : CollaboraOnlineService,' \
+         -e '/ngOnInit() / a \    this.supportedExtensions = this.collaboraOnlineService.getExtensions();' \
        ${SRC_ACA}/src/app/components/viewer/viewer.component.ts
 
 RUN npm run build

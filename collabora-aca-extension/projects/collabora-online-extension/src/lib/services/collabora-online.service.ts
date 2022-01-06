@@ -18,7 +18,7 @@
 import { Injectable } from '@angular/core';
 import { MinimalNodeEntryEntity } from '@alfresco/js-api';
 import { Router, NavigationEnd } from '@angular/router';
-import { AlfrescoApiService } from '@alfresco/adf-core';
+import { AlfrescoApiService, AppConfigService } from '@alfresco/adf-core';
 
 @Injectable({
   providedIn: 'root'
@@ -31,7 +31,8 @@ export class CollaboraOnlineService {
   displayNode: MinimalNodeEntryEntity = null;
 
   constructor(private router: Router,
-              private apiService: AlfrescoApiService) {
+    private apiService: AlfrescoApiService,
+    private appConfig: AppConfigService) {
     this.currentUrl = this.router.url;
     this.router.events.subscribe(
       event => {
@@ -95,6 +96,17 @@ export class CollaboraOnlineService {
 
   public getPreviousUrl() {
     return this.previousUrl;
+  }
+
+  public getExtensions() {
+    const enable: boolean = this.appConfig.get<boolean>('collabora.enable');
+    if (!enable) {
+      return new Array();
+    }
+    const extCanView: string[] = this.appConfig.get<string[]>('collabora.view');
+    const extCanEdit: string[] = this.appConfig.get<string[]>('collabora.edit');
+
+    return extCanEdit.concat(extCanView);
   }
 
 }
