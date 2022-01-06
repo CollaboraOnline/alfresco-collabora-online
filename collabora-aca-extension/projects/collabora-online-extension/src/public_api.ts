@@ -9,5 +9,4 @@ export * from './lib/components/viewer/viewer-collabora.module';
 export * from './lib/components/viewer/viewer-collabora-online.component';
 
 export * from './lib/services/collabora-online.service';
-export * from './lib/rules/utils';
 export * from './lib/rules/evaluators';
