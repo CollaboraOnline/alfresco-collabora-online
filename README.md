@@ -219,15 +219,15 @@ Then you can access applications :
 |         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                  |
 | 0.4.0   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.        |
 | 0.4.1   | Add a job to clean the locks that are no longer valid                                                                         |
-| 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                             |
+| 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                      |
 |         | Fix synchronisation banners which appears in Alfresco Share 6                                                                 |
-| 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                             |
+| 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                     |
 | 0.5.0   | Fix the bug to open big files                                                                                                 |
 |         | Action SaveAs is enabled                                                                                                      |
 |         | Update of file formats accepted by collabora 6.4.11.3                                                                         |
 |         | Change the position the icon to edit with collabora online                                                                    |
 | 0.5.1   | Open files directly in edit mode when the format allows it                                                                    |
-|         | Config the extension that open or edit with Collabora Online in `app.config.json`                                             |
+|         | Configure the extensions that can be opened or edited with Collabora Online in `app.config.json`.                             |
 
 ## About Jeci
 
