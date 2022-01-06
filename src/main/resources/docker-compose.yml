@@ -26,7 +26,6 @@ services:
     networks:
       - backend
 
-
   ${appcontent.host}:
     image: collabora-aca-extension:development
     build:
@@ -51,6 +50,22 @@ services:
     networks:
       - backend
 
+  ${activemq.host}:
+    image: ${docker.activemq.image}:${docker.activemq.version}
+    depends_on:
+      - ${acs.host}
+    volumes:
+      - cool-activemq-volume:/opt/activemq/conf
+    networks:
+      - backend
+
+  ${transform-core-aio.host}:
+    image: ${docker.transform-core-aio.image}:${docker.transform-core-aio.version}
+    depends_on:
+      - ${acs.host}
+      - ${activemq.host}
+    networks:
+      - backend
 
   ${db.host}:
     image: ${docker.postgres.image}:${docker.postgres.version}
@@ -75,6 +90,8 @@ services:
     volumes:
       - solr_contentstore_volume:/opt/alfresco-search-services/contentstore
       - solr_data_volume:/opt/alfresco-search-services/data
+      - solr_keystores_volume:/opt/alfresco-search-services/keystores
+      - solr_solrhome_volume:/opt/alfresco-search-services/solrhome
     networks:
       - backend
 
@@ -93,6 +110,9 @@ volumes:
   db_volume:
   solr_contentstore_volume:
   solr_data_volume:
+  solr_keystores_volume:
+  solr_solrhome_volume:
+  cool-activemq-volume:
 
 networks:
   backend:

@@ -28,12 +28,12 @@
     <!-- Alfresco Platform Config -->
     <acs.host>alfresco-acs</acs.host>
     <docker.acs.image>docker.io/alfresco/alfresco-content-repository-community</docker.acs.image>
-    <alfresco.platform.version>6.1.2-ga</alfresco.platform.version>
+    <alfresco.platform.version>6.2.1-A8</alfresco.platform.version>
 
     <!-- Share Config -->
     <share.host>alfresco-share</share.host>
     <docker.share.image>docker.io/alfresco/alfresco-share</docker.share.image>
-    <alfresco.share.version>6.1.0</alfresco.share.version>
+    <alfresco.share.version>6.2.0</alfresco.share.version>
 
     <!-- Angular / Content App Config -->
     <appcontent.host>alfresco-app</appcontent.host>
@@ -41,6 +41,14 @@
     <docker.node.version>10.22</docker.node.version>
     <docker.nginx.image>docker.io/library/nginx</docker.nginx.image>
     <docker.nginx.version>stable-alpine</docker.nginx.version>
+
+    <!-- Activemq et Transform Core AIO Config -->
+    <docker.activemq.image>docker.io/alfresco/alfresco-activemq</docker.activemq.image>
+    <docker.activemq.version>5.15.8</docker.activemq.version>
+    <activemq.host>alfresco-cool-activemq</activemq.host>
+    <docker.transform-core-aio.image>docker.io/alfresco/alfresco-transform-core-aio</docker.transform-core-aio.image>
+    <docker.transform-core-aio.version>2.3.5</docker.transform-core-aio.version>
+    <transform-core-aio.host>alfresco-cool-transform-core-aio</transform-core-aio.host>
 
     <!-- Postgres Config -->
     <docker.postgres.image>docker.io/postgres</docker.postgres.image>
