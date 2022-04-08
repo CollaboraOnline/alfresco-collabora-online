@@ -6,8 +6,17 @@ services:
     build:
       dockerfile: ./Dockerfile
       context: ../../collabora-platform-extension-docker/target
+    environment:
+      JAVA_TOOL_OPTIONS: "${keystore.settings}"
+      JAVA_OPTS: "
+        -Dmessaging.broker.url=\"failover:(nio://${activemq.host}:61616)?timeout=3000&jms.useCompression=true\"
+        "
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
     volumes:
-      - content_services_volume:/usr/local/tomcat/alf_data
+      - ${acs.host}-volume:/usr/local/tomcat/alf_data
+    ports:
+      - "${acs.port}:8080"
+      - "${acs.debug.port}:8888"
     depends_on:
       - ${db.host}
     networks:
@@ -19,8 +28,12 @@ services:
       dockerfile: ./Dockerfile
       context: ../../collabora-share-extension-docker/target
     environment:
+      CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=0.0.0.0:8888"
       REPO_HOST: ${acs.host}
       REPO_PORT: 8080
+    ports:
+      - "${share.port}:8080"
+      - "${share.debug.port}:8888"
     depends_on:
       - ${acs.host}
     networks:
@@ -34,7 +47,7 @@ services:
     environment:
       BASE_PATH: ./
       PORT: 8080
-      ACS_URL: http://${public.host}:${public.port}
+      ACS_URL: http://${public.host}:${appcontent.port}
 
       URL_HOST_ADF: http://${public.host}:8080/alfresco
       APP_BASE_SHARE_URL: http://${public.host}:8080/share/s
@@ -44,7 +57,7 @@ services:
       AUTH_TYPE: BASIC
       PROVIDERS: ALL
     ports:
-      - "${public.port}:8080"
+      - "${appcontent.port}:8080"
     depends_on:
       - ${acs.host}
     networks:
@@ -52,18 +65,14 @@ services:
 
   ${activemq.host}:
     image: ${docker.activemq.image}:${docker.activemq.version}
+    mem_limit: 1g
     depends_on:
       - ${acs.host}
-    volumes:
-      - cool-activemq-volume:/opt/activemq/conf
-    networks:
-      - backend
-
-  ${transform-core-aio.host}:
-    image: ${docker.transform-core-aio.image}:${docker.transform-core-aio.version}
-    depends_on:
-      - ${acs.host}
-      - ${activemq.host}
+    ports:
+      - ${activemq.console.port}:8161 # Web Console
+      - ${activemq.amqp.port}:5672 # AMQP
+      - ${activemq.openwire.port}:61616 # OpenWire
+      - ${activemq.stomp.port}:61613 # STOMP
     networks:
       - backend
 
@@ -75,9 +84,12 @@ services:
       POSTGRES_PASSWORD: alfresco
     command: postgres -c max_connections=300 -c log_min_messages=LOG
     volumes:
-      - db_volume:/var/lib/postgresql/data
+      - ${db.host}-volume:/var/lib/postgresql/data
+    ports:
+      - "${db.port}:5432"
     networks:
       - backend
+
 
   ${solr.host}:
     image: ${docker.solr.image}:${docker.solr.version}
@@ -88,10 +100,10 @@ services:
       SOLR_SOLR_PORT: 8983
       SOLR_CREATE_ALFRESCO_DEFAULTS: alfresco,archive
     volumes:
-      - solr_contentstore_volume:/opt/alfresco-search-services/contentstore
-      - solr_data_volume:/opt/alfresco-search-services/data
-      - solr_keystores_volume:/opt/alfresco-search-services/keystores
-      - solr_solrhome_volume:/opt/alfresco-search-services/solrhome
+      - ${solr.host}-volume:/opt/alfresco-search-services/contentstore
+      - ${solr.host}-volume:/opt/alfresco-search-services/data
+    ports:
+      - "${solr.port}:8983"
     networks:
       - backend
 
@@ -101,18 +113,14 @@ services:
     environment:
       extra_params: '--o:ssl.enable=false --o:server_name=${public.host}:9980'
     ports:
-    - "9980:9980"
+    - "${code.port}:9980"
     networks:
       - backend
 
-volumes:
-  content_services_volume:
-  db_volume:
-  solr_contentstore_volume:
-  solr_data_volume:
-  solr_keystores_volume:
-  solr_solrhome_volume:
-  cool-activemq-volume:
-
 networks:
   backend:
+
+volumes:
+  ${acs.host}-volume:
+  ${db.host}-volume:
+  ${solr.host}-volume:

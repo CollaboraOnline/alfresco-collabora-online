@@ -5,7 +5,7 @@
   <artifactId>collabora-online-share-docker</artifactId>
   <name>Collabora Online Alfresco Share Docker</name>
   <description>Collabora Online Docker Image for Alfresco Share</description>
-  <packaging>pom</packaging>
+  <packaging>jar</packaging>
 
   <parent>
     <groupId>fr.jeci.alfresco</groupId>

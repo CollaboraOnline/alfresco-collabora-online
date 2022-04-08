@@ -28,7 +28,7 @@
             <!--
                Developer debugging setting to turn on DEBUG mode for client scripts in the browser
             -->
-            <client-debug>false</client-debug>
+            <client-debug>true</client-debug>
             <!--
                LOGGING can always be toggled at runtime when in DEBUG mode (Ctrl, Ctrl, Shift, Shift).
                This flag automatically activates logging on page load.
@@ -39,7 +39,7 @@
 
     <!--
         Disable CSRF completely for now
-        It seems Share has issues on 4.2.x with the embedded tomcat and CSRFPolicy
+        It seems Share has issues on 4.x with the embedded tomcat and CSRFPolicy
         -->
     <config evaluator="string-compare" condition="CSRFPolicy" replace="true">
         <filter/>
