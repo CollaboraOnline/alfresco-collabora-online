@@ -10,7 +10,7 @@
   <parent>
     <groupId>fr.jeci.alfresco</groupId>
     <artifactId>alfresco-collabora-online</artifactId>
-    <version>0.5.2</version>
+    <version>0.6.0-SNAPSHOT</version>
   </parent>
 
   <!-- Following dependencies are needed for compiling Java code in src/main/java;

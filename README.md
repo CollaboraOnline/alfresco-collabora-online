@@ -18,19 +18,20 @@ You can clone the project and compile all projects :
 
 ```
 git clone git@github.com:CollaboraOnline/alfresco-collabora-online.git
-mvn install
+cd alfresco-collabora-online
+./run.sh build_start
 ```
 
-To compile each project independently you can use the option `-pl`
+To compile each project independently you shortcut
 
 ```
-mvn install -pl collabora-aca-extension,collabora-platform-extension,collabora-share-extension
+# Build and reload only Alfresco Content Services
+./run.sh reload_acs
+
+# Build and reload only Alfresco Share
+./run.sh reload_share
 ```
 
-Before version 6.x, compile with only `java8` profile :
-```
-mvn clean package -P '!java11',java8
-```
 
 ## Installation
 
@@ -192,13 +193,6 @@ pip install docker-compose
 docker-compose -f ./target/classes/docker-compose.yml up --build -d
 ```
 
-or using podman-compose
-
-```
-pip install podman-compose
-podman-compose -f ./target/classes/docker-compose.yml build
-```
-
 
 Then you can access applications :
 
@@ -229,7 +223,8 @@ Then you can access applications :
 | 0.5.1   | Open files directly in edit mode when the format allows it                                                                    |
 |         | Configure the extensions that can be opened or edited with Collabora Online in `app.config.json`.                             |
 | 0.5.2   | Looks like last CODE release (21.11) change the date format used for timestamp                                                |
-
+| 0.6.0   | Update to Alfresco SDK 4.4, Alfresco ACS 7.2 and Alfresco Share 7.2                                                           |
+|         | Add run.sh script to help beginners.                                                                                          |
 
 ## About Jeci
 
