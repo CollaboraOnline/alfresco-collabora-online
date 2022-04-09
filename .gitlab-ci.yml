@@ -1,6 +1,5 @@
 ---
 stages:
-  - build
   - deploy
 
 default:
@@ -24,16 +23,15 @@ cache:
   paths:
     - .m2/repository
 
-maven-build:
-  stage: build
-  script:
-    - mvn $MAVEN_CLI_OPTS clean package
-  artifacts:
-    paths:
-      - "**/target/*.jar"
-      - "**/target/*.tgz"
-
 maven-deploy:
   stage: deploy
   script:
+    - source ${NEXUS_SECRET_FILE}
     - mvn $MAVEN_CLI_OPTS deploy
+  artifacts:
+    paths:
+      - "**/target/*.jar"
+      - "**/target/*.amp"
+      - "**/target/*.tgz"
+  except:
+    - tags
