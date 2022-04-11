@@ -19,19 +19,14 @@ You can clone the project and compile all projects :
 ```
 git clone git@github.com:CollaboraOnline/alfresco-collabora-online.git
 cd alfresco-collabora-online
-./run.sh build_start
+./run.sh build
 ```
 
-To compile each project independently you shortcut
+Before version 6.x, compile with only `java8` profile :
 
 ```
-# Build and reload only Alfresco Content Services
-./run.sh reload_acs
-
-# Build and reload only Alfresco Share
-./run.sh reload_share
+mvn clean package -P '!java11',java8
 ```
-
 
 ## Installation
 
@@ -187,10 +182,18 @@ ngOnInit() {
 You can start the application for local test with docker-compose.
 
 ```
-mvn clean package
-mvn resources:resources
 pip install docker-compose
-docker-compose -f ./target/classes/docker-compose.yml up --build -d
+./run.sh build_start
+```
+
+To compile and reload a project independently you can use :
+
+```
+# Build and reload only Alfresco Content Services
+./run.sh reload_acs
+
+# Build and reload only Alfresco Share
+./run.sh reload_share
 ```
 
 
