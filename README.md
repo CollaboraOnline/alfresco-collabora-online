@@ -228,6 +228,8 @@ Then you can access applications :
 |         | Change the position the icon to edit with collabora online                                                                    |
 | 0.5.1   | Open files directly in edit mode when the format allows it                                                                    |
 |         | Configure the extensions that can be opened or edited with Collabora Online in `app.config.json`.                             |
+| 0.5.2   | Looks like last CODE release (21.11) change the date format used for timestamp                                                |
+
 
 ## About Jeci
 
