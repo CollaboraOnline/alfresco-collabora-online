@@ -8,16 +8,12 @@
   <parent>
     <groupId>fr.jeci.alfresco</groupId>
     <artifactId>alfresco-collabora-online</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.2</version>
   </parent>
 
   <properties>
     <extension.version>${project.version}</extension.version>
   </properties>
-
-  <dependencies>
-  </dependencies>
-
 
   <build>
     <resources>
@@ -27,14 +23,13 @@
       </resource> -->
     </resources>
     <plugins>
-        <plugin>
-          <groupId>com.github.eirslett</groupId>
-          <artifactId>frontend-maven-plugin</artifactId>
-          <!-- Use the latest released version:
-          https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
-          <version>1.9.1</version>
-          <executions>
-
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <!-- Use the latest released version:
+        https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+        <version>1.9.1</version>
+        <executions>
           <execution>
             <id>install node and npm</id>
             <goals>
@@ -46,65 +41,57 @@
               <npmVersion>6.14.6</npmVersion>
             </configuration>
           </execution>
-
-
           <execution>
             <id>npm install</id>
             <goals>
-                <goal>npm</goal>
+              <goal>npm</goal>
             </goals>
-
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
             <configuration>
-                <arguments>install</arguments>
+              <arguments>install</arguments>
             </configuration>
           </execution>
-
           <execution>
             <id>npm build</id>
             <goals>
-                <goal>npm</goal>
+              <goal>npm</goal>
             </goals>
-
             <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
-
             <configuration>
-                <!-- optional: The default argument is actually
-                "install", so unless you need to run some other npm command,
+              <!--
+                optional: The default argument is actually "install", so unless you need to run some other npm command,
                 you can remove this whole <configuration> section.
-                -->
-                <arguments>run build</arguments>
+              -->
+              <arguments>run build</arguments>
             </configuration>
           </execution>
-          </executions>
-        </plugin>
-
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <version>3.1.0</version>
-            <configuration>
-              <descriptors>
-                <descriptor>src/main/assembly/assembly.xml</descriptor>
-              </descriptors>
-              <!-- Turn off compression -->
-              <archiverConfig>
-                <!-- <compress>false</compress> -->
-              </archiverConfig>
-            </configuration>
-            <executions>
-                <execution>
-                    <id>assembly-dist</id>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>single</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>3.1.0</version>
+        <configuration>
+          <descriptors>
+            <descriptor>src/main/assembly/assembly.xml</descriptor>
+          </descriptors>
+          <!-- Turn off compression -->
+          <archiverConfig>
+            <!-- <compress>false</compress> -->
+          </archiverConfig>
+        </configuration>
+        <executions>
+          <execution>
+            <id>assembly-dist</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
-
 </project>

@@ -1,80 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <artifactId>collabora-online-share-docker</artifactId>
-    <name>Collabora Online Alfresco Share Docker</name>
-    <description>Collabora Online Docker Image for Alfresco Share</description>
-    <packaging>pom</packaging>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>collabora-online-share-docker</artifactId>
+  <name>Collabora Online Alfresco Share Docker</name>
+  <description>Collabora Online Docker Image for Alfresco Share</description>
+  <packaging>pom</packaging>
 
-    <parent>
-        <groupId>fr.jeci.alfresco</groupId>
-        <artifactId>alfresco-collabora-online</artifactId>
-        <version>0.5.2-SNAPSHOT</version>
-    </parent>
+  <parent>
+    <groupId>fr.jeci.alfresco</groupId>
+    <artifactId>alfresco-collabora-online</artifactId>
+    <version>0.5.2</version>
+  </parent>
 
-    <properties>
-    </properties>
+  <dependencies>
+    <dependency>
+      <groupId>fr.jeci.alfresco</groupId>
+      <artifactId>collabora-share-extension</artifactId>
+      <version>0.5.2</version>
+    </dependency>
+  </dependencies>
 
-    <dependencies>
-        <dependency>
-            <groupId>fr.jeci.alfresco</groupId>
-            <artifactId>collabora-share-extension</artifactId>
-            <version>0.5.2-SNAPSHOT</version>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <executions>
-                    <!-- Collect extensions (JARs or AMPs) declared in this module do be deployed to docker -->
-                    <execution>
-                        <id>collect-extensions</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>copy-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}/extensions</outputDirectory>
-                            <includeScope>runtime</includeScope>
-                            <!-- IMPORTANT: if using amp dependencies only, add <includeTypes>amp</includeTypes> -->
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Filter the Dockerfile and the other files added to the container to be able to replace maven properties -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-resources-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>copy-and-filter-docker-resources</id>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy-resources</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${project.build.directory}</outputDirectory>
-                            <resources>
-                                <resource>
-                                    <directory>src/main/docker</directory>
-                                    <filtering>true</filtering>
-                                </resource>
-                            </resources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-deploy-plugin</artifactId>
-              <configuration>
-                <skip>true</skip>
-              </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <!-- Collect extensions (JARs or AMPs) declared in this module do be deployed to docker -->
+          <execution>
+            <id>collect-extensions</id>
+            <phase>package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/extensions</outputDirectory>
+              <includeScope>runtime</includeScope>
+              <!-- IMPORTANT: if using amp dependencies only, add <includeTypes>amp</includeTypes> -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- Filter the Dockerfile and the other files added to the container to be able to replace maven properties -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-and-filter-docker-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/docker</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <configuration>
+          <skip>true</skip>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>
