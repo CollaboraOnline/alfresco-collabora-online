@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.jeci.alfresco</groupId>
   <artifactId>alfresco-collabora-online</artifactId>
-  <version>0.6.0</version>
+  <version>0.6.1-SNAPSHOT</version>
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
