@@ -225,6 +225,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 */
 	@Override
 	public String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException {
+		if (!this.wopiDiscovery.hasCollaboraOnline()) {
+			throw new WebScriptException(Status.STATUS_BAD_GATEWAY, "Collabora is Offline");
+		}
+
 		final String filename = (String) this.nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
 		if (filename == null) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "This node as no name: " + nodeRef);

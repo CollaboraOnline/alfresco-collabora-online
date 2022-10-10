@@ -25,13 +25,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
@@ -53,16 +53,23 @@ public class WopiDiscovery {
 	private Map<String, List<DiscoveryAction>> actions = Collections.emptyMap();
 	private Map<String, DiscoveryAction> legacyActions = Collections.emptyMap();
 
+	private AtomicBoolean hasCollaboraOnline = new AtomicBoolean(false);
+
 	public void init() {
 		try {
 			URL wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
 			URLConnection openConnection = wopiDiscoveryURL.openConnection();
 			openConnection.setReadTimeout(READ_TIMEOUT_MS);
 			loadDiscoveryXML(openConnection.getInputStream());
+			this.hasCollaboraOnline.set(true);
 		} catch (IOException | XMLStreamException e) {
-			throw new AlfrescoRuntimeException(
-					"Can't load Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY, e);
+			logger.warn("Can't load Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY,
+					e);
 		}
+	}
+
+	public boolean hasCollaboraOnline() {
+		return hasCollaboraOnline.get();
 	}
 
 	/**
