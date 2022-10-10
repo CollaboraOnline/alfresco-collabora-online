@@ -1,7 +1,6 @@
 package fr.jeci.collabora.alfresco;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,9 +15,6 @@ import org.alfresco.repo.version.NodeServiceImpl;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.alfresco.service.cmr.security.PermissionService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +24,6 @@ import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
 
 @Transactional
 public class CollaboraOnlineServiceImplTest {
-	private static Log logger = LogFactory.getLog(CollaboraOnlineServiceImplTest.class);
-
 	/**
 	 * version store node service
 	 */
@@ -76,7 +70,7 @@ public class CollaboraOnlineServiceImplTest {
 		when(wopiDiscovery.getAction("ods")).thenReturn(actions);
 		this.collaboraOnlineService.setWopiDiscovery(wopiDiscovery);
 
-		// Create a new versionable node
+		when(wopiDiscovery.hasCollaboraOnline()).thenReturn(true);
 
 		String wopiSrcURL = this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit");
 		assertEquals(urlsrc, wopiSrcURL);
