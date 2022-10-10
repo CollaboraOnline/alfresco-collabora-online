@@ -53,7 +53,7 @@ public class WopiDiscovery {
 	private Map<String, List<DiscoveryAction>> actions = Collections.emptyMap();
 	private Map<String, DiscoveryAction> legacyActions = Collections.emptyMap();
 
-	private AtomicBoolean hasCollaboraOnline = new AtomicBoolean(false);
+	private final AtomicBoolean hasCollaboraOnline = new AtomicBoolean(false);
 
 	public void init() {
 		try {
@@ -69,7 +69,11 @@ public class WopiDiscovery {
 	}
 
 	public boolean hasCollaboraOnline() {
-		return hasCollaboraOnline.get();
+		return this.hasCollaboraOnline.get();
+	}
+
+	public void hasCollaboraOnline(boolean online) {
+		this.hasCollaboraOnline.set(online);
 	}
 
 	/**
