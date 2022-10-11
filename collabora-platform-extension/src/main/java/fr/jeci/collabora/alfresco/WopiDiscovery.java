@@ -63,8 +63,7 @@ public class WopiDiscovery {
 			loadDiscoveryXML(openConnection.getInputStream());
 			this.hasCollaboraOnline.set(true);
 		} catch (IOException | XMLStreamException e) {
-			logger.warn("Can't load Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY,
-					e);
+			logger.warn("Can't load Wopi Discovery URI : " + this.collaboraPrivateUrl + "/" + DEFAULT_HOSTING_DISCOVERY);
 		}
 	}
 
