@@ -69,9 +69,7 @@ public class CleanLockJobExecuter {
 		} catch (AlfrescoRuntimeException exception) {
 			logger.error("Error to remove the collaboraOnline aspect", exception);
 		} finally {
-			if (result != null) {
-				result.close();
-			}
+			result.close();
 		}
 	}
 
