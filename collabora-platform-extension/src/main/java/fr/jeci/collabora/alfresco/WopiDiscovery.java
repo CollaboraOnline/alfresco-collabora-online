@@ -103,7 +103,7 @@ public class WopiDiscovery {
 	 * @throws XMLStreamException
 	 * @throws IOException
 	 */
-	protected void loadDiscoveryXML(InputStream in) throws XMLStreamException, IOException {
+	protected void loadDiscoveryXML(InputStream in) throws XMLStreamException {
 		if (this.discoveryDoc != null) {
 			return;
 		}
