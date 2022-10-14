@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -52,6 +53,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+		AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
 		if (logger.isDebugEnabled()) {
