@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.repo.security.authentication.AuthenticationComponent;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -49,11 +50,19 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
  */
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
+	private AuthenticationComponent authenticationComponent;
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 		AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
+
+		if (this.authenticationComponent.getCurrentAuthentication() == null) {
+			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
+		} else {
+			logger.info("Authenticate with user is " + this.authenticationComponent.getCurrentAuthentication());
+		}
+
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
 		if (logger.isDebugEnabled()) {
@@ -176,6 +185,10 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		return true;
+	}
+
+	public void setAuthenticationComponent(AuthenticationComponent authenticationComponent) {
+		this.authenticationComponent = authenticationComponent;
 	}
 
 }
