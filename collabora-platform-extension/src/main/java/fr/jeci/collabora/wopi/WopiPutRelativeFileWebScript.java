@@ -19,6 +19,7 @@ package fr.jeci.collabora.wopi;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -212,16 +213,23 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		AuthenticationUtil.pushAuthentication();
 		try {
 			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			newUrl = retryingTransactionHelper
-					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<String>() {
-						@Override
-						public String execute() throws Throwable {
-							WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
-							String alfrescoUrl = collaboraOnlineService.getAlfrescoPrivateURL().toString();
-							return String.format("%s%s%s?access_token=%s", alfrescoUrl, "s/wopi/files/",
-									newNodeRef.getId(), tokenInfo.getAccessToken());
-						}
-					});
+			RetryingTransactionHelper.RetryingTransactionCallback<String> cb = new RetryingTransactionHelper.RetryingTransactionCallback<String>() {
+				@Override
+				public String execute() throws Throwable {
+					WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
+					if (logger.isDebugEnabled()) {
+						logger.debug("tokenInfo = [" + tokenInfo.getUserName() + ":" + tokenInfo.getAccessToken() + "]");
+					}
+					URL alfrescoPrivateURL = collaboraOnlineService.getAlfrescoPrivateURL();
+					String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/",
+							newNodeRef.getId(), tokenInfo.getAccessToken());
+					if (logger.isDebugEnabled()) {
+						logger.debug("newUrl = " + newUrl);
+					}
+					return newUrl;
+				}
+			};
+			newUrl = retryingTransactionHelper.doInTransaction(cb, true);
 
 		} finally {
 			AuthenticationUtil.popAuthentication();
@@ -259,8 +267,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 						public NodeRef execute() throws Throwable {
 							String targetFileName;
 							if (isSuggested) {
-								final String sourceFileName = (String) nodeService.getProperty(nodeRef,
-										ContentModel.PROP_NAME);
+								final String sourceFileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
 								targetFileName = suggested(suggested, sourceFileName);
 							} else {
 								targetFileName = Utf7.decode(relative, Utf7.UTF7_MODIFIED);
@@ -297,8 +304,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 
 		if (newNodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"Fail to create node copy of: " + nodeRef);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Fail to create node copy of: " + nodeRef);
 		}
 
 		return newNodeRef;
@@ -366,8 +372,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 							"File with the specified name already exists: " + targetFileName);
 				}
 			} else {
-				logger.info(
-						"File with the specified name already exists: " + targetFileName + " try with another name");
+				logger.info("File with the specified name already exists: " + targetFileName + " try with another name");
 			}
 		}
 		if (logger.isDebugEnabled()) {

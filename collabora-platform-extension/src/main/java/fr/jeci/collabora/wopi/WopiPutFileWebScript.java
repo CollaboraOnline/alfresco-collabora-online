@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationComponent;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -55,9 +54,12 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-		AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
 
 		if (this.authenticationComponent.getCurrentAuthentication() == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(" CurrentAuthentication is null - setting CurrentUser oo " + wopiToken.getUserName());
+			}
+
 			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
 		} else {
 			logger.info("Authenticate with user is " + this.authenticationComponent.getCurrentAuthentication());
