@@ -41,8 +41,8 @@ import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 /**
  * Put the binary content into Alfresco.
  * 
- * The X-LOOL-WOPI-Timestamp is compare with PROP_FROZEN_MODIFIED or
- * PROP_CREATED_DATE from the current version of the target file.
+ * The X-LOOL-WOPI-Timestamp is compare with PROP_FROZEN_MODIFIED or PROP_CREATED_DATE from the current version of the
+ * target file.
  * 
  * @author jlesage
  *
@@ -55,15 +55,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 
-		if (this.authenticationComponent.getCurrentAuthentication() == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug(" CurrentAuthentication is null - setting CurrentUser oo " + wopiToken.getUserName());
-			}
-
-			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
-		} else {
-			logger.info("Authenticate with user is " + this.authenticationComponent.getCurrentAuthentication());
-		}
+		forceCurrentuser(wopiToken);
 
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
@@ -71,17 +63,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			logger.debug("WopiPutFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
 		}
 
-		/*
-		 * will have the value 'true' when the PutFile is triggered by autosave, and
-		 * 'false' when triggered by explicit user operation (Save button or menu
-		 * entry).
-		 */
-		final String hdrAutosave = req.getHeader(X_LOOL_WOPI_IS_AUTOSAVE);
-		final boolean isAutosave = hdrAutosave != null && Boolean.parseBoolean(hdrAutosave.trim());
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("- Request " + (isAutosave ? "is" : "is not") + " AUTOSAVE");
-		}
+		final boolean isAutosave = hasAutosaveHeader(req);
 
 		checkWopiTimestamp(req, res, wopiToken, nodeRef);
 
@@ -95,20 +77,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			final Version newVersion = writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
 			final Map<String, String> model = new HashMap<>(1);
 
-			if (newVersion == null) {
-				logger.warn("No version create for " + nodeRef);
-				model.put("warn", "No version create for " + nodeRef);
-			} else {
-
-				if (logger.isInfoEnabled()) {
-					logger.info("Modifier for the above nodeRef [" + nodeRef.toString() + "] is: "
-							+ newVersion.getFrozenModifier());
-				}
-
-				Date newModified = newVersion.getFrozenModifiedDate();
-				LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
-				model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
-			}
+			putLastModifiedTime(nodeRef, newVersion, model);
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ContentIOException we) {
@@ -118,10 +87,52 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
+	private void putLastModifiedTime(final NodeRef nodeRef, final Version newVersion, final Map<String, String> model) {
+		if (newVersion == null) {
+			logger.warn("No version create for " + nodeRef);
+			model.put("warn", "No version create for " + nodeRef);
+		} else {
+
+			if (logger.isInfoEnabled()) {
+				logger.info("Modifier for the above nodeRef [" + nodeRef.toString() + "] is: "
+						+ newVersion.getFrozenModifier());
+			}
+
+			Date newModified = newVersion.getFrozenModifiedDate();
+			LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
+			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
+		}
+	}
+
+	private void forceCurrentuser(final WOPIAccessTokenInfo wopiToken) {
+		if (this.authenticationComponent.getCurrentAuthentication() == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(" CurrentAuthentication is null - setting CurrentUser oo " + wopiToken.getUserName());
+			}
+
+			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
+		} else {
+			logger.info("Authenticate with user is " + this.authenticationComponent.getCurrentAuthentication());
+		}
+	}
+
+	private boolean hasAutosaveHeader(final WebScriptRequest req) {
+		/*
+		 * will have the value 'true' when the PutFile is triggered by autosave, and 'false' when triggered by explicit
+		 * user operation (Save button or menu entry).
+		 */
+		final String hdrAutosave = req.getHeader(X_LOOL_WOPI_IS_AUTOSAVE);
+		final boolean isAutosave = hdrAutosave != null && Boolean.parseBoolean(hdrAutosave.trim());
+
+		if (logger.isDebugEnabled()) {
+			logger.debug("- Request " + (isAutosave ? "is" : "is not") + " AUTOSAVE");
+		}
+		return isAutosave;
+	}
+
 	/**
-	 * Check the creation/modification date for current version. No check is there
-	 * is no version, because the cm:modified is change for any change of a
-	 * properties.
+	 * Check the creation/modification date for current version. No check is there is no version, because the cm:modified
+	 * is change for any change of a properties.
 	 * 
 	 * @param req
 	 * @param res
