@@ -51,6 +51,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
 	private AuthenticationComponent authenticationComponent;
 
+
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
@@ -76,8 +77,15 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		try {
 			final Version newVersion = writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
 			final Map<String, String> model = new HashMap<>(1);
+			if (newVersion == null) {
+				logger.warn("No version create for " + nodeRef);
+				model.put("warn", "No version create for " + nodeRef);
+			} else {
+				headerActions(req, nodeRef);
 
-			putLastModifiedTime(nodeRef, newVersion, model);
+				putLastModifiedTime(nodeRef, newVersion, model);
+			}
+
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ContentIOException we) {
@@ -87,21 +95,17 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
+
 	private void putLastModifiedTime(final NodeRef nodeRef, final Version newVersion, final Map<String, String> model) {
-		if (newVersion == null) {
-			logger.warn("No version create for " + nodeRef);
-			model.put("warn", "No version create for " + nodeRef);
-		} else {
 
-			if (logger.isInfoEnabled()) {
-				logger.info("Modifier for the above nodeRef [" + nodeRef.toString() + "] is: "
-						+ newVersion.getFrozenModifier());
-			}
-
-			Date newModified = newVersion.getFrozenModifiedDate();
-			LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
-			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
+		if (logger.isInfoEnabled()) {
+			logger.info(
+					"Modifier for the above nodeRef [" + nodeRef.toString() + "] is: " + newVersion.getFrozenModifier());
 		}
+
+		Date newModified = newVersion.getFrozenModifiedDate();
+		LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
+		model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
 	}
 
 	private void forceCurrentuser(final WOPIAccessTokenInfo wopiToken) {

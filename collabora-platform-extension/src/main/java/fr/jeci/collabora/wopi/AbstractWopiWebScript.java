@@ -36,7 +36,11 @@ import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
+import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -46,6 +50,8 @@ import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 public abstract class AbstractWopiWebScript extends AbstractWebScript {
+	private static final Log logger = LogFactory.getLog(AbstractWopiWebScript.class);
+
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
@@ -58,16 +64,21 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	static final String X_WOPI_LOCK_FAILURE_REASON = "X-WOPI-LockFailureReason";
 	static final String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
 
+	static final String X_PRISTY_ADD_PROPERTY = "X-PRISTY-ADD-PROPERTY";
+	static final String X_PRISTY_DEL_PROPERTY = "X-PRISTY-DEL-PROPERTY";
+	static final String X_PRISTY_DEL_ASPECT = "X-PRISTY-DEL-ASPECT";
+	static final String X_PRISTY_ADD_ASPECT = "X-PRISTY-ADD-ASPECT";
+
 	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
 	protected CollaboraOnlineService collaboraOnlineService;
 	protected ContentService contentService;
 	protected VersionService versionService;
 	protected RetryingTransactionHelper retryingTransactionHelper;
+	protected NamespacePrefixResolver prefixResolver;
 
 	/**
-	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists
-	 * aren't performed
+	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists aren't performed
 	 * 
 	 * @param fileId
 	 * @return
@@ -151,8 +162,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 		return wopiToken;
 	}
 
-	protected void jsonResponse(final WebScriptResponse res, int code, Map<String, String> response)
-			throws IOException {
+	protected void jsonResponse(final WebScriptResponse res, int code, Map<String, String> response) throws IOException {
 		boolean start = true;
 		StringBuilder sb = new StringBuilder("{");
 		for (Entry<String, String> e : response.entrySet()) {
@@ -216,6 +226,63 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 		}
 	}
 
+	protected void headerActions(final WebScriptRequest req, final NodeRef nodeRef) {
+		QName aspectToAdd = extractQname(req, X_PRISTY_ADD_ASPECT);
+		QName aspectToDel = extractQname(req, X_PRISTY_DEL_ASPECT);
+		Map<QName, Serializable> delProperties = extractQnamesValues(req, X_PRISTY_DEL_PROPERTY);
+		Map<QName, Serializable> properties = extractQnamesValues(req, X_PRISTY_ADD_PROPERTY);
+
+		retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
+			@Override
+			public Void execute() throws Throwable {
+
+				if (aspectToDel != null) {
+					nodeService.removeAspect(nodeRef, aspectToDel);
+				}
+				if (aspectToDel != null) {
+					nodeService.addAspect(nodeRef, aspectToAdd, properties);
+				}
+				for (QName prop : delProperties.keySet()) {
+					nodeService.removeProperty(nodeRef, prop);
+				}
+				nodeService.addProperties(nodeRef, properties);
+				return null;
+			}
+		});
+
+	}
+
+	private QName extractQname(WebScriptRequest req, String headerName) {
+		final String aspectToAddHdr = req.getHeader(headerName);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug(headerName + "=" + aspectToAddHdr);
+		}
+
+		QName aspectToAdd = null;
+		if (StringUtils.isNotBlank(aspectToAddHdr)) {
+			aspectToAdd = QName.resolveToQName(prefixResolver, aspectToAddHdr);
+		}
+		return aspectToAdd;
+	}
+
+	private Map<QName, Serializable> extractQnamesValues(WebScriptRequest req, String headerName) {
+		final String[] aspectToAddHdr = req.getHeaderValues(headerName);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug(headerName + "=" + aspectToAddHdr);
+		}
+
+		Map<QName, Serializable> aspectToAdd = new HashMap<>(aspectToAddHdr.length);
+		for (String prop : aspectToAddHdr) {
+			if (StringUtils.isNotBlank(prop)) {
+				String[] split = prop.split("=");
+				aspectToAdd.put(QName.resolveToQName(prefixResolver, split[0]), split.length > 1 ? split[1] : null);
+			}
+		}
+		return aspectToAdd;
+	}
+
 	public void setNodeService(NodeService nodeService) {
 		this.nodeService = nodeService;
 	}
@@ -235,4 +302,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript {
 	public void setRetryingTransactionHelper(RetryingTransactionHelper retryingTransactionHelper) {
 		this.retryingTransactionHelper = retryingTransactionHelper;
 	}
+
+	public void setPrefixResolver(NamespacePrefixResolver prefixResolver) {
+		this.prefixResolver = prefixResolver;
+	}
+
 }

@@ -55,6 +55,7 @@
 		<property name="retryingTransactionHelper"
 			ref="retryingTransactionHelper" />
 		<property name="versionService" ref="VersionService" />
+		<property name="prefixResolver" ref="namespaceService" />
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.CheckFileInfo.get"
