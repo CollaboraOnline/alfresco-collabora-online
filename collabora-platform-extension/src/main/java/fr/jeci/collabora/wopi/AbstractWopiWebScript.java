@@ -20,6 +20,7 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -254,12 +255,12 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	private QName extractQname(WebScriptRequest req, String headerName) {
 		final String aspectToAddHdr = req.getHeader(headerName);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug(headerName + "=" + aspectToAddHdr);
-		}
-
 		QName aspectToAdd = null;
 		if (StringUtils.isNotBlank(aspectToAddHdr)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug(headerName + "=" + aspectToAddHdr);
+			}
+
 			aspectToAdd = QName.resolveToQName(prefixResolver, aspectToAddHdr);
 		}
 		return aspectToAdd;
@@ -267,6 +268,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	private Map<QName, Serializable> extractQnamesValues(WebScriptRequest req, String headerName) {
 		final String[] aspectToAddHdr = req.getHeaderValues(headerName);
+		if (aspectToAddHdr == null) {
+			return Collections.emptyMap();
+		}
 
 		if (logger.isDebugEnabled()) {
 			logger.debug(headerName + "=" + aspectToAddHdr);
