@@ -49,25 +49,12 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
-public abstract class AbstractWopiWebScript extends AbstractWebScript {
+public abstract class AbstractWopiWebScript extends AbstractWebScript implements WopiHeader {
 	private static final Log logger = LogFactory.getLog(AbstractWopiWebScript.class);
 
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
-
-	static final String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
-	static final String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
-	static final String X_WOPI_OVERRIDE = "X-WOPI-Override";
-	static final String X_WOPI_LOCK = "X-WOPI-Lock";
-	static final String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
-	static final String X_WOPI_LOCK_FAILURE_REASON = "X-WOPI-LockFailureReason";
-	static final String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
-
-	static final String X_PRISTY_ADD_PROPERTY = "X-PRISTY-ADD-PROPERTY";
-	static final String X_PRISTY_DEL_PROPERTY = "X-PRISTY-DEL-PROPERTY";
-	static final String X_PRISTY_DEL_ASPECT = "X-PRISTY-DEL-ASPECT";
-	static final String X_PRISTY_ADD_ASPECT = "X-PRISTY-ADD-ASPECT";
 
 	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
