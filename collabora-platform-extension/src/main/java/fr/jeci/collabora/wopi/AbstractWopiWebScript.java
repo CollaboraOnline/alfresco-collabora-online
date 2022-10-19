@@ -28,11 +28,14 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.version.VersionModel;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
@@ -63,6 +66,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected VersionService versionService;
 	protected RetryingTransactionHelper retryingTransactionHelper;
 	protected NamespacePrefixResolver prefixResolver;
+	protected DictionaryService dictionaryService;
 
 	/**
 	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists aren't performed
@@ -232,7 +236,15 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 				for (QName prop : delProperties.keySet()) {
 					nodeService.removeProperty(nodeRef, prop);
 				}
+
+				/* As we only receive String, we must convert value to proper datatype */
+				for (Entry<QName, Serializable> prop : properties.entrySet()) {
+					DataTypeDefinition dataType = dictionaryService.getProperty(prop.getKey()).getDataType();
+					prop.setValue((Serializable) DefaultTypeConverter.INSTANCE.convert(dataType, prop.getValue()));
+				}
+
 				nodeService.addProperties(nodeRef, properties);
+
 				return null;
 			}
 		});
@@ -292,6 +304,10 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	public void setPrefixResolver(NamespacePrefixResolver prefixResolver) {
 		this.prefixResolver = prefixResolver;
+	}
+
+	public void setDictionaryService(DictionaryService dictionaryService) {
+		this.dictionaryService = dictionaryService;
 	}
 
 }
