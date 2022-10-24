@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# =-=            =-= #
+# =-= DahBox mvn =-= #
+# =-=            =-= #
+
+# DAHBOX_VERSION=beta
+# DAHBOX_HOME=/home/jlesage/Projets/CD30/ged-mdph-master/.dahbox
+# DAHBOX_DATE=lun. 25 oct. 2021 18:27:28 CEST
+# DAHBOX_COMMAND=dahbox create mvn --from maven --tag 3.6.3-openjdk-11  USER_HOME_DIR=\$HOME --command "mvn -Duser.home=\$HOME" --no-entrypoint
+# DAHBOX_SHA=cef88f1e743e48974644d55bfa45a42fcaac3966
+
+
+# 1. Check Image
+image_id=$(podman image ls --filter 'label=fr.jeci.dahbox.name=mvn' --filter 'label=fr.jeci.dahbox.sha=cef88f1e743e48974644d55bfa45a42fcaac3966' --noheading --quiet)
+
+# 2. Build Image
+if [[ -z "$image_id" ]]; then
+  echo "=-= DahBox Build mvn =-="
+  container=$(buildah from docker.io/maven:3.6.3-openjdk-11)
+  
+  
+
+  ## Include some buildtime annotations
+  buildah config --label "fr.jeci.dahbox.name=mvn" "$container"
+  buildah config --label "fr.jeci.dahbox.from=docker.io/maven:3.6.3-openjdk-11" "$container"
+  buildah config --label "fr.jeci.dahbox.sha=cef88f1e743e48974644d55bfa45a42fcaac3966" "$container"
+  buildah commit "$container" "dahbox/mvn:cef88f1e743e48974644d55bfa45a42fcaac3966"
+  echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+fi
+
+export PODMAN_USERNS=keep-id
+
+# 3. Run container
+podman run --rm \
+  -e USER_HOME_DIR=$HOME \
+  -v "$HOME:$HOME" -w "$PWD" \
+  --init -it --net host --security-opt label=type:container_runtime_t --entrypoint "" \
+  "dahbox/mvn:cef88f1e743e48974644d55bfa45a42fcaac3966" mvn -Duser.home=$HOME "$@"
