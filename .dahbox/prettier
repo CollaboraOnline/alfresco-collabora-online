@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# =-=                 =-= #
+# =-= DahBox prettier =-= #
+# =-=                 =-= #
+
+# DAHBOX_VERSION=beta
+# DAHBOX_HOME=/home/jlesage/Projets/CD30/ged-mdph-master/.dahbox
+# DAHBOX_DATE=mer. 03 nov. 2021 15:08:34 CET
+# DAHBOX_COMMAND=dahbox create prettier --from node --tag 14.16-alpine --command "npx prettier" prettier
+# DAHBOX_SHA=382c38ccadee8983d7a7b0b07dd37827d9ac6bc8
+
+
+# 1. Check Image
+image_id=$(podman image ls --filter 'label=fr.jeci.dahbox.name=prettier' --filter 'label=fr.jeci.dahbox.sha=382c38ccadee8983d7a7b0b07dd37827d9ac6bc8' --noheading --quiet)
+
+# 2. Build Image
+if [[ -z "$image_id" ]]; then
+  echo "=-= DahBox Build prettier =-="
+  container=$(buildah from docker.io/node:14.16-alpine)
+  
+  buildah run "$container" -- npm install -g prettier
+
+  ## Include some buildtime annotations
+  buildah config --label "fr.jeci.dahbox.name=prettier" "$container"
+  buildah config --label "fr.jeci.dahbox.from=docker.io/node:14.16-alpine" "$container"
+  buildah config --label "fr.jeci.dahbox.sha=382c38ccadee8983d7a7b0b07dd37827d9ac6bc8" "$container"
+  buildah commit "$container" "dahbox/prettier:382c38ccadee8983d7a7b0b07dd37827d9ac6bc8"
+  echo "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-="
+fi
+
+export PODMAN_USERNS=keep-id
+
+# 3. Run container
+podman run --rm \
+   \
+  -v "$HOME:$HOME" -w "$PWD" \
+  --init -it --net host --security-opt label=type:container_runtime_t  \
+  "dahbox/prettier:382c38ccadee8983d7a7b0b07dd37827d9ac6bc8" npx prettier "$@"
