@@ -228,6 +228,11 @@ Then you can access applications :
 | 0.5.2   | Looks like last CODE release (21.11) change the date format used for timestamp                                                |
 | 0.6.0   | Update to Alfresco SDK 4.4, Alfresco ACS 7.2 and Alfresco Share 7.2                                                           |
 |         | Add run.sh script to help beginners.                                                                                          |
+| 0.7.0   | Add new header to manage aspect and properties                                                                                |
+|         | Use Wopi protocol to pass the fully username                                                                                  |
+|         | Code quality                                                                                                                  |
+|         | Fix nullPointerException                                                                                                      |
+
 
 ## About Jeci
 
