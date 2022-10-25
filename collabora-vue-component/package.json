@@ -1,0 +1,50 @@
+{
+  "name": "@jeci/collabora",
+  "description": "Collabora Online in Vue",
+  "version": "0.0.1",
+  "author": "JECI SARL",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "collabora",
+    "vue"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/collabora-vue.umd.js",
+  "module": "./dist/collabora-vue.mjs",
+  "exports": {
+    ".": {
+      "import": "./dist/collabora-vue.mjs",
+      "require": "./dist/collabora-vue.umd.js"
+    }
+  },
+  "unpkg": "./dist/collabora-vue.umd.js",
+  "jsdelivr": "./dist/collabora-vue.umd.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "analyze": "vite build --config analyze.config.js",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src",
+    "format": "prettier .  --write"
+  },
+  "dependencies": {
+    "vue": "^3.2.37"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^3.1.0",
+    "eslint": "^8.25.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.3.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-promise": "^6.1.0",
+    "eslint-plugin-vue": "^9.6.0",
+    "prettier": "^2.7.1",
+    "rollup-plugin-visualizer": "^5.5.2",
+    "vite": "^3.1.0",
+    "vite-plugin-eslint": "^1.8.1"
+  }
+}
