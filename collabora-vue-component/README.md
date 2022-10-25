@@ -1,7 +1,12 @@
-# Vue 3 + Vite
+# Collabora in a Vue 3 + Vite component
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+This project is two-fold in how to show the Collabora Online iframe :
+- a Vue3 component that can be used in any vue3 application
+- an independent application that can run anywhere
 
-## Recommended IDE Setup
+It is prepared and build with vite. It also can be run with it.
 
-- [VS Code](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar)
+Usual commands :
+- `npm run build` to build the library that can be imported anywhere
+- `npm run dev` to show the application
+
