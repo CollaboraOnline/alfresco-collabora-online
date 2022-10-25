@@ -8,8 +8,8 @@ export default defineConfig({
   plugins: [eslintPlugin(), vue()],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.js"),
-      name: "pristy-libvue",
+      entry: resolve(__dirname, "src/main.js"),
+      name: "collabora-vue",
     },
   },
   server: {

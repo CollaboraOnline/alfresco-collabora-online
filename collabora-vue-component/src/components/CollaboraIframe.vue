@@ -20,9 +20,7 @@
 // Copyright (c) 2022 Jérémie Lesage - Jeci
 // -->
 <template>
-  <h1>test collabora</h1>
   <div id="loolcontainer">
-    <input type="submit" @click="postForm()" />
     <form
       id="loleafletform"
       ref="collaboraForm"
@@ -75,8 +73,7 @@ export default {
   },
   watch: {
     loading(newLoadingValue) {
-      console.log("loading", newLoadingValue, this.wopiFileUrl);
-      if (this.wopiFileUrl !== null) {
+      if (this.wopiFileUrl !== null && newLoadingValue === false) {
         this.$refs.collaboraForm.requestSubmit();
       }
     },
@@ -118,9 +115,6 @@ export default {
           console.log("MessageID : " + id + " - Values : " + values);
       }
     },
-    postForm() {
-      this.$refs.collaboraForm.submit();
-    },
   },
 };
 </script>
@@ -132,9 +126,8 @@ export default {
 }
 
 #loolcontainer {
-  bottom: 0;
   width: 100%;
-  top: 0;
+  height: 100%;
   background: none;
 }
 </style>

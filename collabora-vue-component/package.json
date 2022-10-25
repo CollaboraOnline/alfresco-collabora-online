@@ -1,5 +1,5 @@
 {
-  "name": "@jeci/collabora",
+  "name": "@jeci/collabora-vue",
   "description": "Collabora Online in Vue",
   "version": "0.0.1",
   "author": "JECI SARL",
@@ -11,16 +11,16 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/collabora-vue.umd.js",
-  "module": "./dist/collabora-vue.mjs",
+  "main": "./dist/collabora-vue.umd.cjs",
+  "module": "./dist/collabora-vue.js",
   "exports": {
     ".": {
-      "import": "./dist/collabora-vue.mjs",
-      "require": "./dist/collabora-vue.umd.js"
+      "import": "./dist/collabora-vue.js",
+      "require": "./dist/collabora-vue.umd.cjs"
     }
   },
-  "unpkg": "./dist/collabora-vue.umd.js",
-  "jsdelivr": "./dist/collabora-vue.umd.js",
+  "unpkg": "./dist/collabora-vue.umd.cjs",
+  "jsdelivr": "./dist/collabora-vue.umd.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
