@@ -1,31 +1,78 @@
-<script setup>
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
-import HelloWorld from "./components/HelloWorld.vue";
+<template>
+  <collabora-iframe
+    v-if="wopiFileUrl && collaboraUrl"
+    :access-token="accessToken"
+    :access-token-t-t-l="accessTokenTTL"
+    :collabora-url="collaboraUrl"
+    :wopi-file-url="wopiFileUrl"
+  ></collabora-iframe>
+</template>
+<script>
+import CollaboraIframe from "./components/CollaboraIframe.vue";
+import axios from "axios";
+
+export default {
+  name: "CollaboraOnlineVue",
+  components: {
+    CollaboraIframe,
+  },
+  data() {
+    return {
+      accessToken: null,
+      accessTokenTTL: null,
+      collaboraUrl: null,
+      wopiFileUrl: null,
+    };
+  },
+  created() {
+    this.loadExample();
+  },
+  methods: {
+    loadExample() {
+      let nodeId = "0dde2d84-0ba6-4f6e-9f0a-0eb9f15d9888";
+      this.getLoolUrl()
+        .then((loolUrl) => {
+          this.wopiFileUrl = encodeURI(
+            `${loolUrl["lool_host_url"]}wopi/files/${nodeId}`
+          );
+          return this.getAccessToken(nodeId, "edit");
+        })
+        .then((getAccessToken) => {
+          this.accessToken = getAccessToken["access_token"];
+          this.accessTokenTTL = getAccessToken["access_token_ttl"];
+          this.collaboraUrl = getAccessToken["wopi_src_url"];
+        });
+    },
+    getLoolUrl() {
+      let path = `http://localhost:8008/alfresco/service/lool/host/url`;
+      return axios
+        .get(path)
+        .then((resp) => {
+          console.log("lool url :");
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((error) => {
+          console.log(`erreur : ${error}`);
+          return error;
+        });
+    },
+    getAccessToken(nodeId, action) {
+      let path = `http://localhost:8008/alfresco/service/lool/token?nodeRef=workspace://SpacesStore/${nodeId}&action=${action}`;
+      return axios
+        .get(path)
+        .then((resp) => {
+          console.log("access token :");
+          console.log(resp.data);
+          return resp.data;
+        })
+        .catch((error) => {
+          console.log(`erreur : ${error}`);
+          return error;
+        });
+    },
+  },
+};
 </script>
 
-<template>
-  <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
-</template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+<style></style>

@@ -1,16 +1,3 @@
-<script setup>
-import { ref } from "vue";
-
-defineProps({
-  msg: {
-    type: String,
-    default: "",
-  },
-});
-
-const count = ref(0);
-</script>
-
 <template>
   <h1>{{ msg }}</h1>
 
@@ -35,6 +22,18 @@ const count = ref(0);
   </p>
   <p class="read-the-docs">Click on the Vite and Vue logos to learn more</p>
 </template>
+<script setup>
+import { ref } from "vue";
+
+defineProps({
+  msg: {
+    type: String,
+    default: "",
+  },
+});
+
+const count = ref(0);
+</script>
 
 <style scoped>
 .read-the-docs {
