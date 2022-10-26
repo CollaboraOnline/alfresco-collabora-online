@@ -81,41 +81,6 @@ export default {
   mounted() {
     this.loading = false;
   },
-  unmounted() {
-    window.removeEventListener("message", this.listenerHandlePostMessage, true);
-  },
-  methods: {
-    handlePostMessage(event) {
-      console.log("handlePostMessage event data:");
-      console.log(event.data);
-      let message = JSON.parse(event.data);
-      let id = message.MessageId;
-      let values = message.Values;
-
-      switch (id) {
-        case "UI_Close":
-          console.log("PostMessage Recev: UI_CLose - move to");
-          // Go back to previous page
-          //this.router.navigateByUrl(this.previousUrl);
-          break;
-        case "App_LoadingStatus":
-          if (values.Status === "Frame_Ready") {
-            // Add readonly
-          }
-          console.log(
-            "PostMessage Recev: App_LoadingStatus - Status:" + values.Status
-          );
-          break;
-        case "View_Added":
-          console.log(
-            "PostMessage Recev: View_Added - Values:" + JSON.stringify(values)
-          );
-          break;
-        default:
-          console.log("MessageID : " + id + " - Values : " + values);
-      }
-    },
-  },
 };
 </script>
 <style lang="scss">
