@@ -1,5 +1,5 @@
 <template>
-  <H1>Example Collabora with Vue</H1>
+  <h1>Example Collabora with Vue</h1>
   <collabora-iframe
     v-if="wopiFileUrl && collaboraUrl"
     :access-token="accessToken"
