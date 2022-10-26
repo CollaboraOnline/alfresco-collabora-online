@@ -1,5 +1,5 @@
 {
-  "name": "@pristy/collabora-vue",
+  "name": "@pristy/pristy-collabora-component",
   "description": "Collabora Online in Vue",
   "version": "0.0.1",
   "author": "JECI SARL",
@@ -11,16 +11,16 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/collabora-vue.umd.cjs",
-  "module": "./dist/collabora-vue.js",
+  "main": "./dist/pristy-collabora-component.umd.cjs",
+  "module": "./dist/pristy-collabora-component.js",
   "exports": {
     ".": {
-      "import": "./dist/collabora-vue.js",
-      "require": "./dist/collabora-vue.umd.cjs"
+      "import": "./dist/pristy-collabora-component.js",
+      "require": "./dist/pristy-collabora-component.umd.cjs"
     }
   },
-  "unpkg": "./dist/collabora-vue.umd.cjs",
-  "jsdelivr": "./dist/collabora-vue.umd.cjs",
+  "unpkg": "./dist/pristy-collabora-component.umd.cjs",
+  "jsdelivr": "./dist/pristy-collabora-component.umd.cjs",
   "type": "module",
   "scripts": {
     "dev": "vite",
