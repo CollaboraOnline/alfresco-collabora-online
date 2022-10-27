@@ -18,12 +18,14 @@
 <!--
 // Copyright (c) 2018 Ross Kaffenberger
 // Copyright (c) 2022 Jérémie Lesage - Jeci
+
+
+
 // -->
 <template>
   <div id="loolcontainer">
     <form
       id="loleafletform"
-      ref="collaboraForm"
       name="loleafletform"
       method="POST"
       :action="`${collaboraUrl}WOPISrc=${wopiFileUrl}`"
@@ -41,8 +43,6 @@
   </div>
 </template>
 <script>
-import { ref } from "vue";
-
 export default {
   name: "CollaboraIframe",
   props: {
@@ -63,24 +63,41 @@ export default {
       default: "",
     },
   },
-  setup() {
-    const collaboraForm = ref(null);
-    return { collaboraForm };
-  },
   data() {
     return {
-      loading: true,
+      loading: {
+        wopi: true,
+        collab: true,
+      },
     };
   },
   watch: {
-    loading(newLoadingValue) {
-      if (this.wopiFileUrl !== null && newLoadingValue === false) {
-        this.$refs.collaboraForm.requestSubmit();
-      }
+    wopiFileUrl() {
+      this.loading.wopi = false;
+    },
+    collaboraUrl() {
+      this.loading.collab = false;
+    },
+    //Loading is watched when the component is imported in another project
+    loading: {
+      handler() {
+        console.log("loading", this.loading);
+        if (this.collaboraUrl && this.wopiFileUrl) {
+          this.$nextTick(() => {
+            this.$el.children.loleafletform.requestSubmit();
+          });
+        }
+      },
+      deep: true,
     },
   },
+  //Mounted is used when the component is imported in the current project
   mounted() {
-    this.loading = false;
+    if (this.collaboraUrl && this.wopiFileUrl) {
+      this.$nextTick(() => {
+        this.$el.children.loleafletform.requestSubmit();
+      });
+    }
   },
 };
 </script>
