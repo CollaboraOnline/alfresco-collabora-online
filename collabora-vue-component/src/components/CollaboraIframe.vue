@@ -41,6 +41,8 @@
   </div>
 </template>
 <script>
+import { ref } from "vue";
+
 export default {
   name: "CollaboraIframe",
   props: {
@@ -61,13 +63,12 @@ export default {
       default: "",
     },
   },
+  setup() {
+    const collaboraForm = ref(null);
+    return { collaboraForm };
+  },
   data() {
     return {
-      listenerHandlePostMessage: null,
-      iFrameUrl: {
-        type: String,
-        default: null,
-      },
       loading: true,
     };
   },

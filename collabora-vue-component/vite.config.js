@@ -8,8 +8,18 @@ export default defineConfig({
   plugins: [eslintPlugin(), vue()],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/main.js"),
-      name: "collabora-vue",
+      entry: resolve(__dirname, "src/index.js"),
+      name: "pristy-collabora-component",
+    },
+    rollupOptions: {
+      external: ["vue"],
+      output: {
+        // Provide global variables to use in the UMD build
+        // for externalized deps
+        globals: {
+          vue: "Vue",
+        },
+      },
     },
   },
   server: {
