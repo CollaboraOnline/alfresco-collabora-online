@@ -1,7 +1,7 @@
 {
   "name": "@pristy/pristy-collabora-component",
   "description": "Collabora Online in Vue",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "author": "JECI SARL",
   "license": "AGPL-3.0",
   "keywords": [
@@ -48,5 +48,8 @@
     "vite": "^3.1.0",
     "vite-plugin-eslint": "^1.8.1",
     "vue": "^3.2.37"
+  },
+	 "publishConfig": {
+    "registry": "https://nexus.jeci.tech/repository/pristy/"
   }
 }
