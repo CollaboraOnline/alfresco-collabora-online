@@ -30,6 +30,7 @@ export default {
   },
   methods: {
     loadExample() {
+      // This node needs to be changed to an existing node on your server
       let nodeId = "0dde2d84-0ba6-4f6e-9f0a-0eb9f15d9888";
       this.getLoolUrl()
         .then((loolUrl) => {
@@ -45,6 +46,7 @@ export default {
         });
     },
     getLoolUrl() {
+      // local path is proxied by Vite from Alfresco Server
       let path = `http://localhost:8008/alfresco/service/lool/host/url`;
       return axios
         .get(path)

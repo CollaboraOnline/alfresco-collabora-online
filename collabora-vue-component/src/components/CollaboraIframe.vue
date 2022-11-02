@@ -81,7 +81,6 @@ export default {
     //Loading is watched when the component is imported in another project
     loading: {
       handler() {
-        console.log("loading", this.loading);
         if (this.collaboraUrl && this.wopiFileUrl) {
           this.$nextTick(() => {
             this.$el.children.loleafletform.requestSubmit();
