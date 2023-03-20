@@ -15,13 +15,6 @@
   along with this program.  If not, see https://www.gnu.org/licenses/agpl-3.0.html.
 -->
 
-<!--
-// Copyright (c) 2018 Ross Kaffenberger
-// Copyright (c) 2022 Jérémie Lesage - Jeci
-
-
-
-// -->
 <template>
   <div id="loolcontainer">
     <form
