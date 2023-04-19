@@ -232,6 +232,7 @@ Then you can access applications :
 |         | Use Wopi protocol to pass the fully username                                                                                  |
 |         | Code quality                                                                                                                  |
 |         | Fix nullPointerException                                                                                                      |
+| 0.7.1   | Add build amp                                                                                                                 |
 
 
 ## About Jeci
