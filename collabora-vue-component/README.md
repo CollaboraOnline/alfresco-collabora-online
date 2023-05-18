@@ -21,3 +21,9 @@ The main view (http://localhost:8008/index.html) is the independent application.
 
 Example :
 http://localhost:8008/index.html?collaboraUrl=http://localhost:9980/browser/b639546/cool.html?&wopiFileUrl=http://acs:8080/alfresco/service/wopi/files/0dde2d84-0ba6-4f6e-9f0a-0eb9f15d9888&access_token=ghseipu77bseoo1jgodbj7ci75&access_token_ttl=1666803915100
+
+Changelog
+
+* v0.1.0 : inital public release
+* v0.1.1 : update dependencies (axios, saas, vite)
+* v0.2.0 : add lang, ui_defaults and css_variables parameters
