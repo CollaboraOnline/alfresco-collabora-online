@@ -27,12 +27,10 @@
     >
       <input type="text" name="access_token" :value="accessToken" />
       <input type="text" name="access_token_ttl" :value="accessTokenTTL" />
+      <input type="hidden" name="ui_defaults" :value="uiDefaults" />
+      <input type="hidden" name="css_variables" :value="cssVariables" />
     </form>
-    <iframe
-      id="loleafletframe"
-      name="loleafletframe"
-      allow="fullscreen"
-    ></iframe>
+    <iframe id="loleafletframe" name="loleafletframe" allow="fullscreen" />
   </div>
 </template>
 <script>
@@ -59,6 +57,16 @@ export default {
       type: String,
       default: "en",
     },
+    uiMode: {
+      type: String,
+      default: "tabbed",
+    },
+    cssVariables: {
+      type: String,
+      default: "",
+      description:
+        "https://sdk.collaboraonline.com/docs/theming.html#available-variables",
+    },
   },
   data() {
     return {
@@ -67,6 +75,12 @@ export default {
         collab: true,
       },
     };
+  },
+  computed: {
+    uiDefaults() {
+      // https://sdk.collaboraonline.com/docs/theming.html
+      return `UIMode=${this.uiMode}`;
+    },
   },
   watch: {
     wopiFileUrl() {
