@@ -21,7 +21,7 @@
       id="loleafletform"
       name="loleafletform"
       method="POST"
-      :action="`${collaboraUrl}WOPISrc=${wopiFileUrl}`"
+      :action="`${collaboraUrl}WOPISrc=${wopiFileUrl}&lang=${lang}`"
       target="loleafletframe"
       hidden="hidden"
     >
@@ -54,6 +54,10 @@ export default {
     collaboraUrl: {
       type: String,
       default: "",
+    },
+    lang: {
+      type: String,
+      default: "en",
     },
   },
   data() {
