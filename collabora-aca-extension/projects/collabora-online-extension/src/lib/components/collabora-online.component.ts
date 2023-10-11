@@ -19,8 +19,9 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef 
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { MinimalNodeEntryEntity } from '@alfresco/js-api';
-import { UserPreferencesService } from '@alfresco/adf-core';
+import { UserPreferencesService, UserPreferenceValues } from '@alfresco/adf-core';
 import { CollaboraOnlineService } from '../services/collabora-online.service';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
 @Component({
@@ -48,6 +49,8 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
   listenerHandlePostMessage: any;
   locale: string
 
+  private onDestroy$ = new Subject<boolean>();
+
   constructor(private collaboraOnlineService: CollaboraOnlineService,
               private userPreferencesService: UserPreferencesService,
               private route: ActivatedRoute,
@@ -70,7 +73,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
     this.userPreferencesService
         .select(UserPreferenceValues.Locale)
         .pipe(takeUntil(this.onDestroy$))
-        .subscribe(locale => this.setLocale(locale));
+        .subscribe((locale) => this.locale = locale);
 
     // Get previous url
     this.previousUrl = this.collaboraOnlineService.getPreviousUrl();
@@ -87,7 +90,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
       responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'edit');
     }
     const wopiSrcUrl = responseToken.wopi_src_url;
-    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&lang=' + locale;
+    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&lang=' + this.locale;
     if (this.action === 'view') {
       this.iFrameUrl += '&permission=readonly';
     }
@@ -108,6 +111,8 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(){
+    this.onDestroy$.next(true);
+    this.onDestroy$.complete();
     window.removeEventListener("message", this.listenerHandlePostMessage, true);
   }
 
