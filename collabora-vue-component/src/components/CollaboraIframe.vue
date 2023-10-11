@@ -30,7 +30,7 @@
       <input type="hidden" name="ui_defaults" :value="uiDefaults" />
       <input type="hidden" name="css_variables" :value="cssVariables" />
     </form>
-    <iframe id="loleafletframe" name="loleafletframe" allow="fullscreen" />
+    <iframe id="loleafletframe" name="loleafletframe" allowfullscreen />
   </div>
 </template>
 <script>
