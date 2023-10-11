@@ -19,7 +19,9 @@ import { Component, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef 
 import { ActivatedRoute, Router } from '@angular/router';
 import { ContentApiService } from '@alfresco/aca-shared';
 import { MinimalNodeEntryEntity } from '@alfresco/js-api';
+import { UserPreferencesService } from '@alfresco/adf-core';
 import { CollaboraOnlineService } from '../services/collabora-online.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'collabora-online',
@@ -44,8 +46,10 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
   accessTokenTTL: string;
   iFrameUrl: string;
   listenerHandlePostMessage: any;
+  locale: string
 
   constructor(private collaboraOnlineService: CollaboraOnlineService,
+              private userPreferencesService: UserPreferencesService,
               private route: ActivatedRoute,
               private contentApi: ContentApiService,
               private router: Router) {
@@ -63,6 +67,11 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
       }
     }
 
+    this.userPreferencesService
+        .select(UserPreferenceValues.Locale)
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe(locale => this.setLocale(locale));
+
     // Get previous url
     this.previousUrl = this.collaboraOnlineService.getPreviousUrl();
 
@@ -78,7 +87,7 @@ export class CollaboraOnlineComponent implements OnInit, OnDestroy {
       responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'edit');
     }
     const wopiSrcUrl = responseToken.wopi_src_url;
-    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl);
+    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&lang=' + locale;
     if (this.action === 'view') {
       this.iFrameUrl += '&permission=readonly';
     }
