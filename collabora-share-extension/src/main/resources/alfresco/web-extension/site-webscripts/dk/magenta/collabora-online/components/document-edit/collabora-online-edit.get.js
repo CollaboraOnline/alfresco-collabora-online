@@ -28,7 +28,7 @@
                 var wopi_src_url = post.wopi_src_url;
                 var fileId = nodeRef.substring(nodeRef.lastIndexOf('/') + 1);
                 var wopiFileURL = wopi_host_url + "/wopi/files/" + fileId;
-                var params = "WOPISrc=" + encodeURI(wopiFileURL);
+                var params = "WOPISrc=" + encodeURI(wopiFileURL) + "&lang=" + navigator.language;
                 params += "&closebutton=1";
 
                 model.wopiFileURL = wopiFileURL;
