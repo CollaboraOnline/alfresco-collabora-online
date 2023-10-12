@@ -15,8 +15,11 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-import { Component, Input, OnInit, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, ViewEncapsulation, ViewChild, ElementRef } from '@angular/core';
 import { CollaboraOnlineService } from '../../services/collabora-online.service';
+import { UserPreferencesService, UserPreferenceValues } from '@alfresco/adf-core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'viewer-collabora-online',
@@ -37,12 +40,20 @@ export class ViewerCollaboraOnlineComponent implements OnInit {
   accessToken: string;
   accessTokenTTL: String;
   iFrameUrl: string;
+  locale: string
 
+  private onDestroy$ = new Subject<boolean>();
 
-  constructor(private collaboraOnlineService: CollaboraOnlineService) {
+  constructor(private collaboraOnlineService: CollaboraOnlineService,
+              private userPreferencesService: UserPreferencesService) {
   }
 
   async ngOnInit() {
+    this.userPreferencesService
+        .select(UserPreferenceValues.Locale)
+        .pipe(takeUntil(this.onDestroy$))
+        .subscribe((locale) => this.locale = locale);
+
     console.log("Node id : " + this.nodeId);
     // Get url du serveur collabora online
     const wopiHostUrl = await this.collaboraOnlineService.getLoolUrl();
@@ -56,7 +67,7 @@ export class ViewerCollaboraOnlineComponent implements OnInit {
       responseToken = await this.collaboraOnlineService.getAccessToken(this.nodeId, 'view');
     }
     const wopiSrcUrl = responseToken.wopi_src_url;
-    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl);
+    this.iFrameUrl = wopiSrcUrl + 'WOPISrc=' + encodeURI(wopiFileUrl) + '&lang=' + this.locale;
 
     // Remplissage du formulaire dynamique
     this.postForm.nativeElement.action = this.iFrameUrl
@@ -65,5 +76,10 @@ export class ViewerCollaboraOnlineComponent implements OnInit {
 
     // Déclenchement du post
     this.postForm.nativeElement.submit();
+  }
+
+  ngOnDestroy(){
+    this.onDestroy$.next(true);
+    this.onDestroy$.complete();
   }
 }
