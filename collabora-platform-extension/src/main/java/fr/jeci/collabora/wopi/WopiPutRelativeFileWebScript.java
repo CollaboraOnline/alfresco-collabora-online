@@ -95,7 +95,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			AuthenticationUtil.pushAuthentication();
 			try {
 				AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-				model = wopiOverrideSwicth(req, res, nodeRef, wopiToken);
+				model = wopiOverrideSwitch(req, res, nodeRef, wopiToken);
 			} finally {
 				AuthenticationUtil.popAuthentication();
 			}
@@ -114,7 +114,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 	}
 
-	private final Map<String, String> wopiOverrideSwicth(final WebScriptRequest req, final WebScriptResponse res,
+	private final Map<String, String> wopiOverrideSwitch(final WebScriptRequest req, final WebScriptResponse res,
 			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
@@ -126,7 +126,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		try {
 			override = WopiOverride.valueOf(wopiOverrideHeader);
 		} catch (IllegalArgumentException e) {
-			throw new WebScriptException(X_WOPI_OVERRIDE + " unkown value " + wopiOverrideHeader);
+			throw new WebScriptException(X_WOPI_OVERRIDE + " unknown value " + wopiOverrideHeader);
 		}
 
 		if (logger.isDebugEnabled()) {
