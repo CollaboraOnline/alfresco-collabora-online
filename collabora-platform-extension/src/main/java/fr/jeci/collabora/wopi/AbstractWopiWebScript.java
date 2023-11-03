@@ -16,26 +16,16 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
-
+import fr.jeci.collabora.alfresco.CollaboraOnlineService;
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.repo.version.VersionModel;
+import org.alfresco.repo.version.VersionBaseModel;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
@@ -50,8 +40,14 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.CollaboraOnlineService;
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class AbstractWopiWebScript extends AbstractWebScript implements WopiHeader {
 	private static final Log logger = LogFactory.getLog(AbstractWopiWebScript.class);
@@ -68,6 +64,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected RetryingTransactionHelper retryingTransactionHelper;
 	protected NamespacePrefixResolver prefixResolver;
 	protected DictionaryService dictionaryService;
+	protected RenditionService2 renditionService;
 
 	/**
 	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists aren't performed
@@ -180,8 +177,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	/**
 	 * Write content file to disk on set version properties.
-	 * 
-	 * @param InputStream input stream data
+	 *
+	 * @param inputStream input stream data
 	 * @param isAutosave  id true, set PROP_DESCRIPTION, "Edit with Collabora"
 	 * @param wopiToken
 	 * @param nodeRef     node to update
@@ -203,18 +200,36 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 							writer.putContent(new BufferedInputStream(inputStream));
 
 							Map<String, Serializable> versionProperties = new HashMap<>(2);
-							versionProperties.put(VersionModel.PROP_VERSION_TYPE, VersionType.MINOR);
+							versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
 							if (isAutosave) {
-								versionProperties.put(VersionModel.PROP_DESCRIPTION,
+								versionProperties.put(VersionBaseModel.PROP_DESCRIPTION,
 										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
 							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-							return versionService.createVersion(nodeRef, versionProperties);
+							Version newVersion = versionService.createVersion(nodeRef, versionProperties);
+							if (!isAutosave) {
+								askForRendition(nodeRef);
+							}
+							return newVersion;
 						}
 					});
 
 		} finally {
 			AuthenticationUtil.popAuthentication();
+		}
+
+	}
+
+	private void askForRendition(final NodeRef nodeRef) {
+		try {
+			this.renditionService.render(nodeRef, "preview");
+		} catch (UnsupportedOperationException exp) {
+			logger.warn("Rendition 'preview' not supported for " + nodeRef);
+		}
+		try {
+			this.renditionService.render(nodeRef, "pdf");
+		} catch (UnsupportedOperationException exp) {
+			logger.warn("Rendition 'pdf' not supported for " + nodeRef);
 		}
 	}
 
