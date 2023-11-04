@@ -329,4 +329,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		this.dictionaryService = dictionaryService;
 	}
 
+	public void setRenditionService(RenditionService2 renditionService) {
+		this.renditionService = renditionService;
+	}
 }
