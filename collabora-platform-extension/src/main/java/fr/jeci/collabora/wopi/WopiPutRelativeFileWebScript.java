@@ -189,6 +189,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		try {
 			writeFileToDisk(inputStream, false, wopiToken, newNodeRef);
 
+			askForRendition(newNodeRef);
+
 			String newUrl = generateUrl(wopiToken, newNodeRef);
 
 			if (logger.isDebugEnabled()) {
