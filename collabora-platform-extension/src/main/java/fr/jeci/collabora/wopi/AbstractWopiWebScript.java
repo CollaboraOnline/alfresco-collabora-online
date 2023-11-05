@@ -56,6 +56,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
 
+	private static final String[] RENDITIONS = new String[] { "imgpreview", "medium", "doclib", "webpreview" };
+
 	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
 	protected CollaboraOnlineService collaboraOnlineService;
@@ -221,16 +223,15 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	private void askForRendition(final NodeRef nodeRef) {
-		try {
-			this.renditionService.render(nodeRef, "preview");
-		} catch (UnsupportedOperationException exp) {
-			logger.warn("Rendition 'preview' not supported for " + nodeRef);
+
+		for (String name : RENDITIONS) {
+			try {
+				this.renditionService.render(nodeRef, name);
+			} catch (UnsupportedOperationException | java.lang.IllegalArgumentException exp) {
+				logger.warn("Rendition 'preview' not supported for " + nodeRef);
+			}
 		}
-		try {
-			this.renditionService.render(nodeRef, "pdf");
-		} catch (UnsupportedOperationException exp) {
-			logger.warn("Rendition 'pdf' not supported for " + nodeRef);
-		}
+
 	}
 
 	protected void headerActions(final WebScriptRequest req, final NodeRef nodeRef) {
