@@ -208,11 +208,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 							}
 							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-							Version newVersion = versionService.createVersion(nodeRef, versionProperties);
-							if (!isAutosave) {
-								askForRendition(nodeRef);
-							}
-							return newVersion;
+							return versionService.createVersion(nodeRef, versionProperties);
 						}
 					});
 
@@ -222,13 +218,13 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	}
 
-	private void askForRendition(final NodeRef nodeRef) {
+	protected void askForRendition(final NodeRef nodeRef) {
 
 		for (String name : RENDITIONS) {
 			try {
 				this.renditionService.render(nodeRef, name);
 			} catch (UnsupportedOperationException | java.lang.IllegalArgumentException exp) {
-				logger.warn("Rendition 'preview' not supported for " + nodeRef);
+				logger.warn("Rendition '" + name + "' not supported for " + nodeRef);
 			}
 		}
 

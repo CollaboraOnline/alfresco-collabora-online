@@ -76,6 +76,11 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 		try {
 			final Version newVersion = writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
+
+			if (!isAutosave) {
+				askForRendition(nodeRef);
+			}
+
 			final Map<String, String> model = new HashMap<>(1);
 			if (newVersion == null) {
 				logger.warn("No version create for " + nodeRef);
