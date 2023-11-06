@@ -8,7 +8,7 @@
   <parent>
     <groupId>fr.jeci.alfresco</groupId>
     <artifactId>alfresco-collabora-online</artifactId>
-    <version>0.7.2-SNAPSHOT</version>
+    <version>1.0.0</version>
   </parent>
 
   <properties>

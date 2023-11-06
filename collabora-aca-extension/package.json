@@ -1,6 +1,6 @@
 {
   "name": "@jeci/alfresco-collabora-online",
-  "version": "0.7.2",
+  "version": "1.0.0",
   "license": "Apache-2.0",
   "scripts": {
     "ng": "ng",
