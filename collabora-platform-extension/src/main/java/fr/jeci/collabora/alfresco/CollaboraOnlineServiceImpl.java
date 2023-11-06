@@ -343,9 +343,13 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	private boolean isNodeLock(NodeRef nodeRef) {
-		LockStatus status = this.lockService.getLockStatus(nodeRef);
+		if (this.nodeService.hasAspect(nodeRef, ContentModel.ASPECT_LOCKABLE)) {
+			LockType lockType = this.lockService.getLockType(nodeRef);
 
-		return LockStatus.LOCKED.equals(status);
+			return LockType.NODE_LOCK.equals(lockType);
+		}
+
+		return false;
 	}
 
 	public void setNodeService(NodeService nodeService) {
