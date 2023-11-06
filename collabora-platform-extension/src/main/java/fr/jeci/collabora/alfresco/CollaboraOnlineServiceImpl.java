@@ -274,7 +274,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new ConflictException(EMPTY_STRING, lockFailureReason);
 		}
 
-		this.lockService.lock(nodeRef, LockType.NODE_LOCK, 30 * 60, Lifetime.EPHEMERAL, lockId);
+		this.lockService.lock(nodeRef, LockType.WRITE_LOCK, 30 * 60, Lifetime.EPHEMERAL, lockId);
 
 		return lockId;
 	}
