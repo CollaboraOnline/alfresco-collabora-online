@@ -34,6 +34,8 @@ import fr.jeci.collabora.alfresco.CollaboraOnlineModel;
  * @author Cindy Piassale 
  * Search for files for which the lock has expired
  * Removing locks
+ *
+ * @deprecated We use LockService now
  */
 public class CleanLockJobExecuter {
 
