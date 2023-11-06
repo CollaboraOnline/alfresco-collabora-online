@@ -72,7 +72,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private PermissionService permissionService;
 	private LockService lockService;
 
-	private SecureRandom random = new SecureRandom();
+	private final SecureRandom random = new SecureRandom();
 
 	public void init() {
 		if (collaboraPublicUrl == null) {
