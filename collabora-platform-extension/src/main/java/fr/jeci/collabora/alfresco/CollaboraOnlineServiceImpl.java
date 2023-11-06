@@ -16,26 +16,20 @@ limitations under the License.
 */
 package fr.jeci.collabora.alfresco;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigInteger;
-import java.net.URL;
-import java.security.SecureRandom;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.cache.SimpleCache;
+import org.alfresco.repo.lock.mem.Lifetime;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.lock.LockService;
+import org.alfresco.service.cmr.lock.LockStatus;
+import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,14 +37,19 @@ import org.joda.time.LocalDateTime;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
-import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.URL;
+import java.security.SecureRandom;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private static final String CANT_LOCK = "Can't lock node %s, ";
 	private static final String CANT_UNLOCK = "Can't unlock node %s, ";
 	private static final String CANT_REFRESH = "Can't refresh node %s, ";
-	private static final String LOCK_ID_IS_NOT_CORRECT = "lockId is not correct %s != %s";
 	private static final String LOCK_ID_IS_BLANK = "lockId is blank";
 	private static final String NODE_NOT_LOCK = "node is not lock";
 	private static final String EMPTY_STRING = "";
@@ -71,6 +70,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private WopiDiscovery wopiDiscovery;
 	private NodeService nodeService;
 	private PermissionService permissionService;
+	private LockService lockService;
 
 	private SecureRandom random = new SecureRandom();
 
@@ -274,11 +274,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new ConflictException(EMPTY_STRING, lockFailureReason);
 		}
 
-		if (isNodeLock(nodeRef)) {
-			doRefresh(nodeRef, lockId);
-		} else {
-			doLock(nodeRef, lockId);
-		}
+		this.lockService.lock(nodeRef, LockType.NODE_LOCK, 30 * 60, Lifetime.EPHEMERAL, lockId);
 
 		return lockId;
 	}
@@ -290,7 +286,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		if (isNodeLock(nodeRef)) {
-			return (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
+			return this.lockService.getAdditionalInfo(nodeRef);
 		} else {
 			return EMPTY_STRING;
 		}
@@ -308,7 +304,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		if (isNodeLock(nodeRef)) {
-			doRefresh(nodeRef, lockId);
+			this.lockService.lock(nodeRef, LockType.NODE_LOCK, 30 * 60, Lifetime.EPHEMERAL, lockId);
 		} else {
 			String lockFailureReason = String.format(CANT_REFRESH + NODE_NOT_LOCK, nodeRef);
 			throw new ConflictException(EMPTY_STRING, lockFailureReason);
@@ -327,7 +323,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		if (isNodeLock(nodeRef)) {
-			doUnLock(nodeRef, lockId);
+			this.lockService.unlock(nodeRef);
 		} else {
 			String lockFailureReason = String.format(CANT_UNLOCK + NODE_NOT_LOCK, nodeRef);
 			throw new ConflictException(EMPTY_STRING, lockFailureReason);
@@ -343,82 +339,13 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			logger.debug("UNLOCK '" + nodeRef + "'");
 		}
 
-		if (force) {
-			// Unlock
-			nodeService.removeAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
-		} else {
-			// Remove Lock Aspect
-			isNodeLock(nodeRef);
-		}
-
+		this.lockService.unlock(nodeRef);
 	}
 
 	private boolean isNodeLock(NodeRef nodeRef) {
-		boolean hasAspect = nodeService.hasAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
-		if (!hasAspect) {
-			return false;
-		}
+		LockStatus status = this.lockService.getLockStatus(nodeRef);
 
-		final String propLockId = (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
-		if (propLockId == null) {
-			nodeService.removeAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
-			return false;
-		}
-
-		Date propExpiration = (Date) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_EXPIRATION);
-		LocalDateTime expiresAt = new LocalDateTime(propExpiration);
-		if (LocalDateTime.now().isAfter(expiresAt)) {
-			nodeService.removeAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
-			return false;
-		}
-
-		return true;
-	}
-
-	private void doLock(NodeRef nodeRef, final String lockID) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("LOCK doLock " + nodeRef + "#" + lockID);
-		}
-		
-		Map<QName, Serializable> props = new HashMap<>(2);
-		props.put(CollaboraOnlineModel.PROP_LOCK_ID, lockID);
-		LocalDateTime expiresAt = LocalDateTime.now().plusMinutes(30);
-		props.put(CollaboraOnlineModel.PROP_LOCK_EXPIRATION, expiresAt.toDate());
-		nodeService.addAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE, props);
-	}
-
-	private void doRefresh(NodeRef nodeRef, String lockId) throws ConflictException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("LOCK doRefresh " + nodeRef + "#" + lockId);
-		}
-
-		final String propLockId = (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
-
-		if (!propLockId.equals(lockId)) {
-			String lockFailureReason = String.format(CANT_REFRESH + LOCK_ID_IS_NOT_CORRECT, nodeRef, propLockId,
-					lockId);
-			throw new ConflictException(propLockId, lockFailureReason);
-		}
-
-		// Refresh lock
-		LocalDateTime newExpireAt = LocalDateTime.now().plusMinutes(30);
-		nodeService.setProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_EXPIRATION, newExpireAt.toDate());
-	}
-
-	private void doUnLock(NodeRef nodeRef, String lockId) throws ConflictException {
-		if (logger.isDebugEnabled()) {
-			logger.debug("LOCK doUnLock " + nodeRef + "#" + lockId);
-		}
-		
-		final String propLockId = (String) nodeService.getProperty(nodeRef, CollaboraOnlineModel.PROP_LOCK_ID);
-
-		if (!propLockId.equals(lockId)) {
-			String lockFailureReason = String.format(CANT_UNLOCK + LOCK_ID_IS_NOT_CORRECT, nodeRef, propLockId, lockId);
-			throw new ConflictException(propLockId, lockFailureReason);
-		}
-
-		// Unlock
-		nodeService.removeAspect(nodeRef, CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE);
+		return LockStatus.LOCKED.equals(status);
 	}
 
 	public void setNodeService(NodeService nodeService) {
@@ -461,4 +388,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		this.wopiDiscovery = wopiDiscovery;
 	}
 
+	public void setLockService(LockService lockService) {
+		this.lockService = lockService;
+	}
 }

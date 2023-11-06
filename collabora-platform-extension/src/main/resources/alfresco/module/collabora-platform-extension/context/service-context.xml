@@ -43,6 +43,7 @@
       <property name="tokenTtlMs" value="${lool.wopi.token.ttl}"/>
       <property name="nodeService" ref="NodeService"/>
       <property name="permissionService" ref="PermissionService"/>
+      <property name="lockService" ref="LockService"/>
       
       <property name="wopiDiscovery" ref="WopiDiscovery"/>
   </bean>
