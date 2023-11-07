@@ -189,29 +189,28 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave,
 			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
 
+		RetryingTransactionHelper.RetryingTransactionCallback<Version> callback = new RetryingTransactionHelper.RetryingTransactionCallback<Version>() {
+			@Override
+			public Version execute() throws Throwable {
+				ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+
+				// both streams are closed by putContent
+				writer.putContent(new BufferedInputStream(inputStream));
+
+				Map<String, Serializable> versionProperties = new HashMap<>(2);
+				versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
+				if (isAutosave) {
+					versionProperties.put(VersionBaseModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
+				}
+				versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
+				return versionService.createVersion(nodeRef, versionProperties);
+			}
+		};
+
 		AuthenticationUtil.pushAuthentication();
 		try {
 			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			return retryingTransactionHelper
-					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Version>() {
-						@Override
-						public Version execute() throws Throwable {
-							ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
-
-							// both streams are closed by putContent
-							writer.putContent(new BufferedInputStream(inputStream));
-
-							Map<String, Serializable> versionProperties = new HashMap<>(2);
-							versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
-							if (isAutosave) {
-								versionProperties.put(VersionBaseModel.PROP_DESCRIPTION,
-										CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
-							}
-							versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-							return versionService.createVersion(nodeRef, versionProperties);
-						}
-					});
-
+			return retryingTransactionHelper.doInTransaction(callback, false, true);
 		} finally {
 			AuthenticationUtil.popAuthentication();
 		}
