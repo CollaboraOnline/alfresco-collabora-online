@@ -100,7 +100,7 @@ public interface CollaboraOnlineService {
 	 * @param nodeRef
 	 * @return lockId on the node
 	 */
-	String lockGet(NodeRef nodeRef) throws ConflictException;
+	String lockGet(NodeRef nodeRef);
 
 	/**
 	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/RefreshLock.html
