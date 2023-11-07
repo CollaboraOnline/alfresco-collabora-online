@@ -23,7 +23,6 @@ import org.alfresco.repo.cache.SimpleCache;
 import org.alfresco.repo.lock.mem.Lifetime;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.lock.LockStatus;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -280,7 +279,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	@Override
-	public String lockGet(NodeRef nodeRef) throws ConflictException {
+	public String lockGet(NodeRef nodeRef) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("GET LOCK '" + nodeRef + "'");
 		}
