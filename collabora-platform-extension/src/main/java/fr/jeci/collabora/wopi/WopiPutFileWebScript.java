@@ -16,13 +16,7 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.time.DateTimeException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.repo.security.authentication.AuthenticationComponent;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -36,7 +30,12 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import java.io.IOException;
+import java.io.InputStream;
+import java.time.DateTimeException;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Put the binary content into Alfresco.
@@ -61,7 +60,9 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		final NodeRef nodeRef = getFileNodeRef(wopiToken);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("WopiPutFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
+			String currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
+			logger.debug(
+					"WopiPutFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "' lockId=" + currentLockId);
 		}
 
 		final boolean isAutosave = hasAutosaveHeader(req);
@@ -116,7 +117,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private void forceCurrentuser(final WOPIAccessTokenInfo wopiToken) {
 		if (this.authenticationComponent.getCurrentAuthentication() == null) {
 			if (logger.isDebugEnabled()) {
-				logger.debug(" CurrentAuthentication is null - setting CurrentUser oo " + wopiToken.getUserName());
+				logger.debug("CurrentAuthentication is null - setting CurrentUser to " + wopiToken.getUserName());
 			}
 
 			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
