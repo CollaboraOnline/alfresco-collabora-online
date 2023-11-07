@@ -347,7 +347,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Node is lock type=" + lockType);
 			}
-			return LockType.NODE_LOCK.equals(lockType);
+			return LockType.WRITE_LOCK.equals(lockType);
 		}
 
 		return false;
