@@ -16,6 +16,7 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
+import fr.jeci.collabora.alfresco.ConflictException;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -60,6 +61,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		}
 
 		try {
+			final String lockId = req.getHeader(X_WOPI_LOCK);
+			collaboraOnlineService.lockSteal(nodeRef, lockId);
 			final Version newVersion = writeFileToDisk(inputStream, isAutosave, nodeRef);
 
 			if (!isAutosave) {
@@ -82,6 +85,15 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			final String msg = "Error writing to file";
 			logger.error(msg, we);
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, msg);
+		} catch (ConflictException e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("ConflictException " + X_WOPI_LOCK + "=" + e.getCurrentLockId() + ";"
+						+ X_WOPI_LOCK_FAILURE_REASON + "=" + e.getLockFailureReason());
+			}
+
+			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
+			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
+			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
 		}
 	}
 
@@ -124,7 +136,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private void checkWopiTimestamp(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
 			throws IOException {
 		final Version currentVersion = versionService.getCurrentVersion(nodeRef);
-		;
+
 		if (currentVersion != null) {
 			// Check if X-LOOL-WOPI-Timestamp
 			final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);

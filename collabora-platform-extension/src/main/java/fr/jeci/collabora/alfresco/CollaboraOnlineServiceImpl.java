@@ -335,6 +335,40 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	@Override
+	public void lockSteal(NodeRef nodeRef, String lockId) throws ConflictException {
+		if (logger.isDebugEnabled()) {
+			logger.debug("STEAL LOCK '" + nodeRef + "'");
+		}
+
+		String cLockId = this.lockGet(nodeRef);
+		if (StringUtils.isBlank(cLockId)) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("No lock-id on " + nodeRef + ". No steal");
+			}
+			return;
+		}
+
+		if (!cLockId.equals(lockId)) {
+			throw new ConflictException(cLockId, "Lock-id on " + nodeRef + " is not " + lockId);
+		}
+
+		final LockState lockState = this.lockService.getLockState(nodeRef);
+
+		String runAsUser = AuthenticationUtil.getRunAsUser();
+		if (!runAsUser.equals(lockState.getOwner())) {
+			AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+				@Override
+				public Void doWork() throws Exception {
+					lockService.unlock(nodeRef);
+					return null;
+				}
+			}, lockState.getOwner());
+		}
+
+		this.lockService.lock(nodeRef, LockType.WRITE_LOCK, 30 * 60, Lifetime.EPHEMERAL, lockId);
+	}
+
+	@Override
 	public void unlock(NodeRef nodeRef, boolean force) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("UNLOCK '" + nodeRef + "'");

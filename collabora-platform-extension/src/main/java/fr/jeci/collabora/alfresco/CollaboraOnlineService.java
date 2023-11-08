@@ -129,4 +129,14 @@ public interface CollaboraOnlineService {
 	 * @param force   if true, remove lock without checking timestamp
 	 */
 	void unlock(NodeRef nodeRef, boolean force);
+
+	/**
+	 * Un-lock then Re-lock with new owner. (If current user is the owner, just renew the lock)
+	 * <p/>
+	 * lockId must match current lock-id
+	 *
+	 * @param nodeRef Node to lock
+	 * @param lockId  current lock-id
+	 */
+	void lockSteal(NodeRef nodeRef, String lockId) throws ConflictException;
 }

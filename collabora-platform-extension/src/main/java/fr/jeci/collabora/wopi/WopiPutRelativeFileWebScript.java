@@ -16,23 +16,12 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.net.URL;
-import java.util.HashMap;
-import java.util.Map;
-
+import fr.jeci.collabora.alfresco.ConflictException;
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.ContentIOException;
-import org.alfresco.service.cmr.repository.CopyService;
-import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
-import org.alfresco.service.cmr.repository.InvalidNodeRefException;
-import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Utf7;
 import org.apache.commons.lang3.StringUtils;
@@ -43,8 +32,12 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.ConflictException;
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * X-WOPI-ValidRelativeTarget IS NOT IMPLEMENT
@@ -95,7 +88,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
-	private final Map<String, String> wopiOverrideSwitch(final WebScriptRequest req, final WebScriptResponse res,
+	private Map<String, String> wopiOverrideSwitch(final WebScriptRequest req, final WebScriptResponse res,
 			final NodeRef nodeRef) throws ConflictException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
@@ -115,6 +108,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 
 		final String lockId = req.getHeader(X_WOPI_LOCK);
+		collaboraOnlineService.lockSteal(nodeRef, lockId);
 
 		final Map<String, String> model = new HashMap<>(1);
 		String currentLockId = null;
