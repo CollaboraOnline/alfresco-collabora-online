@@ -16,9 +16,6 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
-import net.sf.acegisecurity.Authentication;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -51,31 +48,19 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
 
 	@Override
-	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-
-		forceCurrentuser(wopiToken);
-
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
-
-		if (logger.isDebugEnabled()) {
-			String currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
-			logger.debug(
-					"WopiPutFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "' lockId=" + currentLockId);
-		}
-
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
+			throws IOException {
 		final boolean isAutosave = hasAutosaveHeader(req);
 
-		checkWopiTimestamp(req, res, wopiToken, nodeRef);
+		checkWopiTimestamp(req, res, nodeRef);
 
 		final InputStream inputStream = req.getContent().getInputStream();
 		if (inputStream == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No inputStream for WOPIAccessTokenInfo:" + wopiToken);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No inputStream");
 		}
 
 		try {
-			final Version newVersion = writeFileToDisk(inputStream, isAutosave, wopiToken, nodeRef);
+			final Version newVersion = writeFileToDisk(inputStream, isAutosave, nodeRef);
 
 			if (!isAutosave) {
 				askForRendition(nodeRef);
@@ -113,18 +98,6 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 		model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
 	}
 
-	private void forceCurrentuser(final WOPIAccessTokenInfo wopiToken) {
-		Authentication originalFullAuthentication = AuthenticationUtil.getFullAuthentication();
-		if (originalFullAuthentication == null) {
-			if (logger.isDebugEnabled()) {
-				logger.debug("CurrentAuthentication is null - setting CurrentUser to " + wopiToken.getUserName());
-			}
-			AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
-		} else {
-			logger.info("Authenticate with user is " + originalFullAuthentication.getPrincipal());
-		}
-	}
-
 	private boolean hasAutosaveHeader(final WebScriptRequest req) {
 		/*
 		 * will have the value 'true' when the PutFile is triggered by autosave, and 'false' when triggered by explicit
@@ -145,13 +118,13 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	 * 
 	 * @param req
 	 * @param res
-	 * @param wopiToken
 	 * @param nodeRef
 	 * @throws IOException
 	 */
-	private void checkWopiTimestamp(final WebScriptRequest req, final WebScriptResponse res,
-			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) throws IOException {
-		final Version currentVersion = runAsGetCurrentVersion(wopiToken, nodeRef);
+	private void checkWopiTimestamp(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
+			throws IOException {
+		final Version currentVersion = versionService.getCurrentVersion(nodeRef);
+		;
 		if (currentVersion != null) {
 			// Check if X-LOOL-WOPI-Timestamp
 			final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);

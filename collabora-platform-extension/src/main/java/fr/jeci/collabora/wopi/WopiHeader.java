@@ -17,16 +17,16 @@ limitations under the License.
 package fr.jeci.collabora.wopi;
 
 public interface WopiHeader {
-	public static final String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
-	public static final String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
-	public static final String X_WOPI_OVERRIDE = "X-WOPI-Override";
-	public static final String X_WOPI_LOCK = "X-WOPI-Lock";
-	public static final String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
-	public static final String X_WOPI_LOCK_FAILURE_REASON = "X-WOPI-LockFailureReason";
-	public static final String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
+	String X_LOOL_WOPI_IS_AUTOSAVE = "X-LOOL-WOPI-IsAutosave";
+	String X_LOOL_WOPI_TIMESTAMP = "X-LOOL-WOPI-Timestamp";
+	String X_WOPI_OVERRIDE = "X-WOPI-Override";
+	String X_WOPI_LOCK = "X-WOPI-Lock";
+	String X_WOPI_OLD_LOCK = "X-WOPI-OldLock";
+	String X_WOPI_LOCK_FAILURE_REASON = "X-WOPI-LockFailureReason";
+	String X_WOPI_ITEM_VERSION = "X-WOPI-ItemVersion";
 
-	public static final String X_PRISTY_ADD_PROPERTY = "X-PRISTY-ADD-PROPERTY";
-	public static final String X_PRISTY_DEL_PROPERTY = "X-PRISTY-DEL-PROPERTY";
-	public static final String X_PRISTY_DEL_ASPECT = "X-PRISTY-DEL-ASPECT";
-	public static final String X_PRISTY_ADD_ASPECT = "X-PRISTY-ADD-ASPECT";
+	String X_PRISTY_ADD_PROPERTY = "X-PRISTY-ADD-PROPERTY";
+	String X_PRISTY_DEL_PROPERTY = "X-PRISTY-DEL-PROPERTY";
+	String X_PRISTY_DEL_ASPECT = "X-PRISTY-DEL-ASPECT";
+	String X_PRISTY_ADD_ASPECT = "X-PRISTY-ADD-ASPECT";
 }

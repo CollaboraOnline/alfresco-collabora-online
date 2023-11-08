@@ -67,7 +67,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	private CopyService copyService;
 
 	@Override
-	public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
+			throws IOException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
@@ -78,27 +79,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			logger.warn("Header " + X_WOPI_SIZE + " is not implements: " + wopiSize);
 		}
 
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("WopiPutRelativeFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
-		}
-
-		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No noderef for WOPIAccessTokenInfo:" + wopiToken);
-		}
-
 		try {
-			Map<String, String> model;
-			AuthenticationUtil.pushAuthentication();
-			try {
-				AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-				model = wopiOverrideSwitch(req, res, nodeRef, wopiToken);
-			} finally {
-				AuthenticationUtil.popAuthentication();
-			}
+			Map<String, String> model = wopiOverrideSwitch(req, res, nodeRef);
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ConflictException e) {
@@ -111,11 +93,10 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
 			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
 		}
-
 	}
 
 	private final Map<String, String> wopiOverrideSwitch(final WebScriptRequest req, final WebScriptResponse res,
-			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException {
+			final NodeRef nodeRef) throws ConflictException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
@@ -137,15 +118,14 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 		final Map<String, String> model = new HashMap<>(1);
 		String currentLockId = null;
-//		String itemVersion = null;
 		switch (override) {
 		case PUT:
 			logger.warn("PUT without LOCK for node " + nodeRef);
 			break;
 		case PUT_RELATIVE:
 			checkHeadersRelative(req);
-			NodeRef newNodeRef = createNodeWithValidName(req, wopiToken);
-			model.putAll(saveAs(req, wopiToken, newNodeRef));
+			NodeRef newNodeRef = createNodeWithValidName(req, nodeRef);
+			model.putAll(saveAs(req, newNodeRef));
 			break;
 		case LOCK:
 			currentLockId = this.collaboraOnlineService.lock(nodeRef, lockId);
@@ -167,38 +147,33 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			res.setHeader(X_WOPI_LOCK, currentLockId);
 		}
 
-//		if (itemVersion != null) {
-//			res.setHeader(X_WOPI_ITEM_VERSION, itemVersion);
-//		}
-
 		return model;
 
 	}
 
-	private Map<String, String> saveAs(WebScriptRequest req, final WOPIAccessTokenInfo wopiToken, NodeRef newNodeRef) {
+	private Map<String, String> saveAs(WebScriptRequest req, NodeRef newNodeRef) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("saveAs newNodeRef=" + newNodeRef);
 		}
 
 		final InputStream inputStream = req.getContent().getInputStream();
 		if (inputStream == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No inputStream for WOPIAccessTokenInfo:" + wopiToken);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No inputStream");
 		}
 
 		try {
-			writeFileToDisk(inputStream, false, wopiToken, newNodeRef);
+			writeFileToDisk(inputStream, false, newNodeRef);
 
 			askForRendition(newNodeRef);
 
-			String newUrl = generateUrl(wopiToken, newNodeRef);
+			String newUrl = generateUrl(newNodeRef);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("WopiPutRelativeFileWebScript newUrl = '" + newUrl + "'");
 			}
 
 			final Map<String, String> model = new HashMap<>(2);
-			final Map<QName, Serializable> properties = runAsGetProperties(wopiToken, newNodeRef);
+			final Map<QName, Serializable> properties = nodeService.getProperties(newNodeRef);
 			model.put("Name", (String) properties.get(ContentModel.PROP_NAME));
 			model.put("Url", newUrl);
 			return model;
@@ -210,36 +185,28 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 	}
 
-	private String generateUrl(final WOPIAccessTokenInfo wopiToken, NodeRef newNodeRef) {
-		String newUrl;
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			RetryingTransactionHelper.RetryingTransactionCallback<String> cb = new RetryingTransactionHelper.RetryingTransactionCallback<String>() {
-				@Override
-				public String execute() throws Throwable {
-					WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
-					if (logger.isDebugEnabled()) {
-						logger.debug("tokenInfo = [" + tokenInfo.getUserName() + ":" + tokenInfo.getAccessToken() + "]");
-					}
-					URL alfrescoPrivateURL = collaboraOnlineService.getAlfrescoPrivateURL();
-					String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/",
-							newNodeRef.getId(), tokenInfo.getAccessToken());
-					if (logger.isDebugEnabled()) {
-						logger.debug("newUrl = " + newUrl);
-					}
-					return newUrl;
+	private String generateUrl(NodeRef newNodeRef) {
+		RetryingTransactionHelper.RetryingTransactionCallback<String> cb = new RetryingTransactionHelper.RetryingTransactionCallback<String>() {
+			@Override
+			public String execute() throws Throwable {
+				WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
+				if (logger.isDebugEnabled()) {
+					logger.debug("tokenInfo = [" + tokenInfo.getUserName() + ":" + tokenInfo.getAccessToken() + "]");
 				}
-			};
-			newUrl = retryingTransactionHelper.doInTransaction(cb, true);
+				URL alfrescoPrivateURL = collaboraOnlineService.getAlfrescoPrivateURL();
+				String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/",
+						newNodeRef.getId(), tokenInfo.getAccessToken());
+				if (logger.isDebugEnabled()) {
+					logger.debug("newUrl = " + newUrl);
+				}
+				return newUrl;
+			}
+		};
+		return retryingTransactionHelper.doInTransaction(cb, true);
 
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-		return newUrl;
 	}
 
-	private NodeRef createNodeWithValidName(WebScriptRequest req, final WOPIAccessTokenInfo wopiToken) {
+	private NodeRef createNodeWithValidName(WebScriptRequest req, final NodeRef nodeRef) {
 		final String suggested = req.getHeader(X_WOPI_SUGGESTED_TARGET);
 		final String relative = req.getHeader(X_WOPI_RELATIVE_TARGET);
 		final String overwrite = req.getHeader(X_WOPI_OVERWRITE_RELATIVE_TARGET);
@@ -248,62 +215,52 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		boolean isRelative = StringUtils.isNotBlank(relative);
 		boolean isOverwrite = isOverwrite(overwrite);
 
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
-
-		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No noderef for WOPIAccessTokenInfo: " + wopiToken);
+		if (!nodeService.exists(nodeRef)) {
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Node not exists: " + nodeRef);
 		}
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("createNodeWithValidName " + nodeRef);
 		}
 
-		NodeRef newNodeRef = null;
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			newNodeRef = retryingTransactionHelper
-					.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
-						@Override
-						public NodeRef execute() throws Throwable {
-							String targetFileName;
-							if (isSuggested) {
-								final String sourceFileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
-								targetFileName = suggested(suggested, sourceFileName);
-							} else {
-								targetFileName = Utf7.decode(relative, Utf7.UTF7_MODIFIED);
-							}
+		RetryingTransactionHelper.RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
+			@Override
+			public NodeRef execute() throws Throwable {
+				String targetFileName;
+				if (isSuggested) {
+					final String sourceFileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+					targetFileName = suggested(suggested, sourceFileName);
+				} else {
+					targetFileName = Utf7.decode(relative, Utf7.UTF7_MODIFIED);
+				}
 
-							if (logger.isDebugEnabled()) {
-								logger.debug("targetFileName " + targetFileName);
-							}
+				if (logger.isDebugEnabled()) {
+					logger.debug("targetFileName " + targetFileName);
+				}
 
-							int retry = MAX_RETRY;
-							NodeRef newNodeRef;
-							do {
-								newNodeRef = createNode(isRelative, isOverwrite, nodeRef, targetFileName);
-								if (--retry < 0) {
+				int retry = MAX_RETRY;
+				NodeRef newNodeRef;
+				do {
+					newNodeRef = createNode(isRelative, isOverwrite, nodeRef, targetFileName);
+					if (--retry < 0) {
 
-									if (logger.isDebugEnabled()) {
-										logger.debug("No retry >> " + retry);
-									}
-									break;
-								}
-								targetFileName = addSuffix(SUFFIX, targetFileName);
-
-								if (logger.isDebugEnabled()) {
-									logger.debug("Retry >> " + targetFileName);
-								}
-							} while (newNodeRef == null);
-
-							return newNodeRef;
+						if (logger.isDebugEnabled()) {
+							logger.debug("No retry >> " + retry);
 						}
-					});
+						break;
+					}
+					targetFileName = addSuffix(SUFFIX, targetFileName);
 
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
+					if (logger.isDebugEnabled()) {
+						logger.debug("Retry >> " + targetFileName);
+					}
+				} while (newNodeRef == null);
+
+				return newNodeRef;
+			}
+		};
+
+		NodeRef newNodeRef = retryingTransactionHelper.doInTransaction(callback);
 
 		if (newNodeRef == null) {
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Fail to create node copy of: " + nodeRef);
@@ -322,15 +279,14 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 	/**
 	 * Create a node in the same directory as the original node and with the same
-	 * type and proprties (like a copy).
-	 * 
-	 * @param isRelative     false, return null if the node can't be create. If
-	 *                       true, it's depends of overwitre parameter
+	 * type and properties (like a copy).
+	 *
+	 * @param isRelative     false, return null if the node can't be created. If
+	 *                       true, it's depends of overwrite parameter
 	 * @param overwrite      if the target node already exist and overwrite is true,
 	 *                       the target noderef node is return, else throw an
-	 *                       exeption
-	 * @param nodeRef        Node ref of the original node
-	 * @param properties     Properties of the original node
+	 *                       exception
+	 * @param sourceNodeRef        Node ref of the original node
 	 * @param targetFileName Name of the new node
 	 * @return noderef of the node to write to or null
 	 */
@@ -413,7 +369,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	 * 
 	 * @param suggested      new file name or new extension for the file.
 	 * @param sourceFileName name of the initial file
-	 * @return
+	 * @return Suggested Filename
 	 */
 	private String suggested(final String suggested, final String sourceFileName) {
 		String targetFileName;
