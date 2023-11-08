@@ -21,6 +21,7 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.cache.SimpleCache;
 import org.alfresco.repo.lock.mem.Lifetime;
+import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
@@ -285,7 +286,8 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		if (isNodeLock(nodeRef)) {
-			return this.lockService.getAdditionalInfo(nodeRef);
+			LockState lockState = this.lockService.getLockState(nodeRef);
+			return lockState.getAdditionalInfo();
 		} else {
 			return EMPTY_STRING;
 		}
