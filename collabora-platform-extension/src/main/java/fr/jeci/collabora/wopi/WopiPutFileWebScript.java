@@ -17,7 +17,8 @@ limitations under the License.
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
-import org.alfresco.repo.security.authentication.AuthenticationComponent;
+import net.sf.acegisecurity.Authentication;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -48,8 +49,6 @@ import java.util.Map;
  */
 public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiPutFileWebScript.class);
-	private AuthenticationComponent authenticationComponent;
-
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
@@ -115,14 +114,14 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	}
 
 	private void forceCurrentuser(final WOPIAccessTokenInfo wopiToken) {
-		if (this.authenticationComponent.getCurrentAuthentication() == null) {
+		Authentication originalFullAuthentication = AuthenticationUtil.getFullAuthentication();
+		if (originalFullAuthentication == null) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("CurrentAuthentication is null - setting CurrentUser to " + wopiToken.getUserName());
 			}
-
-			this.authenticationComponent.setCurrentUser(wopiToken.getUserName());
+			AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
 		} else {
-			logger.info("Authenticate with user is " + this.authenticationComponent.getCurrentAuthentication());
+			logger.info("Authenticate with user is " + originalFullAuthentication.getPrincipal());
 		}
 	}
 
@@ -209,9 +208,4 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 		return true;
 	}
-
-	public void setAuthenticationComponent(AuthenticationComponent authenticationComponent) {
-		this.authenticationComponent = authenticationComponent;
-	}
-
 }
