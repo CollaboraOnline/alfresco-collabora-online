@@ -56,7 +56,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
 
-	private static final String[] RENDITIONS = new String[] { "imgpreview", "medium", "doclib", "webpreview" };
+	private String[] renditions;
 
 	static final int STATUS_CONFLICT = 409;
 	protected NodeService nodeService;
@@ -224,7 +224,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	protected void askForRendition(final NodeRef nodeRef) {
 
-		for (String name : RENDITIONS) {
+		for (String name : renditions) {
 			try {
 				this.renditionService.render(nodeRef, name);
 			} catch (UnsupportedOperationException | java.lang.IllegalArgumentException exp) {
@@ -332,5 +332,14 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	public void setRenditionService(RenditionService2 renditionService) {
 		this.renditionService = renditionService;
+	}
+
+	public void setRenditions(String renditions) {
+		if (StringUtils.isNotBlank(renditions)) {
+			this.renditions = renditions.split(",");
+		} else {
+			this.renditions = new String[] {};
+		}
+
 	}
 }
