@@ -41,81 +41,80 @@ public interface CollaboraOnlineService {
 	/**
 	 * Generate and store an access token only valid for the current user/file id
 	 * combination.
-	 *
+	 * <p>
 	 * If an existing access token exists for the user/file id combination, then
 	 * extend its expiration date and return it.
-	 * 
-	 * @param nodeRef
-	 * @return
+	 *
+	 * @param nodeRef Node to lock
+	 * @return Access Token
 	 */
 	WOPIAccessTokenInfo createAccessToken(NodeRef nodeRef);
 
 	/**
-	 * Check if access token if valid and match nodeRef
+	 * Check if access token is valid and match nodeRef
 	 *
-	 *
-	 * @param accessToken
-	 * @param nodeRef
+	 * @param accessToken Current Access Token
+	 * @param nodeRef Node to lock
 	 * @throws WebScriptException
-	 * @return
+	 * @return Access Token
 	 */
 	WOPIAccessTokenInfo checkAccessToken(final String accessToken, final NodeRef nodeRef);
 
 	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.
 	 *
-	 * @param nodeRef
+	 * @param nodeRef Node to lock
 	 * @param action
-	 * @return
+	 * @return WOPI src URL
 	 * @throws IOException
 	 */
 	String getWopiSrcURL(NodeRef nodeRef, String action) throws IOException;
 
 	/**
 	 * Return a map with default value for WOPI CheckFileInfo
-	 * 
-	 * @return
+	 *
+	 * @return default value for WOPI CheckFileInfo
 	 */
 	Map<String, String> serverInfo();
 
 	/**
-	 * URL use by Collabora Online to comunicate with Alfresco
-	 * 
-	 * @return
+	 * URL use by Collabora Online to communicate with Alfresco
+	 *
+	 * @return Internal URL to Alfresco
 	 */
 	URL getAlfrescoPrivateURL();
 
 	/**
-	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Lock.html
-	 * 
-	 * @param nodeRef
+	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Lock.html">...</a>
+	 *
+	 * @param nodeRef Node to lock
 	 * @param lockId  New lock_id, or current lock_id for a refresh
 	 * @return lockId on the node or null if lockId is blank
 	 */
 	String lock(NodeRef nodeRef, String lockId) throws ConflictException;
 
 	/**
-	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetLock.html
-	 * 
-	 * @param nodeRef
+	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetLock.html">...</a>
+	 *
+	 * @param nodeRef Node to lock
 	 * @return lockId on the node
 	 */
 	String lockGet(NodeRef nodeRef);
 
 	/**
-	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/RefreshLock.html
-	 * 
-	 * @param nodeRef
-	 * @param lock
+	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/RefreshLock.html">...</a>
+	 *
+	 * @param nodeRef Node to lock
+	 * @param lockId current lock-id
 	 */
 	void lockRefresh(NodeRef nodeRef, String lockId) throws ConflictException;
 
 	/**
-	 * https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Unlock.html
-	 * 
-	 * @param nodeRef
-	 * @param lockId
-	 * @return
+	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Unlock.html">...</a>
+	 *
+	 * @param nodeRef Node to lock
+	 * @param lockId current lock-id
+	 * @return current lock-id
 	 */
 	String lockUnlock(NodeRef nodeRef, String lockId) throws ConflictException;
 
@@ -124,8 +123,8 @@ public interface CollaboraOnlineService {
 	 * old LOCK)
 	 * 
 	 * @deprecated
-	 * 
-	 * @param nodeRef
+	 *
+	 * @param nodeRef Node to lock
 	 * @param force   if true, remove lock without checking timestamp
 	 */
 	void unlock(NodeRef nodeRef, boolean force);

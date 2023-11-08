@@ -177,10 +177,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @return The new version create
 	 */
 	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave, final NodeRef nodeRef) {
-
 		RetryingTransactionHelper.RetryingTransactionCallback<Version> callback = new RetryingTransactionHelper.RetryingTransactionCallback<>() {
 			@Override
-			public Version execute() throws Throwable {
+			public Version execute() {
 				try {
 					ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
 
