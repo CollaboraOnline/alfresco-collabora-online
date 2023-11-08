@@ -16,11 +16,7 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.IOException;
-import java.io.InputStream;
-
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -32,7 +28,8 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class WopiGetFileWebScript extends AbstractWopiWebScript {
 	private static final Log logger = LogFactory.getLog(WopiGetFileWebScript.class);
@@ -43,43 +40,29 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	@Override
-	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef) {
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("WopiGetFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
+		final ContentData contentProp = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+		res.setContentType(contentProp.getMimetype());
+		res.setContentEncoding(contentProp.getEncoding());
+
+		final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+
+		if (reader == null) {
+			logger.error("No content reader for node=" + nodeRef);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No content reader for node=" + nodeRef);
 		}
 
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			final ContentData contentProp = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-			res.setContentType(contentProp.getMimetype());
-			res.setContentEncoding(contentProp.getEncoding());
+		try (InputStream inputStream = reader.getContentInputStream();) {
+			// We don't want to close the outputStream, this is done by Tomcat
+			long copied = IOUtils.copyLarge(inputStream, res.getOutputStream(), new byte[DEFAULT_BUFFER_SIZE]);
 
-			final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
-
-			if (reader == null) {
-				logger.error("No content reader for node=" + nodeRef);
-				throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-						"No content reader for node=" + nodeRef);
+			if (logger.isDebugEnabled()) {
+				logger.debug("Stream copied " + copied + " bytes");
 			}
-
-			try (InputStream inputStream = reader.getContentInputStream();) {
-				// We don't want to close the outputStream, this is done by Tomcat
-				long copied = IOUtils.copyLarge(inputStream, res.getOutputStream(), new byte[DEFAULT_BUFFER_SIZE]);
-
-				if (logger.isDebugEnabled()) {
-					logger.debug("Stream copied " + copied + " bytes");
-				}
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-				throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Failed to copy contetn stream", e);
-			}
-		} finally {
-			AuthenticationUtil.popAuthentication();
+		} catch (IOException e) {
+			logger.error(e.getMessage(), e);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Failed to copy contetn stream", e);
 		}
 	}
-
 }

@@ -18,6 +18,7 @@ package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import net.sf.acegisecurity.Authentication;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -32,13 +33,11 @@ import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.extensions.webscripts.*;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
@@ -68,66 +67,46 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected DictionaryService dictionaryService;
 	protected RenditionService2 renditionService;
 
+	public abstract void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
+			throws IOException;
+
+	@Override
+	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
+		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+		forceCurrentUser(wopiToken);
+		final NodeRef nodeRef = getFileNodeRef(wopiToken.getFileId());
+
+		if (logger.isDebugEnabled()) {
+			String currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
+			logger.debug(req.getPathInfo() + " user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "' lockId="
+					+ currentLockId);
+		}
+
+		if (nodeRef == null) {
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
+					"No noderef for WOPIAccessTokenInfo:" + wopiToken);
+		}
+		this.executeAsUser(req, res, nodeRef);
+	}
+
+
 	/**
 	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists aren't performed
-	 * 
-	 * @param fileId
-	 * @return
+	 *
+	 * @param fileId Node UUID
+	 * @return file nodeRef
 	 */
 	protected NodeRef getFileNodeRef(String fileId) {
 		return new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, fileId);
 	}
 
-	/**
-	 * Will return a file nodeRef only il file exist and is accessible
-	 *
-	 * @param tokenInfo
-	 * @return
-	 */
-	protected NodeRef getFileNodeRef(final WOPIAccessTokenInfo wopiToken) {
 
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-
-			final NodeRef fileNodeRef = getFileNodeRef(wopiToken.getFileId());
-			if (nodeService.exists(fileNodeRef)) {
-				return fileNodeRef;
-			}
-			return null;
-
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-	}
-
-	protected Map<QName, Serializable> runAsGetProperties(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-
-			return nodeService.getProperties(nodeRef);
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-	}
-
-	protected Version runAsGetCurrentVersion(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-
-			return versionService.getCurrentVersion(nodeRef);
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-	}
 
 	/**
 	 * Check and renew token if needed
-	 * 
-	 * @param req
-	 * @return
+	 *
+	 * @param req Request
+	 * @return WOPI Token
 	 */
 	protected WOPIAccessTokenInfo wopiToken(WebScriptRequest req) {
 		final String fileId = req.getServiceMatch().getTemplateVars().get(FILE_ID);
@@ -151,6 +130,18 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			}
 		}
 		return wopiToken;
+	}
+
+	protected void forceCurrentUser(final WOPIAccessTokenInfo wopiToken) {
+		Authentication originalFullAuthentication = AuthenticationUtil.getFullAuthentication();
+		if (originalFullAuthentication == null) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("CurrentAuthentication is null - setting CurrentUser to " + wopiToken.getUserName());
+			}
+			AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
+		} else {
+			logger.info("Authenticate with user is " + originalFullAuthentication.getPrincipal());
+		}
 	}
 
 	protected void jsonResponse(final WebScriptResponse res, int code, Map<String, String> response) throws IOException {
@@ -182,14 +173,12 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 *
 	 * @param inputStream input stream data
 	 * @param isAutosave  id true, set PROP_DESCRIPTION, "Edit with Collabora"
-	 * @param wopiToken
 	 * @param nodeRef     node to update
 	 * @return The new version create
 	 */
-	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave,
-			final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
+	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave, final NodeRef nodeRef) {
 
-		RetryingTransactionHelper.RetryingTransactionCallback<Version> callback = new RetryingTransactionHelper.RetryingTransactionCallback<Version>() {
+		RetryingTransactionHelper.RetryingTransactionCallback<Version> callback = new RetryingTransactionHelper.RetryingTransactionCallback<>() {
 			@Override
 			public Version execute() throws Throwable {
 				try {
@@ -212,14 +201,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			}
 		};
 
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			return retryingTransactionHelper.doInTransaction(callback, false, true);
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
-
+		return retryingTransactionHelper.doInTransaction(callback, false, true);
 	}
 
 	protected void askForRendition(final NodeRef nodeRef) {
@@ -242,7 +224,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 		retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
 			@Override
-			public Void execute() throws Throwable {
+			public Void execute() {
 
 				if (aspectToDel != null) {
 					nodeService.removeAspect(nodeRef, aspectToDel);
@@ -289,7 +271,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug(headerName + "=" + aspectToAddHdr);
+			logger.debug(headerName + "=" + ArrayUtils.toString(aspectToAddHdr));
 		}
 
 		Map<QName, Serializable> aspectToAdd = new HashMap<>(aspectToAddHdr.length);

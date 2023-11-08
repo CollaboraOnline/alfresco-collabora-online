@@ -16,12 +16,6 @@ limitations under the License.
 */
 package fr.jeci.collabora.wopi;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ContentData;
@@ -30,18 +24,25 @@ import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.ISODateTimeFormat;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+/**
+ * https://msdn.microsoft.com/en-us/library/hh622920(v=office.12).aspx search for "optional": false to see mandatory
+ * parameters. (As of 29/11/2016 when this was modified, SHA is no longer needed) Also return all values defined here:
+ * https://github.com/LibreOffice/online/blob/3ce8c3158a6b9375d4b8ca862ea5b50490af4c35/wsd/Storage.cpp#L403 because LOOL
+ * uses them internally to determine permission on rendering of certain elements. Well I assume given the variable
+ * name(s), one should be able to semantically derive their relevance
+ */
 public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
-	private static final Log logger = LogFactory.getLog(WopiCheckFileInfoWebScript.class);
-
 	private static final String VERSION = "Version";
 	private static final String USER_FRIENDLY_NAME = "UserFriendlyName";
 	private static final String USER_CAN_WRITE = "UserCanWrite";
@@ -53,36 +54,16 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private PermissionService permissionService;
 
-	/**
-	 * https://msdn.microsoft.com/en-us/library/hh622920(v=office.12).aspx search
-	 * for "optional": false to see mandatory parameters. (As of 29/11/2016 when
-	 * this was modified, SHA is no longer needed) Also return all values defined
-	 * here:
-	 * https://github.com/LibreOffice/online/blob/3ce8c3158a6b9375d4b8ca862ea5b50490af4c35/wsd/Storage.cpp#L403
-	 * because LOOL uses them internally to determine permission on rendering of
-	 * certain elements. Well I assume given the variable name(s), one should be
-	 * able to semantically derive their relevance
-	 * 
-	 * @param req
-	 * @param status
-	 * @param cache
-	 * @return
-	 */
 	@Override
-	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
-		final NodeRef nodeRef = getFileNodeRef(wopiToken);
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
+			throws IOException {
+		ensureVersioningEnabled(nodeRef);
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("WopiCheckFile user='" + wopiToken.getUserName() + "' nodeRef='" + nodeRef + "'");
-		}
+		final Map<String, String> model = this.collaboraOnlineService.serverInfo();
+		final Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
-		ensureVersioningEnabled(wopiToken, nodeRef);
+		final Version currentVersion = versionService.getCurrentVersion(nodeRef);
 
-		Map<String, String> model = this.collaboraOnlineService.serverInfo();
-		Map<QName, Serializable> properties = runAsGetProperties(wopiToken, nodeRef);
-
-		final Version currentVersion = runAsGetCurrentVersion(wopiToken, nodeRef);
 		if (currentVersion != null) {
 			Date lastModifiedDate = currentVersion.getFrozenModifiedDate();
 			LocalDateTime modifiedDatetime = new LocalDateTime(lastModifiedDate);
@@ -96,38 +77,26 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		model.put(OWNER_ID, properties.get(ContentModel.PROP_CREATOR).toString());
 		final ContentData contentData = (ContentData) properties.get(ContentModel.PROP_CONTENT);
 		model.put(SIZE, Long.toString(contentData.getSize()));
-		model.put(USER_ID, wopiToken.getUserName());
-		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(wopiToken, nodeRef)));
-		model.put(USER_FRIENDLY_NAME, wopiToken.getUserName());
+
+		String userName = AuthenticationUtil.getRunAsUser();
+		model.put(USER_ID, userName);
+		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef)));
+		model.put(USER_FRIENDLY_NAME, userName);
 
 		jsonResponse(res, 200, model);
 	}
 
-	private void ensureVersioningEnabled(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-
-			// Force Versionning
-			if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_VERSIONABLE)) {
-				Map<QName, Serializable> initialVersionProps = new HashMap<>(1, 1.0f);
-				versionService.ensureVersioningEnabled(nodeRef, initialVersionProps);
-			}
-		} finally {
-			AuthenticationUtil.popAuthentication();
+	private void ensureVersioningEnabled(final NodeRef nodeRef) {
+		// Force Versioning
+		if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_VERSIONABLE)) {
+			Map<QName, Serializable> initialVersionProps = new HashMap<>(1, 1.0f);
+			versionService.ensureVersioningEnabled(nodeRef, initialVersionProps);
 		}
 	}
 
-	private boolean userCanWrite(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef) {
-		AuthenticationUtil.pushAuthentication();
-		try {
-			AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-			AccessStatus perm = permissionService.hasPermission(nodeRef, PermissionService.WRITE);
-
-			return AccessStatus.ALLOWED == perm;
-		} finally {
-			AuthenticationUtil.popAuthentication();
-		}
+	private boolean userCanWrite(final NodeRef nodeRef) {
+		AccessStatus perm = permissionService.hasPermission(nodeRef, PermissionService.WRITE);
+		return AccessStatus.ALLOWED == perm;
 	}
 
 	public void setPermissionService(PermissionService permissionService) {
