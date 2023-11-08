@@ -180,9 +180,9 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	}
 
 	private String generateUrl(NodeRef newNodeRef) {
-		RetryingTransactionHelper.RetryingTransactionCallback<String> cb = new RetryingTransactionHelper.RetryingTransactionCallback<String>() {
+		RetryingTransactionHelper.RetryingTransactionCallback<String> cb = new RetryingTransactionHelper.RetryingTransactionCallback<>() {
 			@Override
-			public String execute() throws Throwable {
+			public String execute() {
 				WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
 				if (logger.isDebugEnabled()) {
 					logger.debug("tokenInfo = [" + tokenInfo.getUserName() + ":" + tokenInfo.getAccessToken() + "]");
@@ -217,9 +217,9 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			logger.debug("createNodeWithValidName " + nodeRef);
 		}
 
-		RetryingTransactionHelper.RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
+		RetryingTransactionHelper.RetryingTransactionCallback<NodeRef> callback = new RetryingTransactionHelper.RetryingTransactionCallback<>() {
 			@Override
-			public NodeRef execute() throws Throwable {
+			public NodeRef execute() {
 				String targetFileName;
 				if (isSuggested) {
 					final String sourceFileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
