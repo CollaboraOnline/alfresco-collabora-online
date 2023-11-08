@@ -58,6 +58,7 @@
 		<property name="prefixResolver" ref="namespaceService" />
 		<property name="dictionaryService" ref="DictionaryService" />
 		<property name="renditionService" ref="RenditionService2" />
+		<property name="renditions" value="${fr.jeci.collabora.renditions}"/>
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.CheckFileInfo.get"
