@@ -17,70 +17,60 @@
     <!-- Properties used in dependency declarations, you don't need to change these -->
     <alfresco.groupId>org.alfresco</alfresco.groupId>
     <alfresco.bomDependencyArtifactId>acs-community-packaging</alfresco.bomDependencyArtifactId>
+    <alfresco.version>7.2.0</alfresco.version>
+    <share.version>14.96</share.version>
 
     <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
     <jrebel.version>1.1.8</jrebel.version>
-    <!-- Environment configuration properties -->
 
-    <appcontent.port>8080</appcontent.port>
+    <!-- Environment configuration properties -->
     <public.host>localhost</public.host>
+    <public.port>8080</public.port>
 
     <!-- Alfresco Platform Config -->
-    <acs.host>alfresco-collabora-online-acs</acs.host>
+    <acs.host>acs</acs.host>
     <docker.acs.image>docker.io/alfresco/alfresco-content-repository-community</docker.acs.image>
-    <alfresco.platform.version>7.2.0</alfresco.platform.version>
-    <alfresco.platform.docker.user>alfresco</alfresco.platform.docker.user>
-    <acs.host>alfresco-collabora-online-acs</acs.host>
-    <acs.port>8081</acs.port>
-    <acs.debug.port>8888</acs.debug.port>
+    <docker.acs.version>7.2.0</docker.acs.version>
+    <docker.acs.user>alfresco</docker.acs.user>
 
     <!-- Share Config -->
-    <share.host>alfresco-share</share.host>
+    <share.host>share</share.host>
     <docker.share.image>docker.io/alfresco/alfresco-share</docker.share.image>
-    <alfresco.share.version>14.96</alfresco.share.version>
-    <alfresco.share.docker.version>7.2.0</alfresco.share.docker.version>
-    <share.port>8082</share.port>
-    <share.debug.port>9898</share.debug.port>
+    <docker.share.version>7.2.0</docker.share.version>
+
+    <!-- Postgres Config -->
+    <db.host>postgres</db.host>
+    <docker.postgres.image>docker.io/postgres</docker.postgres.image>
+    <docker.postgres.version>13.3</docker.postgres.version>
+
+    <!-- Solr Config -->
+    <solr.host>solr6</solr.host>
+    <docker.solr.image>docker.io/alfresco/alfresco-search-services</docker.solr.image>
+    <docker.solr.version>2.0.8.2</docker.solr.version>
 
     <!-- Angular / Content App Config -->
-    <appcontent.host>alfresco-app</appcontent.host>
+    <appcontent.host>aca</appcontent.host>
     <docker.node.image>docker.io/library/node</docker.node.image>
     <docker.node.version>10.22</docker.node.version>
     <docker.nginx.image>docker.io/library/nginx</docker.nginx.image>
     <docker.nginx.version>stable-alpine</docker.nginx.version>
+    <aca.version>1.10.0</aca.version>
 
-    <!-- Activemq -->
+    <!--Transform Core AIO Config -->
+    <transform-core-aio.host>transform-core-aio</transform-core-aio.host>
+    <docker.transform-core-aio.image>docker.io/alfresco/alfresco-transform-core-aio</docker.transform-core-aio.image>
+    <docker.transform-core-aio.version>2.5.7</docker.transform-core-aio.version>
+
+    <!-- ActiveMQ Config -->
+    <activemq.host>activemq</activemq.host>
     <docker.activemq.image>docker.io/alfresco/alfresco-activemq</docker.activemq.image>
-    <docker.activemq.version>5.16.1</docker.activemq.version>
-    <activemq.host>alfresco-collabora-online-activemq</activemq.host>
-    <activemq.console.port>8161</activemq.console.port>
-    <activemq.amqp.port>5672</activemq.amqp.port>
-    <activemq.openwire.port>61616</activemq.openwire.port>
-    <activemq.stomp.port>61613</activemq.stomp.port>
-
-    <!-- Postgres Config -->
-    <docker.postgres.image>docker.io/postgres</docker.postgres.image>
-    <docker.postgres.version>9.6</docker.postgres.version>
-    <db.host>alfresco-collabora-online-postgres</db.host>
-    <db.port>5555</db.port>
-
-    <!-- Solr Config -->
-    <solr.host>alfresco-collabora-online-solr</solr.host>
-    <docker.solr.image>docker.io/alfresco/alfresco-search-services</docker.solr.image>
-    <docker.solr.version>2.0.3</docker.solr.version>
-    <solr.port>8983</solr.port>
-
-    <!-- Docker images -->
-    <keystore.settings>-Dencryption.keystore.type=JCEKS -Dencryption.cipherAlgorithm=AES/CBC/PKCS5Padding -Dencryption.keyAlgorithm=AES -Dencryption.keystore.location=/usr/local/tomcat/shared/classes/alfresco/extension/keystore/keystore
-      -Dmetadata-keystore.password=mp6yc0UD9e -Dmetadata-keystore.aliases=metadata -Dmetadata-keystore.metadata.password=oKIWzVdEdA -Dmetadata-keystore.metadata.algorithm=AES</keystore.settings>
+    <docker.activemq.version>5.16.4-jre11-centos7</docker.activemq.version>
 
     <!-- Collabora Online Config -->
-    <code.host>collabora-online</code.host>
+    <code.host>collabora</code.host>
     <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>21.11.3.6.1</docker.code.version>
+    <docker.code.version>23.05.7.2.1</docker.code.version>
     <code.port>9980</code.port>
-
-    <aca.version>1.10.0</aca.version>
 
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
     <test.acs.endpoint.path/>
@@ -134,7 +124,7 @@
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>${alfresco.bomDependencyArtifactId}</artifactId>
-        <version>${alfresco.platform.version}</version>
+        <version>${alfresco.version}</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -145,21 +135,21 @@
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>share</artifactId>
-        <version>${alfresco.share.version}</version>
+        <version>${share.version}</version>
         <type>war</type>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>share</artifactId>
-        <version>${alfresco.share.version}</version>
+        <version>${share.version}</version>
         <classifier>classes</classifier>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>alfresco-web-framework-commons</artifactId>
-        <version>${alfresco.share.version}</version>
+        <version>${share.version}</version>
         <classifier>classes</classifier>
         <scope>provided</scope>
       </dependency>
