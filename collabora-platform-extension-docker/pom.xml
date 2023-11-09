@@ -75,6 +75,7 @@
                     <exclude>**/*.jar</exclude>
                     <exclude>**/*.so</exclude>
                     <exclude>**/*.gz</exclude>
+                    <exclude>**/keystore/*</exclude>
                   </excludes>
                 </resource>
               </resources>
@@ -96,6 +97,7 @@
                     <include>**/*.jar</include>
                     <include>**/*.so</include>
                     <include>**/*.gz</include>
+                    <include>**/keystore/*</include>
                   </includes>
                 </resource>
               </resources>
