@@ -13,14 +13,26 @@
   <bean id="magenta.page.module.evaluator" class="dk.magenta.libreOffice.online.PageModuleEvaluator" />
 
   <!-- Being edited with the libreoffice online -->
-  <bean id="evaluator.doclib.indicator.collaboraEditing" parent="evaluator.doclib.action.hasAspect">
-    <property name="aspects">
+  <bean id="evaluator.doclib.indicator.collaboraEditing" class="fr.jeci.collabora.evaluator.doclib.indicator.EditingEvaluator" />
+
+  <!-- Not editing by collabora online -->
+  <bean id="evaluator.doclib.indicator.notCollaboraEditing" parent="evaluator.doclib.action.chainedMatchAll">
+    <property name="evaluators">
       <list>
-        <value>collabora:collaboraOnline</value>
+        <ref bean="evaluator.doclib.indicator.collaboraEditing" />
+      </list>
+    </property>
+    <property name="negateOutput" value="true" />
+  </bean>
+
+  <bean id="evaluator.doclib.action.notLockByCollabora" parent="evaluator.doclib.action.chainedMatchAll">
+    <property name="evaluators">
+      <list>
+        <ref bean="evaluator.doclib.action.isLocked" />
+        <ref bean="evaluator.doclib.indicator.notCollaboraEditing" />
       </list>
     </property>
   </bean>
-
   <!-- Add module specific messages and labels -->
   <bean id="collabora-online-share.resources" class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
     <property name="resourceBundles">
