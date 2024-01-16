@@ -7,7 +7,6 @@
         var nodeRef = url.args.nodeRef,
             connector = remote.connect("alfresco");
         //try and get the Wopi service url first
-
         var result = connector.get('/lool/host/url');
         if (result.status.code == status.STATUS_OK) {
             wopi_host_url = JSON.parse(result.response).lool_host_url;
@@ -25,7 +24,7 @@
             var wopi_src_url = post.wopi_src_url;
             var fileId = nodeRef.substring(nodeRef.lastIndexOf('/') + 1);
             var wopiFileURL = wopi_host_url + "/wopi/files/" + fileId;
-            var params = "WOPISrc=" + encodeURI(wopiFileURL) + "&lang=" + navigator.language;
+            var params = "WOPISrc=" + encodeURI(wopiFileURL) + "&lang=" + locale;
             params += "&closebutton=1";
 
             model.wopiFileURL = wopiFileURL;
@@ -36,7 +35,6 @@
         else {
             throw "There was an error retrieving the lool token:" + result.status.code
         }
-
 
         model.userId = user.id;
         model.firstName = user.firstName;
