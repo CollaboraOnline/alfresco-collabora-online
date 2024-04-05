@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.jeci.alfresco</groupId>
   <artifactId>alfresco-collabora-online</artifactId>
-  <version>0.7.1</version>
+  <version>0.7.1.1</version>
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
@@ -62,7 +62,7 @@
     <docker.postgres.image>docker.io/postgres</docker.postgres.image>
     <docker.postgres.version>9.6</docker.postgres.version>
     <db.host>alfresco-collabora-online-postgres</db.host>
-    <db.port>5555</db.port>
+    <db.port>5432</db.port>
 
     <!-- Solr Config -->
     <solr.host>alfresco-collabora-online-solr</solr.host>
@@ -77,7 +77,7 @@
     <!-- Collabora Online Config -->
     <code.host>collabora-online</code.host>
     <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>21.11.3.6.1</docker.code.version>
+    <docker.code.version>23.05.7.2.1</docker.code.version>
     <code.port>9980</code.port>
 
     <aca.version>1.10.0</aca.version>
