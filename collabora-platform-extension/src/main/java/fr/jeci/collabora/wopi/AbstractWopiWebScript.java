@@ -180,23 +180,18 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		RetryingTransactionHelper.RetryingTransactionCallback<Version> callback = new RetryingTransactionHelper.RetryingTransactionCallback<>() {
 			@Override
 			public Version execute() {
-				try {
-					ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+				ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
 
-					// both streams are closed by putContent
-					writer.putContent(new BufferedInputStream(inputStream));
+				// both streams are closed by putContent
+				writer.putContent(new BufferedInputStream(inputStream));
 
-					Map<String, Serializable> versionProperties = new HashMap<>(2);
-					versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
-					if (isAutosave) {
-						versionProperties.put(VersionBaseModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
-					}
-					versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-					return versionService.createVersion(nodeRef, versionProperties);
-				} catch (Exception e) {
-					logger.error("Error when writing content - retry", e);
-					throw e;
+				Map<String, Serializable> versionProperties = new HashMap<>(2);
+				versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
+				if (isAutosave) {
+					versionProperties.put(VersionBaseModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
 				}
+				versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
+				return versionService.createVersion(nodeRef, versionProperties);
 			}
 		};
 
@@ -216,16 +211,16 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	protected void headerActions(final WebScriptRequest req, final NodeRef nodeRef) {
-		QName aspectToAdd = extractQname(req, X_PRISTY_ADD_ASPECT);
-		QName aspectToDel = extractQname(req, X_PRISTY_DEL_ASPECT);
-		Map<QName, Serializable> delProperties = extractQnamesValues(req, X_PRISTY_DEL_PROPERTY);
-		Map<QName, Serializable> properties = extractQnamesValues(req, X_PRISTY_ADD_PROPERTY);
+		final QName aspectToAdd = extractQname(req, X_PRISTY_ADD_ASPECT);
+		final QName aspectToDel = extractQname(req, X_PRISTY_DEL_ASPECT);
+		final Map<QName, Serializable> delProperties = extractQnamesValues(req, X_PRISTY_DEL_PROPERTY);
+		final Map<QName, Serializable> properties = extractQnamesValues(req, X_PRISTY_ADD_PROPERTY);
 
 		retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
 			@Override
 			public Void execute() {
 
-				if (aspectToDel != null) {
+				if (aspectToDel != null && nodeService.hasAspect(nodeRef, aspectToDel)) {
 					nodeService.removeAspect(nodeRef, aspectToDel);
 				}
 				if (aspectToDel != null) {
@@ -245,7 +240,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 				return null;
 			}
-		});
+		}, false, true);
 
 	}
 
