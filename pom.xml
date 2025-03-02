@@ -4,7 +4,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.jeci.alfresco</groupId>
   <artifactId>alfresco-collabora-online</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.0-SNAPSHOT</version>
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
@@ -16,13 +16,13 @@
     <maven.compiler.source>17</maven.compiler.source>
     <maven.compiler.target>17</maven.compiler.target>
     <!-- Alfresco Maven Plugin version to use -->
-    <alfresco.sdk.version>4.7.0</alfresco.sdk.version>
+    <alfresco.sdk.version>4.10.0</alfresco.sdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Properties used in dependency declarations, you don't need to change these -->
     <alfresco.groupId>org.alfresco</alfresco.groupId>
     <alfresco.bomDependencyArtifactId>acs-community-packaging</alfresco.bomDependencyArtifactId>
-    <alfresco.version>7.4.1.5</alfresco.version>
-    <share.version>21.22</share.version>
+    <alfresco.version>23.3.3</alfresco.version>
+    <share.version>23.3.0.86</share.version>
 
     <!-- JRebel Hot reloading of classpath stuff and web resource stuff -->
     <jrebel.version>1.1.8</jrebel.version>
@@ -34,23 +34,23 @@
     <!-- Alfresco Platform Config -->
     <acs.host>acs</acs.host>
     <docker.acs.image>docker.io/alfresco/alfresco-content-repository-community</docker.acs.image>
-    <docker.acs.version>7.4.1.5</docker.acs.version>
+    <docker.acs.version>${alfresco.version}</docker.acs.version>
     <docker.acs.user>alfresco</docker.acs.user>
 
     <!-- Share Config -->
     <share.host>share</share.host>
     <docker.share.image>docker.io/alfresco/alfresco-share</docker.share.image>
-    <docker.share.version>7.4.1.6</docker.share.version>
+    <docker.share.version>${share.version}</docker.share.version>
 
     <!-- Postgres Config -->
     <db.host>postgres</db.host>
     <docker.postgres.image>docker.io/postgres</docker.postgres.image>
-    <docker.postgres.version>14.12</docker.postgres.version>
+    <docker.postgres.version>16.8</docker.postgres.version>
 
     <!-- Solr Config -->
     <solr.host>solr6</solr.host>
     <docker.solr.image>docker.io/alfresco/alfresco-search-services</docker.solr.image>
-    <docker.solr.version>2.0.10</docker.solr.version>
+    <docker.solr.version>2.0.13</docker.solr.version>
 
     <!-- Angular / Content App Config -->
     <proxy.host>alfresco-collabora-online</proxy.host>
@@ -63,17 +63,17 @@
     <!--Transform Core AIO Config -->
     <transform-core-aio.host>transform-core-aio</transform-core-aio.host>
     <docker.transform-core-aio.image>docker.io/alfresco/alfresco-transform-core-aio</docker.transform-core-aio.image>
-    <docker.transform-core-aio.version>5.1.0</docker.transform-core-aio.version>
+    <docker.transform-core-aio.version>5.1.5</docker.transform-core-aio.version>
 
     <!-- ActiveMQ Config -->
     <activemq.host>activemq</activemq.host>
     <docker.activemq.image>docker.io/alfresco/alfresco-activemq</docker.activemq.image>
-    <docker.activemq.version>5.16-jre17-rockylinux8</docker.activemq.version>
+    <docker.activemq.version>5.18-jre17-rockylinux8</docker.activemq.version>
 
     <!-- Collabora Online Config -->
     <code.host>collabora</code.host>
     <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>24.04.3.1.1</docker.code.version>
+    <docker.code.version>24.04.12.4.1</docker.code.version>
     <code.port>9980</code.port>
 
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
@@ -198,7 +198,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.3.1</version>
           <configuration>
             <encoding>UTF-8</encoding>
             <nonFilteredFileExtensions>
@@ -239,12 +239,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.1.0</version>
+          <version>3.3.0</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-failsafe-plugin</artifactId>
-          <version>3.0.0-M1</version>
+          <version>3.2.5</version>
           <executions>
             <execution>
               <id>integration-test</id>
@@ -264,15 +264,15 @@
           <dependencies>
             <dependency>
               <groupId>org.apache.maven.surefire</groupId>
-              <artifactId>surefire-junit47</artifactId>
-              <version>3.0.0-M1</version>
+              <artifactId>surefire-junit4</artifactId>
+              <version>3.2.5</version>
             </dependency>
           </dependencies>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.1.1</version>
+          <version>3.6.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -465,10 +465,10 @@
   <modules>
     <module>collabora-platform-extension</module>
     <module>collabora-share-extension</module>
-    <!--<module>collabora-aca-extension</module>-->
+    <module>collabora-aca-extension</module>
     <module>collabora-platform-extension-docker</module>
     <module>collabora-share-extension-docker</module>
-    <!--<module>collabora-aca-extension-docker</module>-->
+    <module>collabora-aca-extension-docker</module>
     <module>alfresco-collabora-online-docker</module>
   </modules>
 </project>
