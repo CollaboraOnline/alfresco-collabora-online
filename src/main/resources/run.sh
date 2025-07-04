@@ -3,23 +3,23 @@
 
 
 start_share() {
-    docker-compose up --build -d ${share.host}
+    docker-compose up --build -d share
 }
 
 start_acs() {
-    docker-compose up --build -d ${acs.host}
+    docker-compose up --build -d alfresco
 }
 
 
 build_share() {
-    docker-compose kill ${share.host}
-    yes | docker-compose rm -f ${share.host}
+    docker-compose kill share
+    yes | docker-compose rm -f share
     $MVN_EXEC clean package -pl collabora-share-extension,collabora-share-extension-docker
 }
 
 build_acs() {
-    docker-compose kill ${acs.host}
-    yes | docker-compose rm -f ${acs.host}
+    docker-compose kill alfresco
+    yes | docker-compose rm -f alfresco
     $MVN_EXEC clean package -pl collabora-platform-extension,collabora-platform-extension-docker
 }
 

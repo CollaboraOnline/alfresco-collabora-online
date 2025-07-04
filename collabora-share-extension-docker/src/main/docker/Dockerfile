@@ -1,4 +1,4 @@
-FROM ${docker.share.image}:${docker.share.version}
+FROM ${alfresco.share.docker.image}:${alfresco.share.docker.version}
 
 ARG TOMCAT_DIR=/usr/local/tomcat
 

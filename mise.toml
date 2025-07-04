@@ -1,2 +1,42 @@
 [tools]
 maven = "3.9.9"
+java = "temurin-17"
+
+[env]
+COMPOSE_FILE = "target/classes/docker-compose.yml"
+
+[tasks.build]
+description = "Build project"
+alias = "b"
+run = "mvn clean package resources:resources -Dmaven.test.skip=true"
+
+[tasks."docker:package"]
+description = "Build docker configuration"
+run = "mvn package -pl collabora-platform-extension-docker,collabora-share-extension-docker,collabora-aca-extension-docker,alfresco-collabora-online-docker"
+
+[tasks."docker:ressources"]
+description = "Build docker compose configuration"
+depends = ["docker:package"]
+alias = "b"
+run = "mvn resources:resources"
+
+[tasks.start]
+description = "Strat Docker Compose"
+depends = ["docker:ressources"]
+alias = "s"
+run = "docker compose up --build -d"
+
+[tasks.stop]
+description = "Strat Docker Compose"
+alias = "s"
+run = "docker compose down"
+
+[tasks.purge]
+description = "Stop containers and remove Volumes"
+alias = "s"
+run = "docker compose down -v"
+
+
+[tasks.clean]
+description = "maven clean"
+run = "mvn clean"

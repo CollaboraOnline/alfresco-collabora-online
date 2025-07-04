@@ -5,8 +5,9 @@
 
 This project contains 3 sub-projects :
 * collabora-platform-extension : extension for Alfresco Content Services
-* collabora-share-extension : extension for Share interface
+* collabora-share-extension : extension for lagacy Share interface
 * collabora-aca-extension : extension for Angular interface, Alfresco Content Application
+* collabora-vue-component : component for Pristy
 
 If the user has the write permission, the extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online.
 
@@ -21,11 +22,11 @@ git clone git@github.com:CollaboraOnline/alfresco-collabora-online.git
 cd alfresco-collabora-online
 ./run.sh build
 ```
-
-Before version 6.x, compile with only `java8` profile :
+or with mise
 
 ```
-mvn clean package -P '!java11',java8
+mise install
+mise run start 
 ```
 
 ## Installation
