@@ -35,7 +35,7 @@ export default {
       this.getLoolUrl()
         .then((loolUrl) => {
           this.wopiFileUrl = encodeURI(
-            `${loolUrl["lool_host_url"]}wopi/files/${nodeId}`
+            `${loolUrl["lool_host_url"]}wopi/files/${nodeId}`,
           );
           return this.getAccessToken(nodeId, "edit");
         })

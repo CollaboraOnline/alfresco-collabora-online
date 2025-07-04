@@ -7,12 +7,13 @@ import { resolve } from "path";
 export default defineConfig({
   plugins: [eslintPlugin(), vue()],
   build: {
+    sourcemap: true,
     lib: {
       entry: resolve(__dirname, "src/index.js"),
       name: "pristy-collabora-component",
     },
     rollupOptions: {
-      external: ["vue"],
+      external: ["vue", "axios", "saas"],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps
