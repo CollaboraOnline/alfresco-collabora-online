@@ -120,31 +120,6 @@
       <plugins>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.6</version>
-          <executions>
-            <execution>
-              <id>build-amp-file</id>
-              <phase>package</phase>
-              <goals>
-                <goal>single</goal>
-              </goals>
-              <configuration>
-                <appendAssemblyId>false</appendAssemblyId>
-                <descriptor>src/main/assembly/amp.xml</descriptor>
-              </configuration>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.alfresco.maven.plugin</groupId>
-              <artifactId>alfresco-maven-plugin</artifactId>
-              <version>${alfresco.sdk.version}</version>
-            </dependency>
-          </dependencies>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.3.1</version>
           <configuration>
@@ -152,7 +127,6 @@
             <nonFilteredFileExtensions>
               <!-- jpg, jpeg, gif, bmp and png are added automatically -->
               <nonFilteredFileExtension>ftl</nonFilteredFileExtension>
-              <nonFilteredFileExtension>acp</nonFilteredFileExtension>
               <nonFilteredFileExtension>svg</nonFilteredFileExtension>
               <nonFilteredFileExtension>pdf</nonFilteredFileExtension>
               <nonFilteredFileExtension>doc</nonFilteredFileExtension>
@@ -182,7 +156,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>3.3.0</version>
+            <version>3.4.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -215,7 +189,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-dependency-plugin</artifactId>
-          <version>3.6.1</version>
+          <version>3.8.1</version>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -322,8 +296,8 @@
     </plugins>
   </build>
 
-  <!-- Alfresco Maven Repositories -->
   <repositories>
+      <!-- Alfresco Maven Repositories -->
     <repository>
       <id>alfresco-public</id>
       <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
@@ -336,6 +310,7 @@
         <updatePolicy>daily</updatePolicy>
       </snapshots>
     </repository>
+      <!-- Nexus Jeci -->
     <repository>
       <id>pristy-releases</id>
       <url>https://nexus.jeci.tech/repository/pristy-releases/</url>

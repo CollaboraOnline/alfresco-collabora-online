@@ -53,3 +53,4 @@ buildNumber.properties
 # Nodejs
 
 node/
+package-lock.json

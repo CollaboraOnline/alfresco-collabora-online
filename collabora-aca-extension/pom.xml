@@ -26,9 +26,7 @@
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <!-- Use the latest released version:
-        https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
-        <version>1.9.1</version>
+        <version>1.15.0</version>
         <executions>
           <execution>
             <id>install node and npm</id>
@@ -46,7 +44,6 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
             <configuration>
               <arguments>install</arguments>
@@ -57,22 +54,18 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <!-- optional: default phase is "generate-resources" -->
             <phase>generate-resources</phase>
             <configuration>
-              <!--
-                optional: The default argument is actually "install", so unless you need to run some other npm command,
-                you can remove this whole <configuration> section.
-              -->
               <arguments>run build</arguments>
             </configuration>
           </execution>
         </executions>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
-        <version>3.1.0</version>
+        <version>3.7.1</version>
         <configuration>
           <descriptors>
             <descriptor>src/main/assembly/assembly.xml</descriptor>
