@@ -353,10 +353,8 @@
   <modules>
     <module>collabora-platform-extension</module>
     <module>collabora-share-extension</module>
-    <module>collabora-aca-extension</module>
     <module>collabora-platform-extension-docker</module>
     <module>collabora-share-extension-docker</module>
-    <module>collabora-aca-extension-docker</module>
     <module>alfresco-collabora-online-docker</module>
   </modules>
 </project>

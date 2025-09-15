@@ -6,7 +6,7 @@
 This project contains 3 sub-projects :
 * collabora-platform-extension : extension for Alfresco Content Services
 * collabora-share-extension : extension for lagacy Share interface
-* collabora-aca-extension : extension for Angular interface, Alfresco Content Application
+* collabora-aca-extension : extension for Angular interface, Alfresco Content Application (outdated)
 * collabora-vue-component : component for Pristy
 
 If the user has the write permission, the extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online.
@@ -68,30 +68,7 @@ Add `collabora-share-extension-<version>.jar` in the folder `INSTALL_DIR/webapps
 
 ### ACA Extension
 
-Install the library `collabora-aca-extension-<version>-dist.tgz` in your project alfresco-content-application
-```
-cd ~/alfresco-content-application
-npm install
-npm run ng add ~/alfresco-collabora-online/collabora-aca-extension/target/collabora-aca-extnsion-<version>-dist.tgz
-```
-
-Modify the `app.extensions.json` file in the folder `src/assets` :
-```
-...
-  "$references": [..., "collabora-online.plugin.json"],
-...
-```
-
-Add the `CollaboraOnlineModule` in the `extensions.module.ts` file in the folder `src/app/`
-```
-...
-import { CollaboraOnlineModule } from '@jeci/collabora-online-extension';
-...
-@NgModule({
-  imports: [..., CollaboraOnlineModule]
-})
-...
-```
+We have removed ACA support for now because the module is not compatible with Alfresco 25
 
 #### Viewer Collabora-Online
 

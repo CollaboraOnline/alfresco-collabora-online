@@ -12,7 +12,7 @@ run = "mvn clean package resources:resources -Dmaven.test.skip=true"
 
 [tasks."docker:package"]
 description = "Build docker configuration"
-run = "mvn package -pl collabora-platform-extension-docker,collabora-share-extension-docker,collabora-aca-extension-docker,alfresco-collabora-online-docker"
+run = "mvn package -pl collabora-platform-extension-docker,collabora-share-extension-docker,alfresco-collabora-online-docker"
 
 [tasks."docker:ressources"]
 description = "Build docker compose configuration"
