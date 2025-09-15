@@ -1,6 +1,6 @@
 #!/bin/sh
 
-export COMPOSE_FILE="${PWD}/target/classes/docker-compose.yml"
+export COMPOSE_FILE="${PWD}/target/classes/docker compose.yml"
 
 if [ -z "${M2_HOME}" ]; then
   export MVN_EXEC="mvn"
@@ -26,34 +26,34 @@ clean() {
 
 down() {
   if [ -f "$COMPOSE_FILE" ]; then
-        docker-compose down
+        docker compose down
     fi
 }
 
 
 logs() {
-    docker-compose logs $1
+    docker compose logs $1
 }
 
 purge() {
-    docker-compose down -v
+    docker compose down -v
 }
 
 
 ps() {
-    docker-compose ps
+    docker compose ps
 }
 
 start() {
-    docker-compose up --build -d
+    docker compose up --build -d
 }
 
 tail() {
-    docker-compose logs -f
+    docker compose logs -f
 }
 
 tail_all() {
-    docker-compose logs --tail="all"
+    docker compose logs --tail="all"
 }
 
 
