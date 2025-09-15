@@ -51,6 +51,8 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private static final String USER_FRIENDLY_NAME = "UserFriendlyName";
 	private static final String USER_CAN_WRITE = "UserCanWrite";
 	private static final String IS_ADMIN_USER = "isAdminUser";
+	private static final String IS_ANONYMOUS_USER = "IsAnonymousUser";
+
 	private static final String USER_ID = "UserId";
 	private static final String SIZE = "Size";
 	private static final String OWNER_ID = "OwnerId";
@@ -90,6 +92,8 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		model.put(USER_FRIENDLY_NAME, userName);
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
+		boolean isGuest =	authorityService.isGuestAuthority(userName);
+		model.put(IS_ANONYMOUS_USER, Boolean.toString(isAdmin));
 
 		jsonResponse(res, 200, model);
 	}
