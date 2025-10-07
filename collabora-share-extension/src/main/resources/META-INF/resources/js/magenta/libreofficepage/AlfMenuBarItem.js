@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+//
+// SPDX-License-Identifier: Apache-2.0
+
 define(["dojo/_base/declare", "alfresco/menus/AlfMenuBarItem"],
     function(declare, AlfMenuBarItem) {
 

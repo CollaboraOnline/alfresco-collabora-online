@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+//
+// SPDX-License-Identifier: Apache-2.0
+
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 import { resolve } from "path";

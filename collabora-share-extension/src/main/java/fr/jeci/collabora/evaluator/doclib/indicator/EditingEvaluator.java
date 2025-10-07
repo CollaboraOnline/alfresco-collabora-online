@@ -1,3 +1,7 @@
+// SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package fr.jeci.collabora.evaluator.doclib.indicator;
 
 import org.alfresco.error.AlfrescoRuntimeException;

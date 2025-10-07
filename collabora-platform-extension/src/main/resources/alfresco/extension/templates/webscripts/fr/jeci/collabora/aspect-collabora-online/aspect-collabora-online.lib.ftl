@@ -1,3 +1,9 @@
+<#--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <#macro resultsJSON result>
    <#escape x as jsonUtils.encodeJSONString(x)>
 {

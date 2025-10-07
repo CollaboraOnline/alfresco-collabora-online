@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 # Collabora in a Vue 3 + Vite component
 
 This project is two-fold in how to display the Collabora Online iframe :

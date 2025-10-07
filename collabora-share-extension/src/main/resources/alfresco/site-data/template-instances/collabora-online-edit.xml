@@ -1,4 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
+
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <template-instance>
     <template-type>org/alfresco/collabora-online-edit</template-type>
     <components>

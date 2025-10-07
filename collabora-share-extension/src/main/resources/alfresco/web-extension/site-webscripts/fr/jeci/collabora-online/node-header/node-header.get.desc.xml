@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
 <webscript>
     <shortname>Collabora Node Header</shortname>
     <description>Add label when editing with collabora online</description>

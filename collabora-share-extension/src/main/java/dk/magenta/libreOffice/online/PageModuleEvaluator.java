@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: Apache-2.0
+
 package dk.magenta.libreOffice.online;
 
 import org.slf4j.Logger;
