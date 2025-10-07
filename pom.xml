@@ -8,9 +8,6 @@
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
-  <prerequisites>
-    <maven>3.3.0</maven>
-  </prerequisites>
   <properties>
     <java.version>17</java.version>
     <!-- Alfresco Maven Plugin version to use -->
@@ -191,6 +188,32 @@
           <artifactId>maven-dependency-plugin</artifactId>
           <version>3.8.1</version>
         </plugin>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>2.44.2</version>
+            <configuration>
+              <java>
+                <includes>
+                  <include>src/main/java/**/*.java</include>
+                  <include>src/test/java/**/*.java</include>
+                </includes>
+                <eclipse>
+                  <file>./formatter.xml</file>
+                </eclipse>
+                <removeUnusedImports/>
+                <formatAnnotations/>
+              </java>
+              </configuration>
+              <executions>
+                <execution>
+                  <phase>verify</phase>
+                  <goals>
+                    <goal>check</goal>
+                  </goals>
+                </execution>
+              </executions>
+          </plugin>
       </plugins>
     </pluginManagement>
 
