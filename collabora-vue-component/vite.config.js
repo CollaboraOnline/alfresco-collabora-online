@@ -1,17 +1,28 @@
-import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import eslintPlugin from "vite-plugin-eslint";
+import { defineConfig } from "vite";
 import { resolve } from "path";
+import { visualizer } from "rollup-plugin-visualizer";
+import path from "path";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [eslintPlugin(), vue()],
+  plugins: [vue(), visualizer()],
+  optimizeDeps: {
+    force: true,
+  },
+  resolve: {
+    preserveSymlinks: true,
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
   build: {
-    sourcemap: true,
     lib: {
       entry: resolve(__dirname, "src/index.js"),
       name: "pristy-collabora-component",
     },
+    sourcemap: true,
+    emptyOutDir: true,
     rollupOptions: {
       external: ["vue", "axios", "saas"],
       output: {
@@ -19,6 +30,7 @@ export default defineConfig({
         // for externalized deps
         globals: {
           vue: "Vue",
+          axios: "axios",
         },
       },
     },
