@@ -71,8 +71,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		}
 
 		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No noderef for WOPIAccessTokenInfo:" + wopiToken);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No noderef for WOPIAccessTokenInfo:"
+																									+ wopiToken);
 		}
 		try {
 			this.executeAsUser(req, res, nodeRef);
@@ -102,7 +102,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @return WOPI Token
 	 */
 	protected WOPIAccessTokenInfo wopiToken(WebScriptRequest req) {
-		final String fileId = req.getServiceMatch().getTemplateVars().get(FILE_ID);
+		final String fileId = req.getServiceMatch()
+				.getTemplateVars()
+				.get(FILE_ID);
 		final NodeRef nodeRef = getFileNodeRef(fileId);
 		final String accessToken = req.getParameter(ACCESS_TOKEN);
 
@@ -145,8 +147,12 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 				sb.append(", ");
 			}
 
-			sb.append('"').append(e.getKey()).append('"');
-			sb.append(": \"").append(e.getValue()).append('"');
+			sb.append('"')
+					.append(e.getKey())
+					.append('"');
+			sb.append(": \"")
+					.append(e.getValue())
+					.append('"');
 		}
 		sb.append('}');
 		jsonResponse(res, code, sb.toString());
@@ -156,7 +162,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		res.reset();
 		res.setStatus(code);
 		res.setContentType("application/json;charset=UTF-8");
-		res.getWriter().append(response);
+		res.getWriter()
+				.append(response);
 	}
 
 	/**
@@ -223,7 +230,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 		/* As we only receive String, we must convert value to proper datatype */
 		for (Entry<QName, Serializable> prop : properties.entrySet()) {
-			DataTypeDefinition dataType = dictionaryService.getProperty(prop.getKey()).getDataType();
+			DataTypeDefinition dataType = dictionaryService.getProperty(prop.getKey())
+					.getDataType();
 			prop.setValue((Serializable) DefaultTypeConverter.INSTANCE.convert(dataType, prop.getValue()));
 		}
 

@@ -32,10 +32,10 @@ import java.util.Map;
  * <br>
  * We can change aspect or properties with specific headers, but these changes will not trigger policy.
  * <ul>
- *    <li>X-PRISTY-ADD-ASPECT</li>
- *    <li>X-PRISTY-DEL-ASPECT</li>
- *    <li>X-PRISTY-DEL-PROPERTY</li>
- *    <li>X-PRISTY-ADD-PROPERTY</li>
+ * <li>X-PRISTY-ADD-ASPECT</li>
+ * <li>X-PRISTY-DEL-ASPECT</li>
+ * <li>X-PRISTY-DEL-PROPERTY</li>
+ * <li>X-PRISTY-ADD-PROPERTY</li>
  * </ul>
  * It is safer to upload the file, then change metadata or aspect in another call.
  *
@@ -51,7 +51,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 		checkWopiTimestamp(req, res, nodeRef);
 
-		final InputStream inputStream = req.getContent().getInputStream();
+		final InputStream inputStream = req.getContent()
+				.getInputStream();
 		if (inputStream == null) {
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No inputStream");
 		}
@@ -84,8 +85,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			logger.error(msg, we);
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, msg);
 		} catch (ConflictException e) {
-			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON,
-					e.getLockFailureReason());
+			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
+					.getLockFailureReason());
 
 			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
@@ -99,7 +100,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 		Date newModified = newVersion.getFrozenModifiedDate();
 		LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
-		model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
+		model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
+				.print(modifiedDatetime));
 	}
 
 	private boolean hasAutosaveHeader(final WebScriptRequest req) {

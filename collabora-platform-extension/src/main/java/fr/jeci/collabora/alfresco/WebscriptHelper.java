@@ -65,8 +65,8 @@ public class WebscriptHelper {
 		try {
 			return Integer.parseInt(strVal);
 		} catch (NumberFormatException e) {
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST,
-					"Parameter '" + header + "' is not a number = " + strVal);
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter '" + header + "' is not a number = "
+																					  + strVal);
 		}
 	}
 

@@ -60,6 +60,7 @@ public class WopiDiscovery {
 	 *
 	 * @deprecated You should use wopiDiscovery.getAction
 	 */
+	@Deprecated
 	public String getSrcURL(String mimeType, String action) {
 		if (action == null) {
 			logger.warn("get srcURL for null action");
@@ -70,8 +71,8 @@ public class WopiDiscovery {
 			return null;
 		}
 
-		DiscoveryAction discoveryAction = this.legacyActions.get(
-				String.format("%s/%s", mimeType.toLowerCase(), action.toLowerCase()));
+		DiscoveryAction discoveryAction = this.legacyActions.get(String.format("%s/%s", mimeType.toLowerCase(), action
+				.toLowerCase()));
 		if (discoveryAction == null) {
 			return null;
 		}
@@ -179,11 +180,16 @@ public class WopiDiscovery {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder("\n{");
-			sb.append("\nname: \"").append(name).append("\", ");
-			sb.append("\nfavIconUrl: \"").append(favIconUrl).append("\", ");
+			sb.append("\nname: \"")
+					.append(name)
+					.append("\", ");
+			sb.append("\nfavIconUrl: \"")
+					.append(favIconUrl)
+					.append("\", ");
 			sb.append("\nactions: [");
 			for (DiscoveryAction action : actions) {
-				sb.append(action).append(',');
+				sb.append(action)
+						.append(',');
 			}
 			sb.append(']');
 			return sb.toString();

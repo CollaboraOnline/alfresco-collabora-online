@@ -89,7 +89,11 @@ public class WOPIAccessTokenInfo implements Serializable {
 
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("accessToken", accessToken).append("issuedAt", issuedAt)
-				.append("expiresAt", expiresAt).append("fileId", fileId).append("userName", userName).toString();
+		return new ToStringBuilder(this).append("accessToken", accessToken)
+				.append("issuedAt", issuedAt)
+				.append("expiresAt", expiresAt)
+				.append("fileId", fileId)
+				.append("userName", userName)
+				.toString();
 	}
 }

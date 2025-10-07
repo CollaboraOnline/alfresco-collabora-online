@@ -19,7 +19,7 @@ public class EditingEvaluator extends BaseEvaluator {
 	public boolean evaluate(JSONObject jsonObject) {
 		try {
 			if (logger.isDebugEnabled()) {
-				logger.debug("EditingEvalutor - jsonObject" + jsonObject.toString());
+				logger.debug("EditingEvaluator - jsonObject" + jsonObject.toString());
 			}
 			String lockType = (String) getProperty(jsonObject, "cm:lockType");
 			return LOCK_WRITE.equals(lockType);

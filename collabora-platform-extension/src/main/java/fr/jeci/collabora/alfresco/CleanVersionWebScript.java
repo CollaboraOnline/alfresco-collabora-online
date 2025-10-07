@@ -40,7 +40,8 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 		final Map<String, Object> model = new HashMap<>();
 
 		try {
-			final Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+			final Map<String, String> templateArgs = req.getServiceMatch()
+					.getTemplateVars();
 			final String storeType = WebscriptHelper.getParam(templateArgs, PARAM_STORE_TYPE);
 			final String storeId = WebscriptHelper.getParam(templateArgs, PARAM_STORE_ID);
 			final String guid = WebscriptHelper.getParam(templateArgs, PARAM_ID);
@@ -80,7 +81,8 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 		int countAuto = 0;
 		int countExp = 0;
 		for (Version version : history.getAllVersions()) {
-			Serializable collaboraautosave = version.getVersionProperties().get(CollaboraOnlineService.LOOL_AUTOSAVE);
+			Serializable collaboraautosave = version.getVersionProperties()
+					.get(CollaboraOnlineService.LOOL_AUTOSAVE);
 			if (collaboraautosave == null) {
 				logger.debug("v.{} - not lool - keep", version.getVersionLabel());
 

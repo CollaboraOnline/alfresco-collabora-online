@@ -20,13 +20,13 @@ public class CleanLockJob extends AbstractScheduledLockedJob implements Stateful
 
 	@Override
 	public void executeJob(JobExecutionContext context) throws JobExecutionException {
-		JobDataMap jobData = context.getJobDetail().getJobDataMap();
+		JobDataMap jobData = context.getJobDetail()
+				.getJobDataMap();
 
 		// Extract the Job executer to use
 		Object executerObj = jobData.get("jobExecuter");
 		if (!(executerObj instanceof CleanLockJobExecuter)) {
-			throw new AlfrescoRuntimeException(
-					"CleanLockJob data must contain valid 'Executer' reference");
+			throw new AlfrescoRuntimeException("CleanLockJob data must contain valid 'Executer' reference");
 		}
 
 		final CleanLockJobExecuter cleanLockjobExecuter = (CleanLockJobExecuter) executerObj;

@@ -25,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -150,9 +149,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + accessToken);
 		}
 
-		if (!tokenInfo.getFileId().equals(nodeRef.getId())) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED,
-					"Tokens stored for " + accessToken + ", not match the given file" + nodeRef);
+		if (!tokenInfo.getFileId()
+				.equals(nodeRef.getId())) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Tokens stored for " + accessToken
+																						+ ", not match the given file" + nodeRef);
 		}
 
 		return tokenInfo;
@@ -216,13 +216,14 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		List<DiscoveryAction> actions = this.wopiDiscovery.getAction(ext.toLowerCase());
 
 		if (actions == null || actions.isEmpty()) {
-			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED,
-					"No action for node=" + nodeRef + " fileName=" + filename);
+			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED, "No action for node=" + nodeRef + " fileName="
+																							+ filename);
 		}
 
 		DiscoveryAction found = null;
 		for (DiscoveryAction act : actions) {
-			if (act.getName().equals(action)) {
+			if (act.getName()
+					.equals(action)) {
 				found = act;
 				break;
 			}

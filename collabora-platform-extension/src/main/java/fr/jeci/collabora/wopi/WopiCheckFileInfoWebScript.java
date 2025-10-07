@@ -47,7 +47,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private static final String BASE_FILE_NAME = "BaseFileName";
 
-    private AuthorityService authorityService;
+	private AuthorityService authorityService;
 	private PermissionService permissionService;
 
 	@Override
@@ -61,7 +61,8 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		if (currentVersion != null) {
 			Date lastModifiedDate = currentVersion.getFrozenModifiedDate();
 			LocalDateTime modifiedDatetime = new LocalDateTime(lastModifiedDate);
-			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime().print(modifiedDatetime));
+			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
+					.print(modifiedDatetime));
 			model.put(VERSION, currentVersion.getVersionLabel());
 		} else {
 			ensureVersioningEnabled(nodeRef);
@@ -70,7 +71,8 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		// BaseFileName need extension, else COL load it in read-only mode
 		model.put(BASE_FILE_NAME, (String) properties.get(ContentModel.PROP_NAME));
 
-		model.put(OWNER_ID, properties.get(ContentModel.PROP_CREATOR).toString());
+		model.put(OWNER_ID, properties.get(ContentModel.PROP_CREATOR)
+				.toString());
 		final ContentData contentData = (ContentData) properties.get(ContentModel.PROP_CONTENT);
 		model.put(SIZE, Long.toString(contentData.getSize()));
 
@@ -80,7 +82,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		model.put(USER_FRIENDLY_NAME, userName);
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
-		boolean isGuest =	authorityService.isGuestAuthority(userName);
+		boolean isGuest = authorityService.isGuestAuthority(userName);
 		model.put(IS_ANONYMOUS_USER, Boolean.toString(isAdmin));
 
 		jsonResponse(res, 200, model);
@@ -106,8 +108,8 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		return AccessStatus.ALLOWED == perm;
 	}
 
-    public void setAuthorityService(AuthorityService authorityService) {
-	    this.authorityService = authorityService;
+	public void setAuthorityService(AuthorityService authorityService) {
+		this.authorityService = authorityService;
 	}
 
 	public void setPermissionService(PermissionService permissionService) {

@@ -9,22 +9,21 @@ import java.net.URL;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.springframework.extensions.webscripts.WebScriptException;
 
 public interface CollaboraOnlineService {
-	static final String HIDE_PRINT_OPTION = "HidePrintOption";
-	static final String HIDE_SAVE_OPTION = "HideSaveOption";
-	static final String HIDE_EXPORT_OPTION = "HideExportOption";
-	static final String DISABLE_EXPORT = "DisableExport";
-	static final String DISABLE_PRINT = "DisablePrint";
-	static final String DISABLE_COPY = "DisableCopy";
-	static final String POST_MESSAGE_ORIGIN = "PostMessageOrigin";
-	static final String ENABLE_OWNER_TERMINATION = "EnableOwnerTermination";
-	static final String USER_CAN_NOT_WRITE_RELATIVE = "UserCanNotWriteRelative";
-	static final String SUPPORTS_LOCKS = "SupportsLocks";
+	String HIDE_PRINT_OPTION = "HidePrintOption";
+	String HIDE_SAVE_OPTION = "HideSaveOption";
+	String HIDE_EXPORT_OPTION = "HideExportOption";
+	String DISABLE_EXPORT = "DisableExport";
+	String DISABLE_PRINT = "DisablePrint";
+	String DISABLE_COPY = "DisableCopy";
+	String POST_MESSAGE_ORIGIN = "PostMessageOrigin";
+	String ENABLE_OWNER_TERMINATION = "EnableOwnerTermination";
+	String USER_CAN_NOT_WRITE_RELATIVE = "UserCanNotWriteRelative";
+	String SUPPORTS_LOCKS = "SupportsLocks";
 
-	static final String LOOL_AUTOSAVE = "collabora:autosave";
-	static final String AUTOSAVE_DESCRIPTION = "Edit with Collabora";
+	String LOOL_AUTOSAVE = "collabora:autosave";
+	String AUTOSAVE_DESCRIPTION = "Edit with Collabora";
 
 	/**
 	 * Generate and store an access token only valid for the current user/file id combination.
@@ -107,8 +106,8 @@ public interface CollaboraOnlineService {
 	 *
 	 * @param nodeRef Node to lock
 	 * @param force   if true, remove lock without checking timestamp
-	 * @deprecated
 	 */
+	@Deprecated
 	void unlock(NodeRef nodeRef, boolean force);
 
 	/**

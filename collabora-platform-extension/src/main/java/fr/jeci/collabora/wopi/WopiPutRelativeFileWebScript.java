@@ -13,8 +13,6 @@ import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Utf7;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Status;
@@ -66,8 +64,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ConflictException e) {
-			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON,
-					e.getLockFailureReason());
+			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
+					.getLockFailureReason());
 
 			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
@@ -133,7 +131,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	private Map<String, String> saveAs(WebScriptRequest req, NodeRef newNodeRef) {
 		logger.debug("saveAs newNodeRef={}", newNodeRef);
 
-		final InputStream inputStream = req.getContent().getInputStream();
+		final InputStream inputStream = req.getContent()
+				.getInputStream();
 		if (inputStream == null) {
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No inputStream");
 		}
@@ -167,8 +166,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 				WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
 				logger.debug("tokenInfo = [{}:{}]", tokenInfo.getUserName(), tokenInfo.getAccessToken());
 				URL alfrescoPrivateURL = collaboraOnlineService.getAlfrescoPrivateURL();
-				String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/",
-						newNodeRef.getId(), tokenInfo.getAccessToken());
+				String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/", newNodeRef
+						.getId(), tokenInfo.getAccessToken());
 				logger.debug("newUrl = {}", newUrl);
 				return newUrl;
 			}
@@ -264,8 +263,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		// Have the node created
 		NodeRef newNodeRef = null;
 		try {
-			QName newQname = QName.createQName(assocRef.getQName().getNamespaceURI(),
-					QName.createValidLocalName(targetFileName));
+			QName newQname = QName.createQName(assocRef.getQName()
+					.getNamespaceURI(), QName.createValidLocalName(targetFileName));
 			newNodeRef = copyService.copy(sourceNodeRef, targetParentRef, assocRef.getTypeQName(), newQname, true);
 			nodeService.setProperty(newNodeRef, ContentModel.PROP_NAME, targetFileName);
 
@@ -273,8 +272,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		} catch (AccessDeniedException e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN, "You don't have permission to create the node");
 		} catch (InvalidNodeRefException e) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"the parent reference is invalid: " + targetParentRef);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "the parent reference is invalid: "
+																									+ targetParentRef);
 		} catch (DuplicateChildNodeNameException e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("NodeExistsException " + targetFileName, e);
@@ -287,8 +286,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 					}
 					// TODO newNodeRef = e.getNodePair().getSecond();
 				} else {
-					throw new WebScriptException(STATUS_CONFLICT,
-							"File with the specified name already exists: " + targetFileName);
+					throw new WebScriptException(STATUS_CONFLICT, "File with the specified name already exists: "
+																				 + targetFileName);
 				}
 			} else {
 				logger.info("File with the specified name already exists: {} try with another name", targetFileName);
@@ -312,12 +311,12 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		boolean isRelative = StringUtils.isNotBlank(relative);
 
 		if (isSuggested && isRelative) {
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST,
-					"Can’t have both " + X_WOPI_SUGGESTED_TARGET + " and " + X_WOPI_RELATIVE_TARGET + " header");
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Can’t have both " + X_WOPI_SUGGESTED_TARGET + " and "
+																					  + X_WOPI_RELATIVE_TARGET + " header");
 		}
 		if (!isSuggested && !isRelative) {
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST,
-					"Need one of " + X_WOPI_SUGGESTED_TARGET + " or " + X_WOPI_RELATIVE_TARGET + " header");
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Need one of " + X_WOPI_SUGGESTED_TARGET + " or "
+																					  + X_WOPI_RELATIVE_TARGET + " header");
 		}
 	}
 

@@ -31,8 +31,8 @@ public class ServiceUrlInfoWebScript extends DeclarativeWebScript {
 		try {
 			colServiceUrl = new URL(alfrescoPrivateURL, ALFRESCO_SERVICE);
 		} catch (MalformedURLException e) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"Invalid Wopi Server URL :" + alfrescoPrivateURL);
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Invalid Wopi Server URL :"
+																									+ alfrescoPrivateURL);
 		}
 
 		Map<String, Object> model = new HashMap<>(1);

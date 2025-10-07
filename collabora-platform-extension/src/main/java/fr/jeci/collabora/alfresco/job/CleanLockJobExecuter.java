@@ -13,8 +13,6 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineModel;
 import org.slf4j.Logger;
@@ -24,6 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author Cindy Piassale Search for files for which the lock has expired Removing locks
  * @deprecated We use LockService now
  */
+@Deprecated
 public class CleanLockJobExecuter {
 
 	private static final Logger logger = LoggerFactory.getLogger(CleanLockJobExecuter.class);
@@ -38,10 +37,16 @@ public class CleanLockJobExecuter {
 
 		// Search content which are collabora:lockExpiration < NOW
 		StringBuilder query = new StringBuilder();
-		query.append("+ASPECT:\"").append(CollaboraOnlineModel.COLLABORA_MODEL_PREFIX).append(":")
-				.append(CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE.toPrefixString()).append("\"");
-		query.append(" +@").append(CollaboraOnlineModel.COLLABORA_MODEL_PREFIX).append("\\:");
-		query.append(CollaboraOnlineModel.PROP_LOCK_EXPIRATION.getLocalName()).append(":[MIN TO NOW}");
+		query.append("+ASPECT:\"")
+				.append(CollaboraOnlineModel.COLLABORA_MODEL_PREFIX)
+				.append(":")
+				.append(CollaboraOnlineModel.ASPECT_COLLABORA_ONLINE.toPrefixString())
+				.append("\"");
+		query.append(" +@")
+				.append(CollaboraOnlineModel.COLLABORA_MODEL_PREFIX)
+				.append("\\:");
+		query.append(CollaboraOnlineModel.PROP_LOCK_EXPIRATION.getLocalName())
+				.append(":[MIN TO NOW}");
 
 		logger.debug("CleanLockJobExecute - Query : {}", query);
 		ResultSet result = this.searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
