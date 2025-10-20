@@ -38,5 +38,13 @@ run = "docker compose down -v"
 
 
 [tasks.clean]
-description = "maven clean"
+description = "Maven clean"
 run = "mvn clean"
+
+[tasks."format:check"]
+description = "Check Java code formatting with Spotless"
+run = "mvn spotless:check"
+
+[tasks."format:write"]
+description = "Apply Java code formatting with Spotless"
+run = "mvn spotless:apply"

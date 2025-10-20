@@ -31,136 +31,51 @@ mise run start
 
 ## Installation
 
+### Requirements
+
+- **Java**: 17 or higher
+- **Alfresco Content Services**: 7.2+ (tested with 25.1.0)
+- **Alfresco Share**: 7.2+ (tested with 25.1.0)
+- **Collabora Online**: 6.4+ (tested with 25.04)
+- **Docker Compose**: Only for testing
+
 ### ACS Extension
 
-Add `collabora-platform-extension-<version>`.jar in the folder `INSTALL_DIR/webapps/alfresco/WEB-INF/lib`.
-You must configure the following properties in `alfresco-global.properties` :
+1. Copy the extension JAR to Alfresco's library folder:
+   ```bash
+   cp collabora-platform-extension-<version>.jar $ALFRESCO_HOME/webapps/alfresco/WEB-INF/lib/
+   ```
 
-From version `0.3.1` onwards :
+2. Configure `alfresco-global.properties` (see [Configuration Reference](#configuration-reference) for details):
+   ```properties
+   # Public URLs (accessible from browser)
+   collabora.public.url=https://<collabora_server_domain>:<port>/
+   alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
 
-```
-collabora.public.url=https://<collabora_server_domain>:<port>/
-alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
-```
+   # Private URLs (optional, for internal network)
+   collabora.private.url=${collabora.public.url}
+   alfresco.private.url=${alfresco.public.url}
 
-Prior to version `0.3.1` :
+   # Token time-to-live (24 hours in milliseconds)
+   lool.wopi.token.ttl=86400000
+   ```
 
-```
-lool.wopi.url=https://<collabora_server_domain>:<port>/
-lool.wopi.alfresco.host=https://<alfresco_server_domain>:<port>/alfresco/s/
-lool.wopi.url.discovery=https://<collabora_server_domain>:<port>/hosting/discovery
-```
-
-#### Job to clean locks
-
-From version `0.4.1` onwards, there are a job that clean obsolete locks. To configure the job you can define in `alfresco-global.properties`
-the following properties :
-
-```
-job.fr.jeci.collabora.cleanLock.cron=0 0/5 * * * ?
-job.fr.jeci.collabora.cleanLock.cronstartdelay=240000
-job.fr.jeci.collabora.cleanLock.enabled=true
-```
+3. Restart Alfresco
 
 ### Share Extension
 
-Add `collabora-share-extension-<version>.jar` in the folder `INSTALL_DIR/webapps/share/WEB-INF/lib`.
+1. Copy the extension JAR to Share's library folder:
+   ```bash
+   cp collabora-share-extension-<version>.jar $ALFRESCO_HOME/webapps/share/WEB-INF/lib/
+   ```
 
-### ACA Extension
-
-We have removed ACA support for now because the module is not compatible with Alfresco 25
-
-#### Viewer Collabora-Online
-
-Since **version 0.3.0**, it is possible to replace the standard viewer by collabora online in mode read-only for supported format.
-
-#### Add ViewerCollaboraModule
-
-For that you must add the module `ViewerCollaboraModule` in `viewer.module.ts` file in the folder `src/app/components/viewer`
-
-```
-...
-import { ViewerCollaboraModule } from '@jeci/collabora-online-extension';
-...
-@NgModule({
-  imports: [
-  ...
-      ViewerCollaboraModule
-  ],
-...
-```
-
-#### Add Collabora Viewer
-
-Add the component `viewer-collabora-online` in `viewer.component.html` file in in the folder `src/app/components/viewer`
-
-```
-<!-- Viewer collabora -->
-<adf-viewer-extension [supportedExtensions]="supportedExtensions" #extension>
-  <ng-template let-urlFileContent="urlFileContent">
-    <viewer-collabora-online urlFileContent="urlFileContent" [nodeId]="nodeId"></viewer-collabora-online>
-  </ng-template>
-</adf-viewer-extension>
-```
-
-#### Define extensions list (prior to version 0.5.1)
-
-Define the extensions supported by Collabora Online in `viewer.component.ts` file in the folder `src/app/components/viewer`
-
-```
-...
-import * as utilsCollabora from '@jeci/collabora-online-extension';
-...
-supportedExtensions: string[] = [];
-...
-ngOnInit() {
-  ...
-  this.supportedExtensions = utilsCollabora.getExtensions();
-}
-...
-```
-
-#### Define extensions list (from version 0.5.1)
-
-Define the extensions supported by Collabora Online in `app.config.json` file.
-
-```
-...
-"collabora": {
-    "enable": true,
-    "edit": [ ... ],
-    "view": [ ... ]
-},
-...
-```
-
-Add the extensions list in `viewer.component.ts` file in the folder `src/app/components/viewer`
-
-```
-...
-import { CollaboraOnlineService } from '@jeci/collabora-online-extension';
-...
-supportedExtensions: string[] = [];
-...
-constructor(
-...
-  private collaboraOnlineService : CollaboraOnlineService,
-...  
-)
-...
-ngOnInit() {
-  ...
-  this.supportedExtensions = this.collaboraOnlineService.getExtensions();
-}
-...
-```
+2. Restart Share
 
 ## Test
 
 You can start the application for local test with docker-compose.
 
 ```
-pip install docker-compose
 ./run.sh build_start
 ```
 
@@ -179,43 +94,321 @@ Then you can access applications :
 
 * [ACS](http://localhost:8080/alfresco) : http://localhost:8080/alfresco
 * [Share](http://localhost:8080/share) : http://localhost:8080/share
-* [ACA](http://localhost:8080/) : http://localhost:8080/
 
-## Release
+## Network Architecture
 
-| Version | Commits                                                                                                                                                                                                                              |
-|---------|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| 0.1.0   | Beta version                                                                                                                                                                                                                         |
-| 0.2.0   | Delete Close button in iFrame Collabora Online                                                                                                                                                                                       |
-|         | Add action fullscreen                                                                                                                                                                                                                |
-| 0.2.1   | Add translations for Share and Alfresco Content Application interface (Hungarian, Turkish, Polish, Ukrainian, Spanish, Norwegian Bokmål, Dutch, Hebrew Japanese, Slovak, English New Zealand, Icelandic, Portuguese Brazil, Croatian) |
-| 0.3.0   | Add a viewer with Collabora Online                                                                                                                                                                                                   |
-| 0.3.1   | Refactoring                                                                                                                                                                                                                          |
-|         | Back implementation for save as action ( On front this action is disabled waiting the front implementation )                                                                                                                         |
-| 0.4.0   | Soft lock - Replace LoolMonitor. Display in Share interface a banner when the file is already editing by another user.                                                                                                               |
-| 0.4.1   | Add a job to clean the locks that are no longer valid                                                                                                                                                                                |
-| 0.4.2   | Update of file formats accepted by collabora 6.4.9 for view or edit mode                                                                                                                                                             |
-|         | Fix synchronisation banners which appears in Alfresco Share 6                                                                                                                                                                        |
-| 0.4.3   | Update of file formats accepted by collabora 6.4.11 for view or edit mode                                                                                                                                                            |
-| 0.5.0   | Fix the bug to open big files                                                                                                                                                                                                        |
-|         | Action SaveAs is enabled                                                                                                                                                                                                             |
-|         | Update of file formats accepted by collabora 6.4.11.3                                                                                                                                                                                |
-|         | Change the position the icon to edit with collabora online                                                                                                                                                                           |
-| 0.5.1   | Open files directly in edit mode when the format allows it                                                                                                                                                                           |
-|         | Configure the extensions that can be opened or edited with Collabora Online in `app.config.json`.                                                                                                                                    |
-| 0.5.2   | Looks like last CODE release (21.11) change the date format used for timestamp                                                                                                                                                       |
-| 0.6.0   | Update to Alfresco SDK 4.4, Alfresco ACS 7.2 and Alfresco Share 7.2                                                                                                                                                                  |
-|         | Add run.sh script to help beginners.                                                                                                                                                                                                 |
-| 0.7.0   | Add new header to manage aspect and properties                                                                                                                                                                                       |
-|         | Use Wopi protocol to pass the fully username                                                                                                                                                                                         |
-|         | Code quality                                                                                                                                                                                                                         |
-|         | Fix nullPointerException                                                                                                                                                                                                             |
-| 0.7.1   | Add build amp                                                                                                                                                                                                                        |
-| 1.0.0   | Use lockService instead of the collabora aspect                                                                                                                                                                                      |
-|         | Create the rendition after changes                                                                                                                                                                                                   |
-| 1.0.1   | Fix the error to open collabora online in french
+Understanding the network flows is important for a secure deployment.
 
+### Network Communication Flows
 
+```
+┌─────────────┐                    ┌──────────────────┐                    ┌─────────────┐
+│   Browser   │ ◄──────HTTPS─────► │  Reverse Proxy   │ ◄──────HTTP──────► │  Collabora  │
+│   (User)    │                    │                  │                    │   Online    │
+└─────────────┘                    └──────────────────┘                    └─────────────┘
+                                            │
+                                            │ HTTP (WOPI)
+                                            │
+                                            ▼
+┌─────────────────────────────────────────────────────┐
+│              Alfresco Repository                    │
+│  - Serves WOPI endpoints                            │
+│  - Fetches discovery XML at startup ONLY            │
+└─────────────────────────────────────────────────────┘
+```
+
+### Key Points
+
+1. **Browser ↔ Collabora Online**: Users' browsers load the Collabora Online editor interface via `collabora.public.url`
+2. **Browser ↔ Alfresco**: WOPI protocol communication (CheckFileInfo, GetFile, PutFile) via `alfresco.public.url`
+3. **Alfresco → Collabora**: **Only at startup** - Alfresco fetches `/hosting/discovery` to know which file types are supported
+
+### Security Best Practice: Avoid Outbound Traffic
+
+For maximum security, you can avoid opening network traffic from Alfresco to Collabora Online by hosting the discovery XML internally.
+
+**Steps:**
+
+1. Download the discovery XML once:
+   ```bash
+   curl https://collabora.example.com/hosting/discovery > discovery.xml
+   ```
+
+2. Host it on your reverse proxy or internal web server:
+   ```nginx
+   # Nginx example
+   location /collabora-discovery/hosting/discovery {
+       alias /var/www/discovery.xml;
+       default_type application/xml;
+   }
+   ```
+
+3. Configure Alfresco to use the internal URL:
+   ```properties
+   collabora.public.url=https://collabora.example.com/
+   collabora.private.url=https://proxy-internal/collabora-discovery/
+   ```
+
+**Result:** No direct network communication between Alfresco and Collabora Online. The discovery XML is loaded from your internal infrastructure.
+
+**Note:** Remember to update the discovery XML when upgrading Collabora Online, as supported file formats may change.
+
+## Configuration Reference
+
+All configuration properties should be defined in `$ALFRESCO_HOME/tomcat/shared/classes/alfresco-global.properties`.
+
+### Connection URLs
+
+#### `collabora.public.url` (Required)
+**Type:** URL
+**Default:** `http://localhost:9980/`
+
+Public URL of the Collabora Online server, accessible from the user's browser. This URL is used to load the Collabora Online editor in the user's web browser.
+
+**Example:**
+```properties
+collabora.public.url=https://collabora.example.com/
+```
+
+#### `collabora.private.url` (Optional)
+**Type:** URL
+**Default:** `${collabora.public.url}`
+
+Internal URL of the Collabora Online server. Use this if Collabora Online is accessible via a different URL from within the Alfresco server's network (e.g., internal hostname or IP address).
+
+**Important:** This URL is used by Alfresco at startup to fetch the WOPI discovery XML from `<collabora.private.url>/hosting/discovery`. This is the **only** network communication needed between Alfresco and Collabora Online.
+
+**Example:**
+```properties
+collabora.private.url=http://collabora-internal:9980/
+```
+
+**Special case - Avoiding outbound network traffic:**
+
+If you want to avoid opening network traffic from Alfresco to Collabora Online (recommended for security), you can:
+
+1. Copy the content of `https://collabora.example.com/hosting/discovery` to your reverse proxy or internal web server
+2. Configure `collabora.private.url` to point to this internal copy
+
+**Example configuration:**
+```properties
+# Public URL for browser access
+collabora.public.url=https://collabora.example.com/
+
+# Private URL pointing to local copy of discovery XML
+collabora.private.url=https://proxy-internal/collabora-discovery/
+
+# The discovery XML should be available at:
+# https://proxy-internal/collabora-discovery/hosting/discovery
+```
+
+This way, Alfresco loads the discovery configuration from an internal source, while browsers still access Collabora Online via the public URL. No direct network communication is needed between Alfresco and Collabora Online.
+
+#### `alfresco.public.url` (Required)
+**Type:** URL
+**Default:** `${alfresco.protocol}://${alfresco.host}:${alfresco.port}/${alfresco.context}`
+
+Public URL of the Alfresco server, accessible from the user's browser. This URL is used by the browser to communicate with Alfresco.
+
+**Example:**
+```properties
+alfresco.public.url=https://alfresco.example.com/alfresco/
+```
+
+#### `alfresco.private.url` (Optional)
+**Type:** URL
+**Default:** `${alfresco.public.url}`
+
+Internal URL of the Alfresco server used by Collabora Online to fetch documents. Use this if Alfresco is accessible via a different URL from within Collabora's network.
+
+**Example:**
+```properties
+alfresco.private.url=http://alfresco-internal:8080/alfresco/
+```
+
+### Token Configuration
+
+#### `lool.wopi.token.ttl` (Optional)
+**Type:** Integer (milliseconds)
+**Default:** `86400000` (24 hours)
+
+Time-to-live for WOPI access tokens in milliseconds. After this period, tokens expire and users must reload the document.
+
+**Examples:**
+```properties
+# 12 hours
+lool.wopi.token.ttl=43200000
+
+# 24 hours (default)
+lool.wopi.token.ttl=86400000
+
+# 48 hours
+lool.wopi.token.ttl=172800000
+```
+
+**Note:** Tokens shorter than 1 hour (3600000 ms) will generate a warning in the logs.
+
+### Renditions
+
+#### `fr.jeci.collabora.renditions` (Optional)
+**Type:** Comma-separated list
+**Default:** `imgpreview,medium,doclib,pdf`
+
+List of renditions to automatically regenerate after a document is saved with Collabora Online. This ensures thumbnails and previews are updated with the latest content.
+
+**Available renditions:**
+- `imgpreview` - Image preview
+- `medium` - Medium size thumbnail
+- `doclib` - Document library thumbnail
+- `pdf` - PDF rendition
+
+**Example:**
+```properties
+# Generate only essential renditions
+fr.jeci.collabora.renditions=doclib,pdf
+
+# Disable automatic rendition generation
+fr.jeci.collabora.renditions=
+```
+
+### Lock Cleanup Job (Deprecated)
+
+The lock cleanup job is **deprecated** since version 1.0.0. Alfresco's native lock management is now used instead.
+
+#### `job.fr.jeci.collabora.cleanLock.enabled` (Deprecated)
+**Type:** Boolean
+**Default:** `false`
+
+Enable or disable the lock cleanup job. **Should remain disabled** in version 1.0+.
+
+#### `job.fr.jeci.collabora.cleanLock.cron` (Deprecated)
+**Type:** Cron expression
+**Default:** `0 0/5 * * * ?` (every 5 minutes)
+
+Cron schedule for the lock cleanup job. Only used if enabled.
+
+#### `job.fr.jeci.collabora.cleanLock.cronstartdelay` (Deprecated)
+**Type:** Integer (milliseconds)
+**Default:** `240000` (4 minutes)
+
+Delay before the first execution of the cleanup job after Alfresco startup.
+
+### Example Complete Configuration
+
+```properties
+# ============================================
+# Alfresco Collabora Online Configuration
+# ============================================
+
+# Connection URLs
+collabora.public.url=https://collabora.example.com/
+collabora.private.url=http://collabora-internal:9980/
+alfresco.public.url=https://alfresco.example.com/alfresco/
+alfresco.private.url=http://alfresco-internal:8080/alfresco/
+
+# Token configuration
+lool.wopi.token.ttl=86400000
+
+# Renditions (optional)
+fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
+
+# Lock cleanup job (deprecated - keep disabled)
+job.fr.jeci.collabora.cleanLock.enabled=false
+job.fr.jeci.collabora.cleanLock.cron=0 0/5 * * * ?
+job.fr.jeci.collabora.cleanLock.cronstartdelay=240000
+```
+
+## Release Notes
+
+For detailed release history and changelog, see [CHANGELOG.md](CHANGELOG.md).
+
+**Current version:** 1.3.0-SNAPSHOT
+
+## Migration Guide
+
+### Migrating from version < 0.3.1 to version 1.0+
+
+If you are upgrading from a version prior to 0.3.1, you need to update your configuration properties.
+
+#### Step 1: Update Configuration Properties
+
+**Remove old properties** from `alfresco-global.properties`:
+```properties
+# OLD - Remove these:
+lool.wopi.url=...
+lool.wopi.alfresco.host=...
+lool.wopi.url.discovery=...
+```
+
+**Add new properties**:
+```properties
+# NEW - Add these:
+collabora.public.url=https://<collabora_server_domain>:<port>/
+alfresco.public.url=https://<alfresco_server_domain>:<port>/alfresco/
+
+# Optional - for internal network
+collabora.private.url=${collabora.public.url}
+alfresco.private.url=${alfresco.public.url}
+```
+
+#### Step 2: Update Lock Management (version 1.0+)
+
+Version 1.0.0 introduced a major change: the extension now uses Alfresco's native `LockService` instead of custom aspects.
+
+**Before migration:**
+- Locks were managed using the `collabora:collaboraOnline` aspect
+- Custom lock properties were stored on documents
+- Automatic cleanup job removes obsolete locks
+
+**After migration:**
+- Locks use Alfresco's standard lock mechanism
+
+**Required actions:**
+
+1. **Lock cleanup job** - The lock cleanup job is now **deprecated** and disabled by default in version 1.0+. Alfresco's native lock management is used instead. If you have the job enabled from a previous configuration, you should disable it in `alfresco-global.properties`:
+   ```properties
+   job.fr.jeci.collabora.cleanLock.enabled=false
+   ```
+
+2. **Clean up old aspects** (optional, recommended for large repositories):
+
+   After upgrading, you may want to remove old `collabora:collaboraOnline` aspects from documents. This can be done via:
+
+   - JavaScript console in Alfresco
+   - Custom migration script
+   - Manual cleanup using the Node Browser
+
+   Example JavaScript to remove old aspects:
+   ```javascript
+   var nodes = search.luceneSearch("ASPECT:\"collabora:collaboraOnline\"");
+   for (var i = 0; i < nodes.length; i++) {
+       if (nodes[i].hasAspect("collabora:collaboraOnline")) {
+           nodes[i].removeAspect("collabora:collaboraOnline");
+           nodes[i].save();
+       }
+   }
+   logger.log("Cleaned up " + nodes.length + " nodes");
+   ```
+
+3. **Verify lock behavior**:
+   - Test document editing with multiple users
+   - Verify lock indicators appear correctly in Share
+   - Check that locks are automatically released
+
+#### Step 3: Test Rendition Generation (version 1.0+)
+
+Version 1.0.0 also introduced automatic rendition generation after document changes.
+
+**Configure renditions** in `alfresco-global.properties` (optional):
+```properties
+# Comma-separated list of rendition names to generate
+fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
+```
+
+**Verify**:
+- Edit a document with Collabora Online
+- Save changes
+- Check that thumbnails are regenerated automatically
 
 ## About Jeci
 
