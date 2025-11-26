@@ -39,3 +39,4 @@ http://localhost:8008/index.html?collaboraUrl=http://localhost:9980/browser/b639
 - v0.2.1 : fix allow fullscreen, update dependencies and node 20.9.0
 - v0.2.2 : update node 20.19.1, update main dependencies (vue, vite, eslint)
 - v0.2.3 : update dependencies
+- v0.2.4: add clipboard permissions to Collabora iframe
