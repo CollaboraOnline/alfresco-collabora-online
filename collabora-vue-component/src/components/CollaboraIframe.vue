@@ -23,7 +23,7 @@ SPDX-License-Identifier: Apache-2.0
     <iframe
       id="loleafletframe"
       name="loleafletframe"
-      allow="fullscreen 'self' ${collaboraUrl}"
+      allow="clipboard-read *; clipboard-write *; fullscreen 'self' ${collaboraUrl}"
     />
   </div>
 </template>
