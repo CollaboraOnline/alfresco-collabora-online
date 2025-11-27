@@ -131,8 +131,9 @@ public class CollaboraOnlineServiceImplTest {
 		String token = invokeGenerateAccessToken();
 
 		// Verify: only URL-safe Base64 characters (A-Z, a-z, 0-9, -, _)
-		assertTrue("Token should only contain Base64 URL-safe characters: " + token,
-				BASE64_URL_SAFE_PATTERN.matcher(token).matches());
+		assertTrue("Token should only contain Base64 URL-safe characters: " + token, BASE64_URL_SAFE_PATTERN.matcher(
+				token)
+				.matches());
 
 		// Verify: no padding characters
 		assertFalse("Token should not contain padding characters", token.contains("="));

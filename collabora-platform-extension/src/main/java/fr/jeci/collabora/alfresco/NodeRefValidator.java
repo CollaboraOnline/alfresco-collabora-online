@@ -36,7 +36,8 @@ public final class NodeRefValidator {
 		if (fileId == null || fileId.isBlank()) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "File ID is required");
 		}
-		if (!UUID_PATTERN.matcher(fileId).matches()) {
+		if (!UUID_PATTERN.matcher(fileId)
+				.matches()) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid file ID format");
 		}
 	}
@@ -68,8 +69,7 @@ public final class NodeRefValidator {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "NodeRef is required");
 		}
 		if (!nodeService.exists(nodeRef)) {
-			throw new WebScriptException(Status.STATUS_NOT_FOUND,
-					"Node not found: " + nodeRef.getId());
+			throw new WebScriptException(Status.STATUS_NOT_FOUND, "Node not found: " + nodeRef.getId());
 		}
 	}
 

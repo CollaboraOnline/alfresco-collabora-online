@@ -97,6 +97,7 @@ public class WOPIAccessTokenInfo implements Serializable {
 
 	/**
 	 * Masks a token for safe logging, showing only the last 4 characters.
+	 * 
 	 * @param token the token to mask
 	 * @return masked token or "[null]" if token is null
 	 */

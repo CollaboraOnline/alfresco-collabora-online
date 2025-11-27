@@ -10,9 +10,9 @@ package fr.jeci.collabora.alfresco;
  * Log injection occurs when an attacker injects newlines or control characters into
  * logged values, which can lead to:
  * <ul>
- *   <li>Log falsification (injecting fake log entries)</li>
- *   <li>Audit trail manipulation</li>
- *   <li>Exploitation by log analysis tools</li>
+ * <li>Log falsification (injecting fake log entries)</li>
+ * <li>Audit trail manipulation</li>
+ * <li>Exploitation by log analysis tools</li>
  * </ul>
  *
  * @author jlesage

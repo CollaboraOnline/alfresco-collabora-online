@@ -292,8 +292,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 																				 + targetFileName);
 				}
 			} else {
-				logger.info("File with the specified name already exists: {} try with another name",
-						LogSanitizer.sanitize(targetFileName));
+				logger.info("File with the specified name already exists: {} try with another name", LogSanitizer.sanitize(
+						targetFileName));
 			}
 		}
 		logger.debug("createNode =>> {}", newNodeRef);
@@ -304,7 +304,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	private void checkHeadersRelative(WebScriptRequest req) {
 		final String wopiFileConversion = req.getHeader(X_WOPI_FILE_CONVERSION);
 		if (StringUtils.isNotBlank(wopiFileConversion)) {
-			logger.warn("Header {} is not implements: {}", X_WOPI_FILE_CONVERSION, LogSanitizer.sanitize(wopiFileConversion));
+			logger.warn("Header {} is not implements: {}", X_WOPI_FILE_CONVERSION, LogSanitizer.sanitize(
+					wopiFileConversion));
 		}
 
 		final String suggested = req.getHeader(X_WOPI_SUGGESTED_TARGET);

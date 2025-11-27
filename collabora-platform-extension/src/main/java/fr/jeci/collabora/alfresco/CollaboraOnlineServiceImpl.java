@@ -157,7 +157,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private String generateAccessToken() {
 		byte[] tokenBytes = new byte[TOKEN_BYTES];
 		random.nextBytes(tokenBytes);
-		return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
+		return Base64.getUrlEncoder()
+				.withoutPadding()
+				.encodeToString(tokenBytes);
 	}
 
 	/**
@@ -173,14 +175,14 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
 
 		if (tokenInfo == null) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED,
-					"No token access found for " + WOPIAccessTokenInfo.maskToken(accessToken));
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + WOPIAccessTokenInfo
+					.maskToken(accessToken));
 		}
 
 		if (!tokenInfo.getFileId()
 				.equals(nodeRef.getId())) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED,
-					"Token does not match the given file " + nodeRef.getId());
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not match the given file " + nodeRef
+					.getId());
 		}
 
 		return tokenInfo;

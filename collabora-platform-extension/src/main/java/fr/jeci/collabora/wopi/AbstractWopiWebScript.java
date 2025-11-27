@@ -77,8 +77,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		}
 
 		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
-					"No noderef for fileId: " + wopiToken.getFileId());
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No noderef for fileId: " + wopiToken
+					.getFileId());
 		}
 		try {
 			this.executeAsUser(req, res, nodeRef);

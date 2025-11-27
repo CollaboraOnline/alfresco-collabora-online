@@ -12,9 +12,9 @@ import java.util.regex.Pattern;
  * HTTP response splitting occurs when an attacker injects CRLF (Carriage Return Line Feed)
  * sequences into header values, which can lead to:
  * <ul>
- *   <li>Cache poisoning</li>
- *   <li>Session fixation</li>
- *   <li>Cross-site scripting (XSS)</li>
+ * <li>Cache poisoning</li>
+ * <li>Session fixation</li>
+ * <li>Cross-site scripting (XSS)</li>
  * </ul>
  *
  * @author jlesage
@@ -40,6 +40,7 @@ public final class HeaderSanitizer {
 		if (value == null) {
 			return null;
 		}
-		return CRLF_PATTERN.matcher(value).replaceAll("");
+		return CRLF_PATTERN.matcher(value)
+				.replaceAll("");
 	}
 }
