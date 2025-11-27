@@ -28,6 +28,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import java.net.URL;
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +62,32 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private final SecureRandom random = new SecureRandom();
 
+	private Map<String, String> serverInfo;
+
 	public void init() {
 		if (collaboraPublicUrl == null) {
 			throw new AlfrescoRuntimeException("Invalid Configuration, need collaboraPublicUrl (collabora.public.url)");
 		}
+		initServerInfo();
+	}
+
+	/**
+	 * Initialize the server info map with static WOPI configuration.
+	 * Called once at startup to avoid thread-safety issues with lazy initialization.
+	 */
+	private void initServerInfo() {
+		Map<String, String> info = new HashMap<>(10);
+		info.put(DISABLE_COPY, FALSE);
+		info.put(DISABLE_PRINT, FALSE);
+		info.put(DISABLE_EXPORT, FALSE);
+		info.put(HIDE_EXPORT_OPTION, FALSE);
+		info.put(HIDE_SAVE_OPTION, FALSE);
+		info.put(HIDE_PRINT_OPTION, FALSE);
+		info.put(USER_CAN_NOT_WRITE_RELATIVE, FALSE);
+		info.put(POST_MESSAGE_ORIGIN, this.alfrescoPublicURL.toString());
+		info.put(SUPPORTS_LOCKS, TRUE);
+		info.put(ENABLE_OWNER_TERMINATION, FALSE);
+		this.serverInfo = Collections.unmodifiableMap(info);
 	}
 
 	/**
@@ -163,34 +186,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		return tokenInfo;
 	}
 
-	private HashMap<String, String> serverInfo = null;
-
 	@Override
 	public Map<String, String> serverInfo() {
-		if (serverInfo == null) {
-			this.serverInfo = new HashMap<>(7);
-
-			// We need to enable this if we want to be able to insert image into the
-			// documents
-			this.serverInfo.put(DISABLE_COPY, FALSE);
-			this.serverInfo.put(DISABLE_PRINT, FALSE);
-			this.serverInfo.put(DISABLE_EXPORT, FALSE);
-			this.serverInfo.put(HIDE_EXPORT_OPTION, FALSE);
-			this.serverInfo.put(HIDE_SAVE_OPTION, FALSE);
-			this.serverInfo.put(HIDE_PRINT_OPTION, FALSE);
-			this.serverInfo.put(USER_CAN_NOT_WRITE_RELATIVE, FALSE);
-			this.serverInfo.put(POST_MESSAGE_ORIGIN, this.alfrescoPublicURL.toString());
-			this.serverInfo.put(SUPPORTS_LOCKS, TRUE);
-
-			// Host from which token generation request originated
-			// Search https://www.collaboraoffice.com/category/community-en/ for
-			// EnableOwnerTermination
-			this.serverInfo.put(ENABLE_OWNER_TERMINATION, FALSE);
-		}
-
-		Map<String, String> infos = new HashMap<>(this.serverInfo.size());
-		infos.putAll(this.serverInfo);
-		return infos;
+		return new HashMap<>(this.serverInfo);
 	}
 
 	/**
