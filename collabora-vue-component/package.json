@@ -23,7 +23,7 @@
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/pristy-collabora-component.js",
+      "import": "./dist/pristy-collabora-component.es.js",
       "require": "./dist/pristy-collabora-component.umd.js"
     },
     "./dist/pristy-collabora-component.css": "./dist/pristy-collabora-component.css"
