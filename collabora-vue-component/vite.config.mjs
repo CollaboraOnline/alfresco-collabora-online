@@ -1,16 +1,41 @@
 // SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
 //
 // SPDX-License-Identifier: Apache-2.0
-
 import vue from "@vitejs/plugin-vue";
 import { defineConfig } from "vite";
 import { resolve } from "path";
 import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
+import dts from "vite-plugin-dts";
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue(), visualizer()],
+  plugins: [
+    vue(),
+    visualizer(),
+    dts({
+      insertTypesEntry: true,
+      include: ["src/**/*.js", "src/**/*.vue"],
+      exclude: ["src/**/*.spec.js", "src/**/*.test.js", "node_modules"],
+      staticImport: true,
+      rollupTypes: false,
+      copyDtsFiles: true,
+      skipDiagnostics: true,
+    }),
+  ],
+  test: {
+    environment: "jsdom",
+    coverage: {
+      reporter: ["text", "json", "html"],
+    },
+  },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: "modern-compiler",
+      },
+    },
+  },
   optimizeDeps: {
     force: true,
   },
@@ -24,11 +49,12 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.js"),
       name: "pristy-collabora-component",
+      fileName: (format) => `pristy-collabora-component.${format}.js`,
     },
     sourcemap: true,
     emptyOutDir: true,
     rollupOptions: {
-      external: ["vue", "axios", "saas"],
+      external: ["vue", "axios"],
       output: {
         // Provide global variables to use in the UMD build
         // for externalized deps

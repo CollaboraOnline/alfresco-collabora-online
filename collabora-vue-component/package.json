@@ -17,46 +17,66 @@
   "files": [
     "dist"
   ],
-  "main": "./dist/pristy-collabora-component.umd.cjs",
-  "module": "./dist/pristy-collabora-component.js",
+  "type": "module",
+  "main": "./dist/pristy-collabora-component.umd.js",
+  "module": "./dist/pristy-collabora-component.es.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/pristy-collabora-component.js",
-      "require": "./dist/pristy-collabora-component.umd.cjs"
-    }
+      "require": "./dist/pristy-collabora-component.umd.js"
+    },
+    "./dist/pristy-collabora-component.css": "./dist/pristy-collabora-component.css"
   },
-  "unpkg": "./dist/pristy-collabora-component.umd.cjs",
-  "jsdelivr": "./dist/pristy-collabora-component.umd.cjs",
-  "type": "module",
+  "unpkg": "./dist/pristy-collabora-component.umd.js",
+  "jsdelivr": "./dist/pristy-collabora-component.umd.js",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build:library": "vite build",
+    "build:dev": "vite build --minify false --sourcemap true",
     "serve": "vite preview",
     "analyze": "vite build --config analyze.config.js",
     "lint": "eslint --fix",
     "check": "eslint --quiet",
-    "format": "prettier . --write"
+    "format": "prettier . --write",
+    "optim:svg": "npx svgo -r -f public",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "testreport": "vitest run --reporter=junit --outputFile.junit=./testreport.xml"
   },
   "peerDependencies": {
     "vue": "^3.5.22"
   },
   "dependencies": {
-    "axios": "^1.12.2",
-    "sass": "^1.93.2"
+    "axios": "^1.13.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.37.0",
     "@vitejs/plugin-legacy": "^7.2.1",
-    "@vitejs/plugin-vue": "^6.0.1",
-    "eslint": "^9.37.0",
+    "@vitejs/plugin-vue": "^6.0.2",
+    "@vitest/coverage-v8": "^3.2.4",
+    "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-n": "^17.23.1",
     "eslint-plugin-prettier": "^5.5.4",
     "eslint-plugin-promise": "^7.2.1",
-    "eslint-plugin-vue": "^10.6.1",
+    "eslint-plugin-vue": "^9.33.0",
+    "prettier": "^3.7.1",
+    "rollup-plugin-visualizer": "^6.0.5",
+    "sass": "^1.94.2",
+    "svgo": "^4.0.0",
+    "vite": "^7.2.4",
     "vue-eslint-parser": "^10.2.0",
-    "prettier": "^3.6.2",
-    "rollup-plugin-visualizer": "^6.0.4",
-    "vite": "^7.1.9"
-  }
+    "vite-plugin-dts": "^4.5.4",
+    "vitest": "^3.2.4"
+  },
+  "browserslist": [
+    "defaults",
+    ">1%, >= 0.3% in alt-EU",
+    "last 2 versions",
+    "Firefox ESR",
+    "not ie 11",
+    "not dead"
+  ]
 }
