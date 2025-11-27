@@ -6,6 +6,7 @@ package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.HeaderSanitizer;
+import fr.jeci.collabora.alfresco.LogSanitizer;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -86,8 +87,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			logger.error(msg, we);
 			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, msg);
 		} catch (ConflictException e) {
-			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
-					.getLockFailureReason());
+			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, LogSanitizer.sanitize(e.getCurrentLockId()),
+					X_WOPI_LOCK_FAILURE_REASON, LogSanitizer.sanitize(e.getLockFailureReason()));
 
 			res.setHeader(X_WOPI_LOCK, HeaderSanitizer.sanitize(e.getCurrentLockId()));
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, HeaderSanitizer.sanitize(e.getLockFailureReason()));
@@ -132,7 +133,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			final String hdrTimestamp = req.getHeader(X_LOOL_WOPI_TIMESTAMP);
 			final Date modified = currentVersion.getFrozenModifiedDate();
 
-			logger.debug("{}='{}'", X_LOOL_WOPI_TIMESTAMP, hdrTimestamp);
+			logger.debug("{}='{}'", X_LOOL_WOPI_TIMESTAMP, LogSanitizer.sanitize(hdrTimestamp));
 
 			if (!checkTimestamp(hdrTimestamp, modified)) {
 				final Map<String, String> model = new HashMap<>(1);
@@ -169,7 +170,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 
 		if (loolTimestamp.compareTo(localDate) != 0) {
 			logger.debug("PROP_FROZEN_MODIFIED : {}", modified);
-			logger.debug("{} : {}", X_LOOL_WOPI_TIMESTAMP, hdrTimestamp);
+			logger.debug("{} : {}", X_LOOL_WOPI_TIMESTAMP, LogSanitizer.sanitize(hdrTimestamp));
 			logger.error("checkTimestamp Error : {} is different than PROP_MODIFIED", X_LOOL_WOPI_TIMESTAMP);
 			return false;
 		}

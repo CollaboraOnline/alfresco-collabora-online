@@ -5,6 +5,7 @@
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
+import fr.jeci.collabora.alfresco.LogSanitizer;
 import fr.jeci.collabora.alfresco.NodeRefValidator;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import net.sf.acegisecurity.Authentication;
@@ -254,7 +255,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		final String aspectToAddHdr = req.getHeader(headerName);
 
 		if (StringUtils.isNotBlank(aspectToAddHdr)) {
-			logger.debug("{}={}", headerName, aspectToAddHdr);
+			logger.debug("{}={}", headerName, LogSanitizer.sanitize(aspectToAddHdr));
 			return QName.resolveToQName(prefixResolver, aspectToAddHdr);
 		}
 		return null;
@@ -267,7 +268,11 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		}
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("{}={}", headerName, ArrayUtils.toString(aspectToAddHdr));
+			String[] sanitized = new String[aspectToAddHdr.length];
+			for (int i = 0; i < aspectToAddHdr.length; i++) {
+				sanitized[i] = LogSanitizer.sanitize(aspectToAddHdr[i]);
+			}
+			logger.debug("{}={}", headerName, ArrayUtils.toString(sanitized));
 		}
 
 		Map<QName, Serializable> aspectToAdd = new HashMap<>(aspectToAddHdr.length);

@@ -6,6 +6,7 @@ package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.HeaderSanitizer;
+import fr.jeci.collabora.alfresco.LogSanitizer;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
@@ -57,7 +58,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 		final String wopiSize = req.getHeader(X_WOPI_SIZE);
 		if (StringUtils.isNotBlank(wopiSize)) {
-			logger.warn("Header {} is not implements: {}", X_WOPI_SIZE, wopiSize);
+			logger.warn("Header {} is not implements: {}", X_WOPI_SIZE, LogSanitizer.sanitize(wopiSize));
 		}
 
 		try {
@@ -65,8 +66,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ConflictException e) {
-			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
-					.getLockFailureReason());
+			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, LogSanitizer.sanitize(e.getCurrentLockId()),
+					X_WOPI_LOCK_FAILURE_REASON, LogSanitizer.sanitize(e.getLockFailureReason()));
 
 			res.setHeader(X_WOPI_LOCK, HeaderSanitizer.sanitize(e.getCurrentLockId()));
 			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, HeaderSanitizer.sanitize(e.getLockFailureReason()));
@@ -203,7 +204,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 					targetFileName = Utf7.decode(relative, Utf7.UTF7_MODIFIED);
 				}
 
-				logger.debug("targetFileName {}", targetFileName);
+				logger.debug("targetFileName {}", LogSanitizer.sanitize(targetFileName));
 
 				int retry = MAX_RETRY;
 				NodeRef newNodeRef;
@@ -216,7 +217,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 					}
 					targetFileName = addSuffix(SUFFIX, targetFileName);
 
-					logger.debug("Retry >> {}", targetFileName);
+					logger.debug("Retry >> {}", LogSanitizer.sanitize(targetFileName));
 				} while (newNodeRef == null);
 
 				return newNodeRef;
@@ -255,7 +256,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			String targetFileName) {
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("createNode {} >> {}", sourceNodeRef, targetFileName);
+			logger.debug("createNode {} >> {}", sourceNodeRef, LogSanitizer.sanitize(targetFileName));
 		}
 
 		ChildAssociationRef assocRef = nodeService.getPrimaryParent(sourceNodeRef);
@@ -277,7 +278,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 																									+ targetParentRef);
 		} catch (DuplicateChildNodeNameException e) {
 			if (logger.isDebugEnabled()) {
-				logger.debug("NodeExistsException " + targetFileName, e);
+				logger.debug("NodeExistsException {}", LogSanitizer.sanitize(targetFileName), e);
 			}
 
 			if (isRelative) {
@@ -291,7 +292,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 																				 + targetFileName);
 				}
 			} else {
-				logger.info("File with the specified name already exists: {} try with another name", targetFileName);
+				logger.info("File with the specified name already exists: {} try with another name",
+						LogSanitizer.sanitize(targetFileName));
 			}
 		}
 		logger.debug("createNode =>> {}", newNodeRef);
@@ -302,7 +304,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	private void checkHeadersRelative(WebScriptRequest req) {
 		final String wopiFileConversion = req.getHeader(X_WOPI_FILE_CONVERSION);
 		if (StringUtils.isNotBlank(wopiFileConversion)) {
-			logger.warn("Header {} is not implements: {}", X_WOPI_FILE_CONVERSION, wopiFileConversion);
+			logger.warn("Header {} is not implements: {}", X_WOPI_FILE_CONVERSION, LogSanitizer.sanitize(wopiFileConversion));
 		}
 
 		final String suggested = req.getHeader(X_WOPI_SUGGESTED_TARGET);
