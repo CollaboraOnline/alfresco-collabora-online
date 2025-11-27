@@ -25,9 +25,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
-import java.math.BigInteger;
 import java.net.URL;
 import java.security.SecureRandom;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -126,11 +126,15 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		return now.plusMillis(this.tokenTtlMs);
 	}
 
+	private static final int TOKEN_BYTES = 32; // 256 bits
+
 	/**
-	 * Generates a random access token.
+	 * Generates a random access token using 256 bits of entropy with Base64 URL-safe encoding.
 	 */
 	private String generateAccessToken() {
-		return new BigInteger(130, random).toString(32);
+		byte[] tokenBytes = new byte[TOKEN_BYTES];
+		random.nextBytes(tokenBytes);
+		return Base64.getUrlEncoder().withoutPadding().encodeToString(tokenBytes);
 	}
 
 	/**

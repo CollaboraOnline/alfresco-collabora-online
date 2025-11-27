@@ -5,13 +5,21 @@
 package fr.jeci.collabora.alfresco;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.impl.AllowPermissionServiceImpl;
@@ -78,6 +86,84 @@ public class CollaboraOnlineServiceImplTest {
 
 		String wopiSrcURL = this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit");
 		assertEquals(urlsrc, wopiSrcURL);
+	}
+
+	// ========== Token Generation Tests ==========
+
+	/** Base64 URL-safe pattern: only A-Z, a-z, 0-9, - and _ (no padding =) */
+	private static final Pattern BASE64_URL_SAFE_PATTERN = Pattern.compile("^[A-Za-z0-9_-]+$");
+
+	/** Expected token length: 32 bytes = 256 bits -> 43 Base64 characters (without padding) */
+	private static final int EXPECTED_TOKEN_LENGTH = 43;
+
+	/**
+	 * Helper method to invoke the private generateAccessToken() method via reflection
+	 */
+	private String invokeGenerateAccessToken() throws Exception {
+		Method method = CollaboraOnlineServiceImpl.class.getDeclaredMethod("generateAccessToken");
+		method.setAccessible(true);
+		return (String) method.invoke(this.collaboraOnlineService);
+	}
+
+	@Test
+	public void testGenerateAccessToken_returnsNonNullToken() throws Exception {
+		// Execute
+		String token = invokeGenerateAccessToken();
+
+		// Verify
+		assertNotNull("Access token should not be null", token);
+		assertFalse("Access token should not be empty", token.isEmpty());
+	}
+
+	@Test
+	public void testGenerateAccessToken_hasCorrectLength() throws Exception {
+		// Execute
+		String token = invokeGenerateAccessToken();
+
+		// Verify: 256 bits (32 bytes) in Base64 = 43 characters (without padding)
+		assertEquals("Token should be " + EXPECTED_TOKEN_LENGTH + " characters (256 bits in Base64)",
+				EXPECTED_TOKEN_LENGTH, token.length());
+	}
+
+	@Test
+	public void testGenerateAccessToken_isBase64UrlSafe() throws Exception {
+		// Execute
+		String token = invokeGenerateAccessToken();
+
+		// Verify: only URL-safe Base64 characters (A-Z, a-z, 0-9, -, _)
+		assertTrue("Token should only contain Base64 URL-safe characters: " + token,
+				BASE64_URL_SAFE_PATTERN.matcher(token).matches());
+
+		// Verify: no padding characters
+		assertFalse("Token should not contain padding characters", token.contains("="));
+
+		// Verify: no standard Base64 characters that are not URL-safe
+		assertFalse("Token should not contain '+' character", token.contains("+"));
+		assertFalse("Token should not contain '/' character", token.contains("/"));
+	}
+
+	@Test
+	public void testGenerateAccessToken_generatesUniqueTokens() throws Exception {
+		// Execute: generate multiple tokens
+		Set<String> tokens = new HashSet<>();
+		int tokenCount = 100;
+		for (int i = 0; i < tokenCount; i++) {
+			String token = invokeGenerateAccessToken();
+			tokens.add(token);
+		}
+
+		// Verify: all tokens should be unique
+		assertEquals("All " + tokenCount + " tokens should be unique", tokenCount, tokens.size());
+	}
+
+	@Test
+	public void testGenerateAccessToken_twoConsecutiveTokensAreDifferent() throws Exception {
+		// Execute
+		String token1 = invokeGenerateAccessToken();
+		String token2 = invokeGenerateAccessToken();
+
+		// Verify
+		assertNotEquals("Two consecutive tokens should be different", token1, token2);
 	}
 
 }
