@@ -262,27 +262,46 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	private Map<QName, Serializable> extractQnamesValues(WebScriptRequest req, String headerName) {
-		final String[] aspectToAddHdr = req.getHeaderValues(headerName);
-		if (aspectToAddHdr == null) {
+		final String[] headers = req.getHeaderValues(headerName);
+		if (headers == null) {
 			return Collections.emptyMap();
 		}
 
 		if (logger.isDebugEnabled()) {
-			String[] sanitized = new String[aspectToAddHdr.length];
-			for (int i = 0; i < aspectToAddHdr.length; i++) {
-				sanitized[i] = LogSanitizer.sanitize(aspectToAddHdr[i]);
+			String[] sanitized = new String[headers.length];
+			for (int i = 0; i < headers.length; i++) {
+				sanitized[i] = LogSanitizer.sanitize(headers[i]);
 			}
 			logger.debug("{}={}", headerName, ArrayUtils.toString(sanitized));
 		}
 
-		Map<QName, Serializable> aspectToAdd = new HashMap<>(aspectToAddHdr.length);
-		for (String prop : aspectToAddHdr) {
-			if (StringUtils.isNotBlank(prop)) {
-				String[] split = prop.split("=");
-				aspectToAdd.put(QName.resolveToQName(prefixResolver, split[0]), split.length > 1 ? split[1] : null);
+		Map<QName, Serializable> result = new HashMap<>(headers.length);
+		for (String prop : headers) {
+			if (StringUtils.isBlank(prop)) {
+				continue;
+			}
+
+			int eqIndex = prop.indexOf('=');
+			if (eqIndex <= 0) {
+				logger.warn("Invalid property format (missing or empty key): {}", LogSanitizer.sanitize(prop));
+				continue;
+			}
+
+			String key = prop.substring(0, eqIndex);
+			String value = eqIndex < prop.length() - 1 ? prop.substring(eqIndex + 1) : null;
+
+			try {
+				QName qname = QName.resolveToQName(prefixResolver, key);
+				if (qname != null) {
+					result.put(qname, value);
+				} else {
+					logger.warn("Could not resolve QName: {}", LogSanitizer.sanitize(key));
+				}
+			} catch (Exception e) {
+				logger.warn("Invalid QName format: {}", LogSanitizer.sanitize(key));
 			}
 		}
-		return aspectToAdd;
+		return result;
 	}
 
 	public void setNodeService(NodeService nodeService) {
