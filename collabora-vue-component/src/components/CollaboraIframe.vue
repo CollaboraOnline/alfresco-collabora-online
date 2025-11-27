@@ -11,7 +11,7 @@ SPDX-License-Identifier: Apache-2.0
       id="loleafletform"
       name="loleafletform"
       method="POST"
-      :action="`${collaboraUrl}WOPISrc=${wopiFileUrl}&lang=${lang}`"
+      :action="`${collaboraUrl}WOPISrc=${encodeURIComponent(wopiFileUrl)}&lang=${lang}`"
       target="loleafletframe"
       hidden="hidden"
     >
