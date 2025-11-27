@@ -5,6 +5,7 @@
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.ConflictException;
+import fr.jeci.collabora.alfresco.HeaderSanitizer;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.version.Version;
@@ -88,8 +89,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
 					.getLockFailureReason());
 
-			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
-			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
+			res.setHeader(X_WOPI_LOCK, HeaderSanitizer.sanitize(e.getCurrentLockId()));
+			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, HeaderSanitizer.sanitize(e.getLockFailureReason()));
 			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
 		}
 

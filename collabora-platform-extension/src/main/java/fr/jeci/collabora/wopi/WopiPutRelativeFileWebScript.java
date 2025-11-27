@@ -5,6 +5,7 @@
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.ConflictException;
+import fr.jeci.collabora.alfresco.HeaderSanitizer;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
@@ -67,8 +68,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			logger.debug("ConflictException {}={};{}={}", X_WOPI_LOCK, e.getCurrentLockId(), X_WOPI_LOCK_FAILURE_REASON, e
 					.getLockFailureReason());
 
-			res.setHeader(X_WOPI_LOCK, e.getCurrentLockId());
-			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, e.getLockFailureReason());
+			res.setHeader(X_WOPI_LOCK, HeaderSanitizer.sanitize(e.getCurrentLockId()));
+			res.setHeader(X_WOPI_LOCK_FAILURE_REASON, HeaderSanitizer.sanitize(e.getLockFailureReason()));
 			jsonResponse(res, STATUS_CONFLICT, e.getLockFailureReason());
 		}
 	}
@@ -121,7 +122,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 
 		if (currentLockId != null) {
-			res.setHeader(X_WOPI_LOCK, currentLockId);
+			res.setHeader(X_WOPI_LOCK, HeaderSanitizer.sanitize(currentLockId));
 		}
 
 		return model;
