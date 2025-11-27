@@ -38,7 +38,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private static final String VERSION = "Version";
 	private static final String USER_FRIENDLY_NAME = "UserFriendlyName";
 	private static final String USER_CAN_WRITE = "UserCanWrite";
-	private static final String IS_ADMIN_USER = "isAdminUser";
+	private static final String IS_ADMIN_USER = "IsAdminUser";
 	private static final String IS_ANONYMOUS_USER = "IsAnonymousUser";
 
 	private static final String USER_ID = "UserId";
