@@ -5,6 +5,7 @@
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
+import fr.jeci.collabora.alfresco.NodeRefValidator;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import net.sf.acegisecurity.Authentication;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -86,13 +87,17 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	/**
-	 * Returns a NodeRef given a file Id. Note: Checks to see if the node exists aren't performed
+	 * Returns a validated NodeRef given a file Id.
+	 * Validates UUID format and checks that the node exists.
 	 *
 	 * @param fileId Node UUID
 	 * @return file nodeRef
+	 * @throws WebScriptException if fileId is invalid or node does not exist
 	 */
 	protected NodeRef getFileNodeRef(String fileId) {
-		return new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, fileId);
+		NodeRef nodeRef = NodeRefValidator.createNodeRefFromFileId(fileId);
+		NodeRefValidator.validateNodeExists(nodeRef, nodeService);
+		return nodeRef;
 	}
 
 	/**

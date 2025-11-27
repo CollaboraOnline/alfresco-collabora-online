@@ -45,6 +45,8 @@ public class CleanVersionWebScript extends DeclarativeWebScript {
 			final String storeType = WebscriptHelper.getParam(templateArgs, PARAM_STORE_TYPE);
 			final String storeId = WebscriptHelper.getParam(templateArgs, PARAM_STORE_ID);
 			final String guid = WebscriptHelper.getParam(templateArgs, PARAM_ID);
+
+			NodeRefValidator.validateUUID(guid);
 			final NodeRef nodeRef = new NodeRef(storeType, storeId, guid);
 
 			logger.error("Cleaning Noderef {}", nodeRef);

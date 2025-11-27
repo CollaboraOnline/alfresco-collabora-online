@@ -32,6 +32,7 @@ public class GetTokenWebScript extends DeclarativeWebScript {
 			throw new WebScriptException("No 'nodeRef' parameter supplied");
 		}
 
+		NodeRefValidator.validateNodeRefFormat(nodeRefStr);
 		final NodeRef nodeRef = new NodeRef(nodeRefStr);
 		final String action = req.getParameter(PARAM_ACTION);
 		if (action == null) {
