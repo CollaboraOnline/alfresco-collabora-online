@@ -30,6 +30,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.*;
 import java.util.Collections;
 import java.util.HashMap;
@@ -38,6 +41,7 @@ import java.util.Map.Entry;
 
 public abstract class AbstractWopiWebScript extends AbstractWebScript implements WopiHeader {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWopiWebScript.class);
+	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
@@ -143,24 +147,13 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	protected void jsonResponse(final WebScriptResponse res, int code, Map<String, String> response) throws IOException {
-		boolean start = true;
-		StringBuilder sb = new StringBuilder("{");
-		for (Entry<String, String> e : response.entrySet()) {
-			if (start) {
-				start = false;
-			} else {
-				sb.append(", ");
-			}
-
-			sb.append('"')
-					.append(e.getKey())
-					.append('"');
-			sb.append(": \"")
-					.append(e.getValue())
-					.append('"');
+		try {
+			String json = objectMapper.writeValueAsString(response);
+			jsonResponse(res, code, json);
+		} catch (JsonProcessingException e) {
+			logger.error("Failed to serialize response to JSON", e);
+			throw new IOException("Failed to serialize response to JSON", e);
 		}
-		sb.append('}');
-		jsonResponse(res, code, sb.toString());
 	}
 
 	protected void jsonResponse(final WebScriptResponse res, int code, String response) throws IOException {
