@@ -23,7 +23,7 @@ SPDX-License-Identifier: Apache-2.0
     <iframe
       id="loleafletframe"
       name="loleafletframe"
-      allow="clipboard-read *; clipboard-write *; fullscreen 'src'"
+      :allow="`clipboard-read *; clipboard-write *; fullscreen 'self' ${collaboraOrigin};`"
     />
   </div>
 </template>
@@ -71,6 +71,17 @@ export default {
     };
   },
   computed: {
+    collaboraOrigin() {
+      if (!this.collaboraUrl) {
+        return "";
+      }
+      try {
+        const url = new URL(this.collaboraUrl);
+        return url.origin;
+      } catch {
+        return "";
+      }
+    },
     uiDefaults() {
       // https://sdk.collaboraonline.com/docs/theming.html
       return `UIMode=${this.uiMode}`;

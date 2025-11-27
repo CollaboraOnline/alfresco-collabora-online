@@ -45,4 +45,5 @@ http://localhost:8008/index.html?collaboraUrl=http://localhost:9980/browser/b639
   - build: update node and vite configuration 
   - refactor: compress svg with svgo
 - v0.3.1 : fix bad export module
+- v0.3.4 : iframe allow must have collabora origin
 
