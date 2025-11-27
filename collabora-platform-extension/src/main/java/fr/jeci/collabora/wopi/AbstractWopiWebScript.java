@@ -69,16 +69,12 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 		forceCurrentUser(wopiToken);
 		final NodeRef nodeRef = getFileNodeRef(wopiToken.getFileId());
+		validateNodeExists(nodeRef);
 
 		if (logger.isDebugEnabled()) {
 			String currentLockId = this.collaboraOnlineService.lockGet(nodeRef);
 			logger.debug("{} user='{}' nodeRef='{}' lockId={}", req.getPathInfo(), wopiToken.getUserName(), nodeRef,
 					currentLockId);
-		}
-
-		if (nodeRef == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "No noderef for fileId: " + wopiToken
-					.getFileId());
 		}
 		try {
 			this.executeAsUser(req, res, nodeRef);
@@ -100,9 +96,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @throws WebScriptException if fileId is invalid or node does not exist
 	 */
 	protected NodeRef getFileNodeRef(String fileId) {
-		NodeRef nodeRef = NodeRefValidator.createNodeRefFromFileId(fileId);
-		NodeRefValidator.validateNodeExists(nodeRef, nodeService);
-		return nodeRef;
+		NodeRefValidator.validateUUID(fileId);
+		return new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, fileId);
 	}
 
 	/**
@@ -135,6 +130,21 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			}
 		}
 		return wopiToken;
+	}
+
+	/**
+	 * Validates that a node exists in the repository.
+	 *
+	 * @param nodeRef the NodeRef to check
+	 * @throws WebScriptException with NOT_FOUND status if node does not exist
+	 */
+	protected void validateNodeExists(NodeRef nodeRef) {
+		if (nodeRef == null) {
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "NodeRef is required");
+		}
+		if (!this.nodeService.exists(nodeRef)) {
+			throw new WebScriptException(Status.STATUS_NOT_FOUND, "Node not found: " + nodeRef.getId());
+		}
 	}
 
 	protected void forceCurrentUser(final WOPIAccessTokenInfo wopiToken) {

@@ -32,7 +32,7 @@ public class GetTokenWebScript extends DeclarativeWebScript {
 			throw new WebScriptException("No 'nodeRef' parameter supplied");
 		}
 
-		NodeRefValidator.validateNodeRefFormat(nodeRefStr);
+		validateNodeRefFormat(nodeRefStr);
 		final NodeRef nodeRef = new NodeRef(nodeRefStr);
 		final String action = req.getParameter(PARAM_ACTION);
 		if (action == null) {
@@ -59,4 +59,18 @@ public class GetTokenWebScript extends DeclarativeWebScript {
 		this.collaboraOnlineService = collaboraOnlineService;
 	}
 
+	/**
+	 * Validates that a NodeRef string is properly formatted.
+	 *
+	 * @param nodeRefStr the NodeRef string to validate
+	 * @throws WebScriptException with BAD_REQUEST status if validation fails
+	 */
+	private void validateNodeRefFormat(String nodeRefStr) {
+		if (nodeRefStr == null || nodeRefStr.isBlank()) {
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "NodeRef is required");
+		}
+		if (!NodeRef.isNodeRef(nodeRefStr)) {
+			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid NodeRef format");
+		}
+	}
 }
