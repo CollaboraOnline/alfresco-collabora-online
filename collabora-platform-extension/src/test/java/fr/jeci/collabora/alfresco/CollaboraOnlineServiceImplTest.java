@@ -166,4 +166,39 @@ public class CollaboraOnlineServiceImplTest {
 		assertNotEquals("Two consecutive tokens should be different", token1, token2);
 	}
 
+	// ========== Token Masking Tests ==========
+
+	@Test
+	public void testMaskToken_normalToken() {
+		String token = "abcdefghijklmnopqrstuvwxyz1234567890ABC";
+		String masked = WOPIAccessTokenInfo.maskToken(token);
+
+		assertEquals("Masked token should show only last 4 chars", "****0ABC", masked);
+		assertFalse("Masked token should not contain original token", masked.contains("abcdef"));
+	}
+
+	@Test
+	public void testMaskToken_nullToken() {
+		String masked = WOPIAccessTokenInfo.maskToken(null);
+		assertEquals("Null token should return [null]", "[null]", masked);
+	}
+
+	@Test
+	public void testMaskToken_shortToken() {
+		String masked = WOPIAccessTokenInfo.maskToken("abc");
+		assertEquals("Short token should be fully masked", "****", masked);
+	}
+
+	@Test
+	public void testMaskToken_exactlyFourChars() {
+		String masked = WOPIAccessTokenInfo.maskToken("abcd");
+		assertEquals("4-char token should be fully masked", "****", masked);
+	}
+
+	@Test
+	public void testMaskToken_fiveChars() {
+		String masked = WOPIAccessTokenInfo.maskToken("abcde");
+		assertEquals("5-char token should show last 4", "****bcde", masked);
+	}
+
 }

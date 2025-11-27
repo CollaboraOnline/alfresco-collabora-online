@@ -150,13 +150,14 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
 
 		if (tokenInfo == null) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + accessToken);
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED,
+					"No token access found for " + WOPIAccessTokenInfo.maskToken(accessToken));
 		}
 
 		if (!tokenInfo.getFileId()
 				.equals(nodeRef.getId())) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Tokens stored for " + accessToken
-																						+ ", not match the given file" + nodeRef);
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED,
+					"Token does not match the given file " + nodeRef.getId());
 		}
 
 		return tokenInfo;

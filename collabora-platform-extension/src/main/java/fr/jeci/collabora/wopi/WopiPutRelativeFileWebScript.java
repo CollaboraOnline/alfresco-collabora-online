@@ -164,11 +164,11 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 			@Override
 			public String execute() {
 				WOPIAccessTokenInfo tokenInfo = collaboraOnlineService.createAccessToken(newNodeRef);
-				logger.debug("tokenInfo = [{}:{}]", tokenInfo.getUserName(), tokenInfo.getAccessToken());
+				logger.debug("tokenInfo = [user={}, token={}]", tokenInfo.getUserName(), tokenInfo.getMaskedToken());
 				URL alfrescoPrivateURL = collaboraOnlineService.getAlfrescoPrivateURL();
 				String newUrl = String.format("%s%s%s?access_token=%s", alfrescoPrivateURL, "s/wopi/files/", newNodeRef
 						.getId(), tokenInfo.getAccessToken());
-				logger.debug("newUrl = {}", newUrl);
+				logger.debug("newUrl generated for nodeRef={}", newNodeRef.getId());
 				return newUrl;
 			}
 		};

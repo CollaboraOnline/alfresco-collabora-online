@@ -87,9 +87,32 @@ public class WOPIAccessTokenInfo implements Serializable {
 		this.accessToken = accessToken;
 	}
 
+	/**
+	 * Returns a masked version of the token for safe logging.
+	 * Shows only the last 4 characters preceded by asterisks.
+	 */
+	public String getMaskedToken() {
+		return maskToken(this.accessToken);
+	}
+
+	/**
+	 * Masks a token for safe logging, showing only the last 4 characters.
+	 * @param token the token to mask
+	 * @return masked token or "[null]" if token is null
+	 */
+	public static String maskToken(String token) {
+		if (token == null) {
+			return "[null]";
+		}
+		if (token.length() <= 4) {
+			return "****";
+		}
+		return "****" + token.substring(token.length() - 4);
+	}
+
 	@Override
 	public String toString() {
-		return new ToStringBuilder(this).append("accessToken", accessToken)
+		return new ToStringBuilder(this).append("accessToken", getMaskedToken())
 				.append("issuedAt", issuedAt)
 				.append("expiresAt", expiresAt)
 				.append("fileId", fileId)
