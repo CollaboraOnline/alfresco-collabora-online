@@ -83,7 +83,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
 		boolean isGuest = authorityService.isGuestAuthority(userName);
-		model.put(IS_ANONYMOUS_USER, Boolean.toString(isAdmin));
+		model.put(IS_ANONYMOUS_USER, Boolean.toString(isGuest));
 
 		jsonResponse(res, 200, model);
 	}
