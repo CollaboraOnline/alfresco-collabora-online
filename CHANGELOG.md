@@ -1,13 +1,9 @@
 # Changelog
 
-All notable changes to the alfresco-collabora-online project are documented in this file.
+## [1.3.0] - 2025-11-28
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
-
----
-
-## [1.3.0-SNAPSHOT] - Unreleased
+### Removed
+- Remove ACA Extension (no longer maintained, need community help)
 
 ### Changed
 - Update to Alfresco SDK 4.11.0
@@ -18,13 +14,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Add `IsAnonymousUser` property support
-- Add mise task runner configuration (mise.toml)
 
-### Removed
-- Remove ACA Extension (no longer maintained, need community help)
+### Bug Fixes
 
-### Fixed
-- Format code according to project conventions
+- **iframe**: Add clipboard permissions to Collabora iframe
+- **wopi**: Typo on IsAdminUser
+- **share**: Encode WOPISrc with encodeURIComponent
+- **service**: Prevent race condition when asking serverInfo
+- **wopi**: Safe Property Parsing
+- **wopi**: ValidateNodeExists after auth to get full context
+- **cleanLock**: Disable cleanLock jobs
+- Use dateTimeParser that is less strict.
+- **share**: Un-hide exception
+
+### Refactoring
+
+- **wopi**: Use objectMapper.writeValueAsString instead of manual code
+
+### Security
+
+- Prevent XML External Entity (XXE) attack
+- **wopi**: Generates a random access token using 256 bits of entropy
+- **log**: Returns a masked version of the token for safe logging
+- **wopi**: Validating NodeRef inputs
+- **wopi**: Validate Response Headers to prevent HTTP response splitting attacks
+- **log**: Escape Log Output to prevent log injection attacks
 
 ---
 
@@ -75,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.0.2] - 2022-XX-XX
+## [1.0.2] - Unreleased
 
 ### Fixed
 - Minor bug fixes and improvements
