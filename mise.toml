@@ -1,6 +1,7 @@
 [tools]
 maven = "3.9.9"
 java = "temurin-17"
+git-cliff = "latest"
 
 [env]
 COMPOSE_FILE = "target/classes/docker-compose.yml"
@@ -48,3 +49,15 @@ run = "mvn spotless:check"
 [tasks."format:write"]
 description = "Apply Java code formatting with Spotless"
 run = "mvn spotless:apply"
+
+[tasks.changelog]
+description = "Generate CHANGELOG.md from git history"
+run = "git-cliff -o CHANGELOG.md"
+
+[tasks."changelog:unreleased"]
+description = "Preview unreleased changes"
+run = "git-cliff --unreleased"
+
+[tasks."changelog:tag"]
+description = "Generate changelog for a specific tag (usage: mise run changelog:tag -- v1.0.0)"
+run = "git-cliff --unreleased --prepend CHANGELOG.md --tag"
