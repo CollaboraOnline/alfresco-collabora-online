@@ -58,7 +58,15 @@ if (typeof Magenta == "undefined" || !Magenta) {
                     '<input name="access_token_ttl" value="' + encodeURIComponent(me.options.access_token_ttl) + '" type="hidden"/>' +
                     '</form>';
 
-                var frame = '<iframe id="loleafletframe" name= "loleafletframe" allowfullscreen="true" />';
+                var collaboraOrigin = '';
+                try {
+                    var url = new URL(me.options.iFrameURL);
+                    collaboraOrigin = url.origin;
+                } catch (e) {
+                    collaboraOrigin = '';
+                }
+
+                var frame = '<iframe id="loleafletframe" name= "loleafletframe" allow="clipboard-read *; clipboard-write *; fullscreen \'self\' ' + collaboraOrigin + ';" />';
 
                 $('#loolcontainer').remove();
 
