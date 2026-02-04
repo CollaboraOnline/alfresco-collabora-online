@@ -4,32 +4,32 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>fr.jeci.alfresco</groupId>
   <artifactId>alfresco-collabora-online</artifactId>
-  <version>1.3.2-SNAPSHOT</version>
+  <version>1.4.0-SNAPSHOT</version>
   <name>Alfresco Collabora Online</name>
   <description>Collabora Online extension for Alfresco 6+</description>
   <packaging>pom</packaging>
   <properties>
     <java.version>17</java.version>
     <!-- Alfresco Maven Plugin version to use -->
-    <alfresco.sdk.version>4.11.0</alfresco.sdk.version>
+    <alfresco.sdk.version>4.12.0</alfresco.sdk.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <!-- Properties used in dependency declarations, you don't need to change these -->
     <alfresco.groupId>org.alfresco</alfresco.groupId>
     <alfresco.bomDependencyArtifactId>acs-community-packaging</alfresco.bomDependencyArtifactId>
     <alfresco.platform.docker.user>alfresco</alfresco.platform.docker.user>
     <alfresco.platform.docker.image>alfresco/alfresco-content-repository-community</alfresco.platform.docker.image>
-    <alfresco.platform.version>25.1.0</alfresco.platform.version>
+    <alfresco.platform.version>25.3.0</alfresco.platform.version>
 
-    <alfresco.share.version>25.1.0.56</alfresco.share.version>
+    <alfresco.share.version>25.2.0.40</alfresco.share.version>
     <alfresco.share.docker.image>alfresco/alfresco-share</alfresco.share.docker.image>
-    <alfresco.share.docker.version>25.1.0</alfresco.share.docker.version>
+    <alfresco.share.docker.version>25.3.0</alfresco.share.docker.version>
     <!-- Docker images -->
     <public.host>localhost</public.host>
     <public.port>8080</public.port>
     <docker.postgres.image>docker.io/postgres</docker.postgres.image>
-    <docker.postgres.version>16.8</docker.postgres.version>
+    <docker.postgres.version>16.9</docker.postgres.version>
     <docker.solr.image>docker.io/alfresco/alfresco-search-services</docker.solr.image>
-    <docker.solr.version>2.0.13</docker.solr.version>
+    <docker.solr.version>2.0.16</docker.solr.version>
     <docker.node.image>docker.io/library/node</docker.node.image>
     <docker.node.version>10.22</docker.node.version>
     <docker.nginx.image>docker.io/library/nginx</docker.nginx.image>
@@ -37,7 +37,7 @@
 
     <!-- Collabora Online Config -->
     <docker.code.image>docker.io/collabora/code</docker.code.image>
-    <docker.code.version>24.04.12.4.1</docker.code.version>
+    <docker.code.version>24.04.13.2.1</docker.code.version>
 
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
     <test.acs.endpoint.path/>
@@ -81,6 +81,22 @@
 
   <dependencyManagement>
     <dependencies>
+      <!-- Fix BouncyCastle version range issue in Alfresco 25.3.0 BOM -->
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcprov-jdk18on</artifactId>
+        <version>1.83</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcpkix-jdk18on</artifactId>
+        <version>1.83</version>
+      </dependency>
+      <dependency>
+        <groupId>org.bouncycastle</groupId>
+        <artifactId>bcutil-jdk18on</artifactId>
+        <version>1.83</version>
+      </dependency>
       <dependency>
         <groupId>${alfresco.groupId}</groupId>
         <artifactId>${alfresco.bomDependencyArtifactId}</artifactId>
