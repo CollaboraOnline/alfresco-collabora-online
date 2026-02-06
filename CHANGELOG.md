@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.1] - 2026-02-06
+
+### Bug Fixes
+
+- **share**: Add clipboard and fullscreen permissions to iframe
+- **webscript**: Move import directives before license comments
+
 ## [1.3.0] - 2025-11-28
 
 ### Removed
