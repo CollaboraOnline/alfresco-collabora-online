@@ -1,8 +1,8 @@
+<import resource="classpath:/alfresco/templates/webscripts/org/alfresco/slingshot/documentlibrary/parse-args.lib.js">
+
 // SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
 //
 // SPDX-License-Identifier: Apache-2.0
-
-<import resource="classpath:/alfresco/templates/webscripts/org/alfresco/slingshot/documentlibrary/parse-args.lib.js">
 
 var ASPECT_COLLABORA = "collabora:collaboraOnline";
 

@@ -1,9 +1,9 @@
+<import resource="classpath:alfresco/site-webscripts/org/alfresco/callutils.js">
+<import resource="classpath:/alfresco/templates/org/alfresco/import/alfresco-util.js">
+
 // SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
 //
 // SPDX-License-Identifier: Apache-2.0
-
-<import resource="classpath:alfresco/site-webscripts/org/alfresco/callutils.js">
-<import resource="classpath:/alfresco/templates/org/alfresco/import/alfresco-util.js">
 
     function main() {
 
