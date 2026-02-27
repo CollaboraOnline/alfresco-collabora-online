@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.4.0] - 2026-02-27
+
+- Update build Alfresco 25.3.0
+
+
 ## [1.3.1] - 2026-02-06
 
 ### Bug Fixes

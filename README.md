@@ -34,8 +34,8 @@ mise run start
 ### Requirements
 
 - **Java**: 17 or higher
-- **Alfresco Content Services**: 7.2+ (tested with 25.1.0)
-- **Alfresco Share**: 7.2+ (tested with 25.1.0)
+- **Alfresco Content Services**: 7.2+ (tested with 25.3.0)
+- **Alfresco Share**: 7.2+ (tested with 25.3.0)
 - **Collabora Online**: 6.4+ (tested with 25.04)
 - **Docker Compose**: Only for testing
 
@@ -322,7 +322,7 @@ job.fr.jeci.collabora.cleanLock.cronstartdelay=240000
 
 For detailed release history and changelog, see [CHANGELOG.md](CHANGELOG.md).
 
-**Current version:** 1.3.0-SNAPSHOT
+**Current version:** 1.4.0
 
 ## Migration Guide
 
