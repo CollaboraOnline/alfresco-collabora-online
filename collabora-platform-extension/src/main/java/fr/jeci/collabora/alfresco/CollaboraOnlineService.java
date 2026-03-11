@@ -68,7 +68,7 @@ public interface CollaboraOnlineService {
 	URL getAlfrescoPrivateURL();
 
 	/**
-	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Lock.html">...</a>
+	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/Lock">...</a>
 	 *
 	 * @param nodeRef Node to lock
 	 * @param lockId  New lock_id, or current lock_id for a refresh
@@ -77,7 +77,7 @@ public interface CollaboraOnlineService {
 	String lock(NodeRef nodeRef, String lockId) throws ConflictException;
 
 	/**
-	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/GetLock.html">...</a>
+	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/GetLock">...</a>
 	 *
 	 * @param nodeRef Node to lock
 	 * @return lockId on the node
@@ -85,7 +85,7 @@ public interface CollaboraOnlineService {
 	String lockGet(NodeRef nodeRef);
 
 	/**
-	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/RefreshLock.html">...</a>
+	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/RefreshLock">...</a>
 	 *
 	 * @param nodeRef Node to lock
 	 * @param lockId  current lock-id
@@ -93,7 +93,7 @@ public interface CollaboraOnlineService {
 	void lockRefresh(NodeRef nodeRef, String lockId) throws ConflictException;
 
 	/**
-	 * <a href="https://wopi.readthedocs.io/projects/wopirest/en/latest/files/Unlock.html">...</a>
+	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/Unlock">...</a>
 	 *
 	 * @param nodeRef Node to lock
 	 * @param lockId  current lock-id

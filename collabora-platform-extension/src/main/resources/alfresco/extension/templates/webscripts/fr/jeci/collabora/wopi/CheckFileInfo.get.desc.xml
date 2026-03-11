@@ -6,7 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 
 <webscript>
     <shortname>Wopi CheckFileInfo</shortname>
-    <description>See https://wopi.readthedocs.io/projects/wopirest/en/latest/files/CheckFileInfo.html</description>
+    <description>See https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/CheckFileInfo</description>
     <url>/wopi/files/{file_id}</url>
     <family>WOPI</family>
     <authentication>none</authentication>

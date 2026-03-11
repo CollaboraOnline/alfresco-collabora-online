@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 <webscript>
 	<shortname>Collabora Online Get Token</shortname>
 	<description>Get a token and the WOPI src URL for the given nodeRef.
-		https://wopi.readthedocs.io/projects/wopirest/en/latest/concepts.html#term-access-token
-		https://wopi.readthedocs.io/en/latest/discovery.html#wopi-actions
+		https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/concepts#access-token
+		https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/discovery#wopi-actions
 	</description>
 	<url>/lool/token?nodeRef={nodeRef}&amp;action={action}</url>
 	<family>Collabora Online</family>
