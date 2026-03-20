@@ -1,0 +1,82 @@
+/*
+ * SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+ * SPDX-FileCopyrightText: 2026 Facundo Velazco - https://github.com/FacundoVelazco13
+ * SPDX-License-Identifier: Apache-2.0
+ */
+import { AlfrescoApiService } from '@alfresco/adf-content-services';
+import { AppConfigService } from '@alfresco/adf-core';
+import { Injectable, inject } from '@angular/core';
+import { from, Observable } from 'rxjs';
+import { AdfHttpClient } from '@alfresco/adf-core/api';
+import { RequestOptions } from '@alfresco/js-api';
+
+@Injectable()
+export class BaseCollaboraService {
+  protected apiService = inject(AlfrescoApiService);
+  protected appConfigService = inject(AppConfigService);
+
+  protected defaultParams: RequestOptions = {
+    path: '',
+    httpMethod: '',
+    contentTypes: ['application/json'],
+    accepts: ['application/json']
+  };
+
+  constructor(protected adfHttpClient: AdfHttpClient) {}
+
+  getBasePath(appName: string): string {
+    return appName ? `${this.contextRoot}/${appName}` : this.contextRoot;
+  }
+
+  protected post<T, R>(url: string, data?: T, queryParams?: any): Observable<R> {
+    return from(
+      this.callApi<R>(url, {
+        ...this.defaultParams,
+        path: url,
+        httpMethod: 'POST',
+        bodyParam: data,
+        queryParams
+      })
+    );
+  }
+
+  protected put<T, R>(url: string, data?: T): Observable<R> {
+    return from(
+      this.callApi<R>(url, {
+        ...this.defaultParams,
+        path: url,
+        httpMethod: 'PUT',
+        bodyParam: data
+      })
+    );
+  }
+
+  protected delete(url: string): Observable<void> {
+    return from(
+      this.callApi<void>(url, {
+        ...this.defaultParams,
+        path: url,
+        httpMethod: 'DELETE'
+      })
+    );
+  }
+
+  protected get<T>(url: string, queryParams?: any): Observable<T> {
+    return from(
+      this.callApi<T>(url, {
+        ...this.defaultParams,
+        path: url,
+        httpMethod: 'GET',
+        queryParams
+      })
+    );
+  }
+
+  protected callApi<T>(url: string, params: RequestOptions): Promise<T> {
+    return this.adfHttpClient.request(url, params);
+  }
+
+  protected get contextRoot() {
+    return this.appConfigService.get('ecmHost', '');
+  }
+}

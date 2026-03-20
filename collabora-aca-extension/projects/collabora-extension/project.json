@@ -1,0 +1,39 @@
+{
+  "name": "collabora-extension",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "projects/collabora-extension",
+  "projectType": "library",
+  "prefix": "aca",
+  "targets": {
+    "build": {
+      "executor": "@angular-devkit/build-angular:ng-packagr",
+      "options": {
+        "tsConfig": "projects/collabora-extension/tsconfig.lib.json",
+        "project": "projects/collabora-extension/ng-package.json"
+      },
+      "configurations": {
+        "production": {
+          "tsConfig": "projects/collabora-extension/tsconfig.lib.prod.json"
+        }
+      },
+      "defaultConfiguration": "production",
+      "outputs": ["{workspaceRoot}/dist/@alfresco/collabora-extension"]
+    },
+    "test": {
+      "executor": "@angular-devkit/build-angular:karma",
+      "options": {
+        "codeCoverage": true,
+        "main": "projects/collabora-extension/test.ts",
+        "tsConfig": "projects/collabora-extension/tsconfig.spec.json",
+        "karmaConfig": "projects/collabora-extension/karma.conf.js",
+        "codeCoverageExclude": [],
+        "stylePreprocessorOptions": {
+          "includePaths": ["node_modules"]
+        }
+      }
+    },
+    "lint": {
+      "executor": "@angular-eslint/builder:lint"
+    }
+  }
+}
