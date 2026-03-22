@@ -30,6 +30,7 @@ SPDX-License-Identifier: Apache-2.0
 <script>
 export default {
   name: "CollaboraIframe",
+  emits: ["doc-modified", "app-loading-status"],
   props: {
     accessToken: {
       type: String,
@@ -108,11 +109,67 @@ export default {
   },
   //Mounted is used when the component is imported in the current project
   mounted() {
+    window.addEventListener("message", this.handlePostMessage);
     if (this.collaboraUrl && this.wopiFileUrl) {
       this.$nextTick(() => {
         this.$el.children.loleafletform.requestSubmit();
       });
     }
+  },
+  unmounted() {
+    window.removeEventListener("message", this.handlePostMessage);
+  },
+  methods: {
+    /**
+     * Dispatch incoming postMessage events from Collabora Online.
+     * Validates the origin against the Collabora server URL before processing.
+     * @see https://sdk.collaboraonline.com/docs/postmessage_api.html
+     */
+    handlePostMessage(event) {
+      if (!this.collaboraOrigin || event.origin !== this.collaboraOrigin) {
+        return;
+      }
+
+      let msg;
+      try {
+        msg =
+          typeof event.data === "string" ? JSON.parse(event.data) : event.data;
+      } catch {
+        return;
+      }
+
+      if (!msg || !msg.MessageId) {
+        return;
+      }
+
+      switch (msg.MessageId) {
+        case "Doc_ModifiedStatus":
+          this.$emit("doc-modified", msg.Values);
+          break;
+        case "App_LoadingStatus":
+          this.$emit("app-loading-status", msg.Values);
+          break;
+      }
+    },
+    /**
+     * Send a postMessage to the Collabora Online iframe.
+     * @param {string} messageId - The MessageId to send
+     * @param {object} values - The Values payload
+     */
+    sendMessage(messageId, values = {}) {
+      const iframe = this.$el.querySelector("#loleafletframe");
+      if (!iframe?.contentWindow || !this.collaboraOrigin) {
+        return;
+      }
+      iframe.contentWindow.postMessage(
+        JSON.stringify({
+          MessageId: messageId,
+          SendTime: Date.now(),
+          Values: values,
+        }),
+        this.collaboraOrigin,
+      );
+    },
   },
 };
 </script>
