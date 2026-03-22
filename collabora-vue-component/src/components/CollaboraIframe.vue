@@ -15,8 +15,8 @@ SPDX-License-Identifier: Apache-2.0
       target="loleafletframe"
       hidden="hidden"
     >
-      <input type="text" name="access_token" :value="accessToken" />
-      <input type="text" name="access_token_ttl" :value="accessTokenTTL" />
+      <input type="hidden" name="access_token" :value="accessToken" />
+      <input type="hidden" name="access_token_ttl" :value="accessTokenTTL" />
       <input type="hidden" name="ui_defaults" :value="uiDefaults" />
       <input type="hidden" name="css_variables" :value="cssVariables" />
     </form>
