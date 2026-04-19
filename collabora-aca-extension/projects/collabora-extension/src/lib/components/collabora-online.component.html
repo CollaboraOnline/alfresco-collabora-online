@@ -1,0 +1,47 @@
+  <adf-toolbar id="edit-collabora-online-toolbar" class="adf-viewer-toolbar">
+  <adf-toolbar-title>
+    <button class="adf-viewer-close-button mat-icon-button ng-star-inserted"
+            data-automation-id="adf-toolbar-back"
+            [attr.aria-label]="'COLLABORA.SAVE_CLOSE' | translate"
+            mat-icon-button
+            title="{{ 'COLLABORA.SAVE_CLOSE' | translate }}"
+            (click)="onBackButtonClick()">
+      <span class="mat-button-wrapper">
+        <mat-icon>close</mat-icon>
+      </span>
+    </button>
+  </adf-toolbar-title>
+
+  <div  class="adf-viewer__file-title" fxFlex="1 1 auto"  fxflex="1 1 auto"
+        ng-reflect-fx-flex="1 1 auto" style="flex: 1 1 auto; box-sizing: border-box;">
+    <img  class="adf-viewer__mimeicon" [alt]="mimeType" [src]="mimeTypeIcon" data-automation-id="adf-file-thumbnail">
+    <span class="adf-viewer__display-name"
+          id="adf-viewer-display-name">{{ fileName }}</span>
+  </div>
+
+  <adf-toolbar-divider/>
+
+  <adf-viewer-toolbar-actions class="adf-viewer-toolbar-actions">
+    <button class="mat-icon-button ng-star-inserted"
+            data-automation-id="adf-toolbar-fullscreen"
+            id="adf-viewer-fullscreen"
+            [attr.aria-label]="'APP.ACTIONS.FULLSCREEN' | translate"
+            mat-icon-button
+            title="{{ 'APP.ACTIONS.FULLSCREEN' | translate }}"
+            (click)="onFullscreenClick()">
+      <span class="mat-button-wrapper">
+        <mat-icon>fullscreen</mat-icon>
+      </span>
+    </button>
+  </adf-viewer-toolbar-actions>
+</adf-toolbar>
+
+<div id="collabora-online" class="adf-viewer__fullscreen-container">
+  <div id="loolcontainer">
+    <form #form id="loleafletform" name="loleafletform" method="POST" [action]="iFrameUrl" target="loleafletframe" hidden="hidden">
+      <input #access_token type="text" name="access_token" [value]="accessToken">
+      <input #access_token_ttl type="text" name="access_token_ttl" [value]="accessTokenTTL">
+    </form>
+    <iframe #loleafletFrame id="loleafletframe" name="loleafletframe" allowfullscreen="true"></iframe>
+  </div>
+</div>

@@ -1,0 +1,9 @@
+<div id="collabora-online" class="adf-viewer__fullscreen-container">
+  <div id="loolcontainer">
+    <form #form id="loleafletform" name="loleafletform" method="POST" [action]="iFrameUrl" target="loleafletframe" hidden="hidden">
+      <input #access_token type="text" name="access_token" [value]="accessToken">
+      <input #access_token_ttl type="text" name="access_token_ttl" [value]="accessTokenTTL">
+    </form>
+    <iframe #loleafletFrame id="loleafletframe" name= "loleafletframe" allowfullscreen="true"></iframe>
+  </div>
+</div>

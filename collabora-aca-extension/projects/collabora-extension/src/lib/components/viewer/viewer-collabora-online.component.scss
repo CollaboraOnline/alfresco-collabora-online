@@ -1,0 +1,39 @@
+/* stylelint-disable selector-class-pattern */
+#loleafletframe {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  border: 0 none;
+}
+
+#loolcontainer {
+  position: fixed;
+  inset: 48px 0 0;
+  background: white;
+}
+
+.adf-viewer-toolbar .mat-toolbar .adf-toolbar-title {
+  width: auto;
+}
+
+.adf-viewer-toolbar .adf-toolbar-divider {
+  display: none;
+}
+
+// todo: remove this when viewer supports extensions
+.adf-viewer-toolbar .mat-toolbar > button:last-child {
+  display: none;
+}
+
+.adf-viewer.right_side--hide .adf-viewer__sidebar__right {
+  width: 0;
+}
+
+.fileName {
+  font-size: 14px;
+  margin: auto;
+}
+
+.filler {
+  flex: 1 1;
+}
