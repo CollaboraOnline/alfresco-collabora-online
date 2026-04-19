@@ -85,7 +85,8 @@ public interface CollaboraOnlineService {
 	String lockGet(NodeRef nodeRef);
 
 	/**
-	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/RefreshLock">...</a>
+	 * <a
+	 * href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/rest/files/RefreshLock">...</a>
 	 *
 	 * @param nodeRef Node to lock
 	 * @param lockId  current lock-id

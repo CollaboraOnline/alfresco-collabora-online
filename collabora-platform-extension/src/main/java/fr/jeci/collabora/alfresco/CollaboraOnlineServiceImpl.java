@@ -196,7 +196,8 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.
 	 * <p>
-	 * <a href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/discovery#wopi-actions">...</a>
+	 * <a
+	 * href="https://learn.microsoft.com/en-us/microsoft-365/cloud-storage-partner-program/online/discovery#wopi-actions">...</a>
 	 *
 	 * @param action "view", "edit", etc.
 	 */
