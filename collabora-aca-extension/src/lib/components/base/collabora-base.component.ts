@@ -16,18 +16,18 @@ import { ActivatedRoute } from '@angular/router';
   encapsulation: ViewEncapsulation.None
 })
 export class CollaboraBaseComponent implements OnInit {
-  @ViewChild('form') protected postForm: ElementRef;
-  @ViewChild('access_token') protected inputToken: ElementRef;
-  @ViewChild('access_token_ttl') protected inputTokenTTL: ElementRef;
-  @ViewChild('loleafletFrame') protected loleafletFrame: ElementRef;
+  @ViewChild('form') protected postForm!: ElementRef;
+  @ViewChild('access_token') protected inputToken!: ElementRef;
+  @ViewChild('access_token_ttl') protected inputTokenTTL!: ElementRef;
+  @ViewChild('loleafletFrame') protected loleafletFrame!: ElementRef;
 
   protected nodeId: string;
   protected action: CollaboraAction;
-  protected accessToken: string;
-  protected accessTokenTTL: string;
-  protected iFrameUrl: string;
-  protected locale: string;
-  protected previousUrl: string;
+  protected accessToken!: string;
+  protected accessTokenTTL!: string;
+  protected iFrameUrl!: string;
+  protected locale!: string;
+  protected previousUrl!: string;
 
   private readonly destroyRef = inject(DestroyRef);
 

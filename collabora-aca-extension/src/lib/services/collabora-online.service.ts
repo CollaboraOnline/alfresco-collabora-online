@@ -18,15 +18,15 @@ import { AdfHttpClient } from '@alfresco/adf-core/api';
 })
 export class CollaboraOnlineService extends BaseCollaboraService {
   private readonly destroyRef = inject(DestroyRef);
-  private previousUrl: string;
+  private previousUrl!: string;
   private currentUrl: string;
   isLoading = false;
   displayNode: Node | null = null;
 
   constructor(
     private router: Router,
-    protected adfHttpClient: AdfHttpClient,
-    protected apiService: AlfrescoApiService,
+    adfHttpClient: AdfHttpClient,
+    apiService: AlfrescoApiService,
     protected appConfig: AppConfigService
   ) {
     super(adfHttpClient);

@@ -5,7 +5,7 @@
  */
 
 import { provideTranslations } from '@alfresco/adf-core';
-import { provideExtensionConfig, provideExtensions } from '@alfresco/adf-extensions';
+import { provideExtensionConfig, provideExtensions, RuleEvaluator } from '@alfresco/adf-extensions';
 import { EnvironmentProviders, Provider } from '@angular/core';
 import * as rules from './rules/evaluators';
 import { provideEffects } from '@ngrx/effects';
@@ -23,8 +23,8 @@ export function provideCollaboraExtension(): (Provider | EnvironmentProviders)[]
         'collabora.view.component': CollaboraOnlineComponent
       },
       evaluators: {
-        'collabora.canEditWithCollaboraOnline': rules.canEditWithCollaboraOnline,
-        'collabora.canViewWithCollaboraOnline': rules.canViewWithCollaboraOnline
+        'collabora.canEditWithCollaboraOnline': rules.canEditWithCollaboraOnline as RuleEvaluator,
+        'collabora.canViewWithCollaboraOnline': rules.canViewWithCollaboraOnline as RuleEvaluator
       }
     })
   ];

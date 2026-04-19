@@ -30,15 +30,15 @@ import { CollaboraBaseComponent } from './base/collabora-base.component';
 })
 export class CollaboraOnlineComponent extends CollaboraBaseComponent implements OnInit, OnDestroy {
   nodeEntry: NodeEntry | null = null;
-  fileName: string;
-  mimeType: string;
-  mimeTypeIcon: string;
+  fileName!: string;
+  mimeType!: string;
+  mimeTypeIcon!: string;
   listenerHandlePostMessage: ((event: MessageEvent) => void) | null = null;
 
   constructor(
-    protected route: ActivatedRoute,
-    protected collaboraOnlineService: CollaboraOnlineService,
-    protected userPreferencesService: UserPreferencesService,
+    route: ActivatedRoute,
+    collaboraOnlineService: CollaboraOnlineService,
+    userPreferencesService: UserPreferencesService,
     private contentApi: ContentApiService,
     private router: Router,
     private thumbnailService: ThumbnailService,
@@ -47,7 +47,7 @@ export class CollaboraOnlineComponent extends CollaboraBaseComponent implements 
     super(route, collaboraOnlineService, userPreferencesService);
   }
 
-  async ngOnInit(): Promise<void> {
+  override async ngOnInit(): Promise<void> {
     try {
       this.nodeEntry = await firstValueFrom(this.contentApi.getNode(this.nodeId));
       if (this.nodeEntry) {
