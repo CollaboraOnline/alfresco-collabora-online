@@ -3,10 +3,10 @@
 
 # Alfresco Collabora Online
 
-This project contains 3 sub-projects :
+This project contains 4 sub-projects :
 * collabora-platform-extension : extension for Alfresco Content Services
 * collabora-share-extension : extension for lagacy Share interface
-* collabora-aca-extension : extension for Angular interface, Alfresco Content Application (outdated)
+* collabora-aca-extension : extension for Angular interface, Alfresco Content Application
 * collabora-vue-component : component for Pristy
 
 If the user has the write permission, the extension adds an action `Edit with Collabora™ Online` on documents which can be opened with Collabora Online.
