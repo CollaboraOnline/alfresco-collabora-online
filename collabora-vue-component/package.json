@@ -1,7 +1,7 @@
 {
   "name": "@pristy/pristy-collabora-component",
   "description": "Collabora Online in Vue",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "author": "JECI SARL",
   "license": "AGPL-3.0",
   "repository": {
