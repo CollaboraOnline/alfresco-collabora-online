@@ -77,6 +77,7 @@
     "last 2 versions",
     "Firefox ESR",
     "not ie 11",
-    "not dead"
+    "not dead",
+    "not ios_saf < 15"
   ]
 }
