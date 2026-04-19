@@ -64,7 +64,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
 					.print(modifiedDatetime));
 			model.put(VERSION, currentVersion.getVersionLabel());
-		} else {
+		} else if (userCanWrite(nodeRef)) {
 			ensureVersioningEnabled(nodeRef);
 		}
 
