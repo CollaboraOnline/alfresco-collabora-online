@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.4.1] - 2026-04-19
+
+### Build
+
+- **aca-extension**: Flatten layout and make standalone
+
+### Miscellaneous
+
+- **aca-extension**: Release version 0.1.0
+- **format**: Format comment
 ## [1.4.0] - 2026-02-27
 
 - Update build Alfresco 25.3.0
