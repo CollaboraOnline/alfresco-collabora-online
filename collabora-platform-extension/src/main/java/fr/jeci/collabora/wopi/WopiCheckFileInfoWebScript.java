@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
 import org.joda.time.LocalDateTime;
@@ -49,6 +50,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private AuthorityService authorityService;
 	private PermissionService permissionService;
+	private PersonService personService;
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
@@ -79,7 +81,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		String userName = AuthenticationUtil.getRunAsUser();
 		model.put(USER_ID, userName);
 		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef)));
-		model.put(USER_FRIENDLY_NAME, userName);
+		model.put(USER_FRIENDLY_NAME, resolveDisplayName(userName));
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
 		boolean isGuest = authorityService.isGuestAuthority(userName);
@@ -108,11 +110,35 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		return AccessStatus.ALLOWED == perm;
 	}
 
+	private String resolveDisplayName(String userName) {
+		NodeRef personNodeRef = personService.getPerson(userName, false);
+		if (personNodeRef != null) {
+			String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+			String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+			StringBuilder sb = new StringBuilder();
+			if (firstName != null && !firstName.isBlank()) {
+				sb.append(firstName.strip());
+			}
+			if (lastName != null && !lastName.isBlank()) {
+				if (sb.length() > 0) sb.append(" ");
+				sb.append(lastName.strip());
+			}
+			if (sb.length() > 0) {
+				return sb.toString();
+			}
+		}
+		return userName;
+	}
+
 	public void setAuthorityService(AuthorityService authorityService) {
 		this.authorityService = authorityService;
 	}
 
 	public void setPermissionService(PermissionService permissionService) {
 		this.permissionService = permissionService;
+	}
+
+	public void setPersonService(PersonService personService) {
+		this.personService = personService;
 	}
 }
