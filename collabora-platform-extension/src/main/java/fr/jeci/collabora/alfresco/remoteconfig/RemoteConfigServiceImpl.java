@@ -292,7 +292,21 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 	}
 
 	public void setFontsBaseUrl(String fontsBaseUrl) {
-		this.fontsBaseUrl = fontsBaseUrl;
+		this.fontsBaseUrl = normalizeUrl(fontsBaseUrl);
+	}
+
+	private static String normalizeUrl(String url) {
+		int schemeEnd = url.indexOf("://");
+		if (schemeEnd < 0) {
+			return url.replaceAll("/+", "/");
+		}
+		String scheme = url.substring(0, schemeEnd + 3);
+		String rest = url.substring(schemeEnd + 3)
+				.replaceAll("/+", "/");
+		if (rest.endsWith("/")) {
+			rest = rest.substring(0, rest.length() - 1);
+		}
+		return scheme + rest;
 	}
 
 	public void setNodeService(NodeService nodeService) {
