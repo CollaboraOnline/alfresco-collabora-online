@@ -49,16 +49,16 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 	private NodeRef fontsFolderRef;
 
 	public void init() {
-		AuthenticationUtil.runAsSystem(() -> {
+		boolean enabled = AuthenticationUtil.runAsSystem(() -> {
 			initBaseFolderRef();
-			if (isRemoteConfigEnabledInternal()) {
+			boolean configEnabled = isRemoteConfigEnabledInternal();
+			if (configEnabled) {
 				fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
 				regenerateFontsConfigFile();
 			}
-			return null;
+			return configEnabled;
 		});
-		logger.info("Collabora remote config initialized at /Data Dictionary/{}, enabled={}", basePath,
-				isRemoteConfigEnabledInternal());
+		logger.info("Collabora remote config initialized at /Data Dictionary/{}, enabled={}", basePath, enabled);
 	}
 
 	private void initBaseFolderRef() {
