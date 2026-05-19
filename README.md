@@ -271,6 +271,66 @@ fr.jeci.collabora.renditions=doclib,pdf
 fr.jeci.collabora.renditions=
 ```
 
+### Feature Restriction (License Management)
+
+This feature implements [Collabora Online Feature Restriction](https://sdk.collaboraonline.com/docs/installation/Configuration.html#feature-restriction) to manage user licenses. When enabled, only users belonging to a configurable Alfresco group can fully edit documents. Other users receive `IsUserLocked=true` in the WOPI CheckFileInfo response, which — combined with `feature_lock.is_lock_readonly=true` in Collabora's `coolwsd.xml` — forces them into read-only mode.
+
+#### `fr.jeci.collabora.featureRestriction.enabled` (Optional)
+**Type:** Boolean
+**Default:** `false`
+
+Enable or disable group-based license restriction.
+
+#### `fr.jeci.collabora.featureRestriction.group` (Optional)
+**Type:** String (Alfresco group full name)
+**Default:** `GROUP_COLLABORA_ONLINE`
+
+The Alfresco group whose members are considered licensed. The group is automatically created on first startup if it does not exist. Users in this group (including via nested groups) get full editing access.
+
+#### `fr.jeci.collabora.featureRestriction.maxLicenses` (Optional)
+**Type:** Integer
+**Default:** `-1` (unlimited)
+
+Maximum number of users that can be added to the licensed group. Set to `-1` for unlimited. This value is persisted via Alfresco's `AttributeService` and can be updated at runtime via the admin webscript without restarting Alfresco.
+
+#### Collabora Online Server Configuration
+
+For the feature restriction to enforce read-only mode, you must configure Collabora Online's `coolwsd.xml`:
+
+```xml
+<feature_lock>
+    <is_lock_readonly type="bool" default="true">true</is_lock_readonly>
+</feature_lock>
+```
+
+#### Admin Webscripts
+
+All license management webscripts require **admin authentication**.
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/collabora/license` | GET | List license status: enabled flag, count, max, and licensed user IDs |
+| `/collabora/license/grant?user={userId}` | POST | Grant a license to a user (add to group) |
+| `/collabora/license/revoke?user={userId}` | POST | Revoke a license from a user (remove from group) |
+| `/collabora/license/config?maxLicenses={n}` | POST | Update the maximum number of licenses at runtime |
+
+**Examples:**
+```bash
+# List licensed users
+curl -u admin:admin "http://localhost:8080/alfresco/s/collabora/license"
+
+# Grant a license
+curl -u admin:admin -X POST "http://localhost:8080/alfresco/s/collabora/license/grant?user=jdoe"
+
+# Revoke a license
+curl -u admin:admin -X POST "http://localhost:8080/alfresco/s/collabora/license/revoke?user=jdoe"
+
+# Set max licenses to 50
+curl -u admin:admin -X POST "http://localhost:8080/alfresco/s/collabora/license/config?maxLicenses=50"
+```
+
+Each grant or revoke operation is logged at `INFO` level with the total license count.
+
 ### Lock Cleanup Job (Deprecated)
 
 The lock cleanup job is **deprecated** since version 1.0.0. Alfresco's native lock management is now used instead.
@@ -311,6 +371,11 @@ lool.wopi.token.ttl=86400000
 
 # Renditions (optional)
 fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
+
+# Feature Restriction (optional - disabled by default)
+fr.jeci.collabora.featureRestriction.enabled=false
+fr.jeci.collabora.featureRestriction.group=GROUP_COLLABORA_ONLINE
+fr.jeci.collabora.featureRestriction.maxLicenses=-1
 
 # Lock cleanup job (deprecated - keep disabled)
 job.fr.jeci.collabora.cleanLock.enabled=false
