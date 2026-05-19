@@ -10,6 +10,6 @@ SPDX-License-Identifier: Apache-2.0
 	<url>/collabora/fonts/{font_name}</url>
 	<family>Collabora Online</family>
 	<authentication>none</authentication>
-	<format default=""></format>
+	<format default="">argument</format>
 	<transaction>required</transaction>
 </webscript>
