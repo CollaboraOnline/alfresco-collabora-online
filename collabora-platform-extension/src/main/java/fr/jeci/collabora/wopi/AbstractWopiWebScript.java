@@ -153,7 +153,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			logger.debug("CurrentAuthentication is null - setting CurrentUser to {}", wopiToken.getUserName());
 			AuthenticationUtil.setFullyAuthenticatedUser(wopiToken.getUserName());
 		} else {
-			logger.info("Authenticate with user is {}", originalFullAuthentication.getPrincipal());
+			logger.debug("Authenticate with user is {}", originalFullAuthentication.getPrincipal());
 		}
 	}
 

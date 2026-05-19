@@ -292,7 +292,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 																				 + targetFileName);
 				}
 			} else {
-				logger.info("File with the specified name already exists: {} try with another name", LogSanitizer.sanitize(
+				logger.debug("File with the specified name already exists: {} try with another name", LogSanitizer.sanitize(
 						targetFileName));
 			}
 		}

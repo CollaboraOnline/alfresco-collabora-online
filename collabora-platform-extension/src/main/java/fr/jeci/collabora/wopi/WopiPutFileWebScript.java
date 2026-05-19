@@ -98,7 +98,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	}
 
 	private void putLastModifiedTime(final NodeRef nodeRef, final Version newVersion, final Map<String, String> model) {
-		logger.info("Modifier for the above nodeRef [{}] is: {}", nodeRef, newVersion.getFrozenModifier());
+		logger.debug("Modifier for the above nodeRef [{}] is: {}", nodeRef, newVersion.getFrozenModifier());
 
 		Date newModified = newVersion.getFrozenModifiedDate();
 		LocalDateTime modifiedDatetime = new LocalDateTime(newModified);
