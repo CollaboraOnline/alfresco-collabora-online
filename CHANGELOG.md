@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.5.1] - 2026-05-19
+
+### Miscellaneous
+
+- **version**: 1.5.1-SNAPSHOT
+
+### Refactoring
+
+- **discovery**: Remove dead discoveryDoc field and add configurable timeout
 ## [1.5.0] - 2026-05-19
 
 ### Bug Fixes
