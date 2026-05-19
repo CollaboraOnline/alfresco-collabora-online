@@ -111,6 +111,7 @@ SPDX-License-Identifier: Apache-2.0
 		parent="webscript">
 		<property name="wopiDiscovery" ref="WopiDiscovery" />
 		<property name="collaboraPublicUrl" value="${collabora.public.url}" />
+		<property name="remoteConfigService" ref="RemoteConfigService" />
 	</bean>
 
 	<!-- Remote Configuration Webscripts (public, no auth) -->

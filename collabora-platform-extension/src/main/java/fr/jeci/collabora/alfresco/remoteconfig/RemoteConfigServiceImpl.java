@@ -50,19 +50,69 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 
 	public void init() {
 		AuthenticationUtil.runAsSystem(() -> {
-			ensureFolderStructure();
-			ensureDefaultConfig();
-			regenerateFontsConfigFile();
+			initBaseFolderRef();
+			if (isRemoteConfigEnabledInternal()) {
+				fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
+				regenerateFontsConfigFile();
+			}
 			return null;
 		});
-		logger.info("Collabora remote config initialized at /Data Dictionary/{}", basePath);
+		logger.info("Collabora remote config initialized at /Data Dictionary/{}, enabled={}", basePath,
+				isRemoteConfigEnabledInternal());
 	}
 
-	private void ensureFolderStructure() {
+	private void initBaseFolderRef() {
 		NodeRef companyHome = nodeLocatorService.getNode("companyhome", null, null);
 		NodeRef dataDictionary = getDataDictionary(companyHome);
 		baseFolderRef = getOrCreateFolder(dataDictionary, basePath);
-		fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
+	}
+
+	private boolean isRemoteConfigEnabledInternal() {
+		return nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS, CONFIG_FILE_NAME) != null;
+	}
+
+	@Override
+	public boolean isRemoteConfigEnabled() {
+		return AuthenticationUtil.runAsSystem(this::isRemoteConfigEnabledInternal);
+	}
+
+	@Override
+	public void enableRemoteConfig() {
+		AuthenticationUtil.runAsSystem(() -> {
+			if (!isRemoteConfigEnabledInternal()) {
+				String fontsConfigUrl = fontsBaseUrl.replaceAll("/fonts$", "/fonts-config");
+				String defaultConfig = "{\"kind\":\"configuration\",\"remote_font_config\":{\"url\":\"" + fontsConfigUrl
+											  + "\"}}";
+				createJsonFile(baseFolderRef, CONFIG_FILE_NAME, defaultConfig);
+				fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
+				regenerateFontsConfigFile();
+				logger.info("Remote configuration enabled");
+			}
+			return null;
+		});
+	}
+
+	@Override
+	public void disableRemoteConfig() {
+		AuthenticationUtil.runAsSystem(() -> {
+			NodeRef configNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS, CONFIG_FILE_NAME);
+			if (configNode != null) {
+				nodeService.deleteNode(configNode);
+			}
+			NodeRef fontsConfigNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS,
+					FONTS_CONFIG_FILE_NAME);
+			if (fontsConfigNode != null) {
+				nodeService.deleteNode(fontsConfigNode);
+			}
+			NodeRef fontsFolder = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS,
+					FONTS_FOLDER_NAME);
+			if (fontsFolder != null) {
+				nodeService.deleteNode(fontsFolder);
+			}
+			fontsFolderRef = null;
+			logger.info("Remote configuration disabled");
+			return null;
+		});
 	}
 
 	private NodeRef getDataDictionary(NodeRef companyHome) {
@@ -74,17 +124,6 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 		}
 		return assocs.get(0)
 				.getChildRef();
-	}
-
-	private void ensureDefaultConfig() {
-		NodeRef configNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS, CONFIG_FILE_NAME);
-		if (configNode == null) {
-			String fontsConfigUrl = fontsBaseUrl.replaceAll("/fonts$", "/fonts-config");
-			String defaultConfig = "{\"kind\":\"configuration\",\"remote_font_config\":{\"url\":\"" + fontsConfigUrl
-										  + "\"}}";
-			createJsonFile(baseFolderRef, CONFIG_FILE_NAME, defaultConfig);
-			logger.info("Created default remote-config.json");
-		}
 	}
 
 	@Override

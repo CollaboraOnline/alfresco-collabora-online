@@ -29,6 +29,7 @@ public class CollaboraStatusWebScript extends DeclarativeWebScript {
 
 	private WopiDiscovery wopiDiscovery;
 	private URL collaboraPublicUrl;
+	private RemoteConfigService remoteConfigService;
 
 	@Override
 	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
@@ -38,9 +39,17 @@ public class CollaboraStatusWebScript extends DeclarativeWebScript {
 			wopiDiscovery.reload();
 		}
 
-		final Map<String, Object> model = new HashMap<>(2);
+		String enableParam = req.getParameter("enableRemoteConfig");
+		if ("true".equals(enableParam)) {
+			remoteConfigService.enableRemoteConfig();
+		} else if ("false".equals(enableParam)) {
+			remoteConfigService.disableRemoteConfig();
+		}
+
+		final Map<String, Object> model = new HashMap<>(3);
 		model.put("online", wopiDiscovery.hasCollaboraOnline());
 		model.put("serverUrl", collaboraPublicUrl != null ? collaboraPublicUrl.toString() : "");
+		model.put("remoteConfigEnabled", remoteConfigService.isRemoteConfigEnabled());
 		return model;
 	}
 
@@ -50,5 +59,9 @@ public class CollaboraStatusWebScript extends DeclarativeWebScript {
 
 	public void setCollaboraPublicUrl(URL collaboraPublicUrl) {
 		this.collaboraPublicUrl = collaboraPublicUrl;
+	}
+
+	public void setRemoteConfigService(RemoteConfigService remoteConfigService) {
+		this.remoteConfigService = remoteConfigService;
 	}
 }

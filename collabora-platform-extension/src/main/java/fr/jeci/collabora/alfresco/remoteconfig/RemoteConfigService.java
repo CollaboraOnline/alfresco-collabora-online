@@ -22,6 +22,21 @@ import java.util.List;
 public interface RemoteConfigService {
 
 	/**
+	 * Returns true if the remote configuration is enabled (config file exists in repository).
+	 */
+	boolean isRemoteConfigEnabled();
+
+	/**
+	 * Enables remote configuration by creating the default config and fonts folder.
+	 */
+	void enableRemoteConfig();
+
+	/**
+	 * Disables remote configuration by deleting the config file and fonts folder.
+	 */
+	void disableRemoteConfig();
+
+	/**
 	 * Returns the remote configuration JSON content.
 	 */
 	String getRemoteConfig();
