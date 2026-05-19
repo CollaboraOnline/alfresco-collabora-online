@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.5.0] - 2026-05-19
+
+### Bug Fixes
+
+- **remoteconfig**: Resolve Data Dictionary by QName instead of localized name
+- **remoteconfig**: Normalize fontsBaseUrl to prevent double slashes
+- **remoteconfig**: Use argument format style to preserve font file extensions
+- **discovery**: Fix misleading double slash in WOPI discovery log message
+- **remoteconfig**: Move isRemoteConfigEnabledInternal call inside runAsSystem
+
+### Build
+
+- **compose**: Update docker compose stack
+
+### Documentation
+
+- Update README with status endpoint, remote config toggle and font validation
+
+### Features
+
+- **restriction**: Add Collabora Online feature restriction with license management
+- **remoteconfig**: Add Collabora Online remote/dynamic configuration
+- **status**: Add status endpoint with reload and improved error messages
+- **remoteconfig**: Add enable/disable remote config via status endpoint
+
+### Miscellaneous
+
+- **version**: 1.4.2-SNAPSHOT
+- **doc**: Update readme
+- **logging**: Set default log level to info and demote WOPI runtime logs to debug
 ## [1.4.1] - 2026-04-19
 
 ### Build
