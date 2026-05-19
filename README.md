@@ -275,13 +275,13 @@ fr.jeci.collabora.renditions=
 
 This feature implements [Collabora Online Remote Configuration](https://sdk.collaboraonline.com/docs/installation/Configuration.html#remote-dynamic-configuration) to allow Alfresco to serve configuration and custom fonts to Collabora Online. Collabora polls the remote config endpoint every 60 seconds using ETag-based caching.
 
-Configuration and fonts are stored in the Alfresco repository under `/Data Dictionary/collabora-online/`.
+Configuration and fonts are stored in the Alfresco repository under `/Data Dictionary/collabora-online/`. The remote configuration is **disabled by default** and can be enabled via the admin UI in pristy-portail or via the status endpoint.
 
 #### `fr.jeci.collabora.remoteConfig.basePath` (Optional)
 **Type:** String
 **Default:** `collabora-online`
 
-Folder name under `/Data Dictionary/` for storing the Collabora configuration and fonts. Created automatically on first startup.
+Folder name under `/Data Dictionary/` for storing the Collabora configuration and fonts.
 
 #### `fr.jeci.collabora.remoteConfig.fontsUrl` (Optional)
 **Type:** URL
@@ -289,14 +289,23 @@ Folder name under `/Data Dictionary/` for storing the Collabora configuration an
 
 Public base URL for serving font files. This URL is used in the font configuration JSON to build font URIs.
 
+#### Status & Control Endpoint
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/collabora/admin/status` | GET | Returns connection status (`online`), server URL, and `remoteConfigEnabled` flag |
+| `/collabora/admin/status?reload=true` | GET | Re-attempts connection to Collabora Online (useful when Alfresco starts before Collabora) |
+| `/collabora/admin/status?enableRemoteConfig=true` | GET | Enables remote configuration (creates default config and fonts folder) |
+| `/collabora/admin/status?enableRemoteConfig=false` | GET | Disables remote configuration (deletes config file and fonts folder) |
+
 #### Public Endpoints (no authentication)
 
 These endpoints are called by Collabora Online directly and require no authentication. Secure them at the network/reverse proxy level.
 
 | Endpoint | Method | Description |
 |----------|--------|-------------|
-| `/collabora/remote-config` | GET | Main configuration JSON (polled by coolwsd every 60s) |
-| `/collabora/fonts-config` | GET | Font configuration JSON (generated from fonts folder) |
+| `/collabora/remote-config` | GET | Main configuration JSON (polled by coolwsd every 60s, supports ETag/If-None-Match) |
+| `/collabora/fonts-config` | GET | Font configuration JSON (stored in repository, regenerated on font changes) |
 | `/collabora/fonts/{font_name}` | GET | Serves individual font files |
 
 #### Admin Endpoints
@@ -304,9 +313,9 @@ These endpoints are called by Collabora Online directly and require no authentic
 | Endpoint | Method | Description |
 |----------|--------|-------------|
 | `/collabora/admin/remote-config` | GET | Read current configuration |
-| `/collabora/admin/remote-config` | POST | Update configuration (JSON body with `"kind": "configuration"`) |
+| `/collabora/admin/remote-config` | POST | Update configuration (JSON body with `"kind": "configuration"`, validated and re-serialized) |
 | `/collabora/admin/fonts` | GET | List available fonts |
-| `/collabora/admin/fonts?name={name}` | POST | Upload a font file (binary body) |
+| `/collabora/admin/fonts?name={name}&mimeType={mimeType?}` | POST | Upload a font file (binary body, only `font/ttf`, `font/otf`, `font/woff`, `font/woff2` accepted) |
 | `/collabora/admin/fonts/{font_name}` | DELETE | Delete a font |
 
 #### Collabora Online Server Configuration
