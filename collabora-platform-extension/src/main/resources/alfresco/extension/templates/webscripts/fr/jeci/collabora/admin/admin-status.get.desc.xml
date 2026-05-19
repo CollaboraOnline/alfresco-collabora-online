@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+	<shortname>Admin - Collabora Online Status</shortname>
+	<description>Returns Collabora Online integration status. Use reload=true to re-attempt connection.</description>
+	<url>/collabora/admin/status?reload={reload?}</url>
+	<family>Collabora Online</family>
+	<authentication>admin</authentication>
+	<format default="json"></format>
+	<transaction>required</transaction>
+</webscript>

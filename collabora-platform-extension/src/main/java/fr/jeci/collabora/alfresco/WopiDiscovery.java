@@ -51,8 +51,21 @@ public class WopiDiscovery {
 		}
 	}
 
+	public void reload() {
+		this.discoveryDoc = null;
+		this.hasCollaboraOnline.set(false);
+		this.applications = Collections.emptyList();
+		this.actions = Collections.emptyMap();
+		this.legacyActions = Collections.emptyMap();
+		init();
+	}
+
 	public boolean hasCollaboraOnline() {
 		return this.hasCollaboraOnline.get();
+	}
+
+	public URL getCollaboraPrivateUrl() {
+		return this.collaboraPrivateUrl;
 	}
 
 	/**

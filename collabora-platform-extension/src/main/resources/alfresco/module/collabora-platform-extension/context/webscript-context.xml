@@ -104,6 +104,15 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
 	</bean>
 
+	<!-- Collabora Status -->
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-status.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.CollaboraStatusWebScript"
+		parent="webscript">
+		<property name="wopiDiscovery" ref="WopiDiscovery" />
+		<property name="collaboraPublicUrl" value="${collabora.public.url}" />
+	</bean>
+
 	<!-- Remote Configuration Webscripts (public, no auth) -->
 
 	<bean id="webscript.fr.jeci.collabora.remote-config.remote-config.get"

@@ -204,7 +204,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	@Override
 	public String getWopiSrcURL(NodeRef nodeRef, String action) {
 		if (!this.wopiDiscovery.hasCollaboraOnline()) {
-			throw new WebScriptException(Status.STATUS_SERVICE_UNAVAILABLE, "Collabora is Offline");
+			throw new WebScriptException(Status.STATUS_SERVICE_UNAVAILABLE, "Collabora is Offline (configured URL: "
+																								 + this.wopiDiscovery.getCollaboraPrivateUrl()
+																								 + ")");
 		}
 
 		final String filename = (String) this.nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
