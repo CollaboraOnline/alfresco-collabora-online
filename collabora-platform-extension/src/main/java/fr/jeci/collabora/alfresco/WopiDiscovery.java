@@ -38,16 +38,22 @@ public class WopiDiscovery {
 	private final AtomicBoolean hasCollaboraOnline = new AtomicBoolean(false);
 
 	public void init() {
+		URL wopiDiscoveryURL;
 		try {
-			URL wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
-			logger.info("Load Wopi Discovery URI : " + wopiDiscoveryURL);
+			wopiDiscoveryURL = new URL(this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
+		} catch (java.net.MalformedURLException e) {
+			logger.error("Invalid Collabora private URL: {}", this.collaboraPrivateUrl);
+			return;
+		}
 
+		try {
+			logger.info("Load Wopi Discovery URI : {}", wopiDiscoveryURL);
 			URLConnection openConnection = wopiDiscoveryURL.openConnection();
 			openConnection.setReadTimeout(READ_TIMEOUT_MS);
 			loadDiscoveryXML(openConnection.getInputStream());
 			this.hasCollaboraOnline.set(true);
 		} catch (IOException | XMLStreamException e) {
-			logger.warn("Can’t load Wopi Discovery URI : {}/{}", this.collaboraPrivateUrl, DEFAULT_HOSTING_DISCOVERY);
+			logger.warn("Can’t load Wopi Discovery URI : {}", wopiDiscoveryURL);
 		}
 	}
 
