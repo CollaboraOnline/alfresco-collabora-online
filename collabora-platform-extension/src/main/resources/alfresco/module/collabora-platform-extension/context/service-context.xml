@@ -39,6 +39,15 @@ SPDX-License-Identifier: Apache-2.0
       <property name="wopiDiscovery" ref="WopiDiscovery"/>
   </bean>
 
+  <bean id="FeatureRestrictionService"
+        class="fr.jeci.collabora.alfresco.restriction.FeatureRestrictionServiceImpl" init-method="init">
+      <property name="enabled" value="${fr.jeci.collabora.featureRestriction.enabled}"/>
+      <property name="groupName" value="${fr.jeci.collabora.featureRestriction.group}"/>
+      <property name="initialMaxLicenses" value="${fr.jeci.collabora.featureRestriction.maxLicenses}"/>
+      <property name="authorityService" ref="AuthorityService"/>
+      <property name="attributeService" ref="AttributeService"/>
+  </bean>
+
   <bean id="WopiDiscovery"
         class="fr.jeci.collabora.alfresco.WopiDiscovery" init-method="init">
       <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>

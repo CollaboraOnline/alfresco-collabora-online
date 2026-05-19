@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+	<shortname>Collabora Online License Grant</shortname>
+	<description>Grant a Collabora Online license to a user</description>
+	<url>/collabora/license/grant?user={user}</url>
+	<family>Collabora Online</family>
+	<authentication>admin</authentication>
+	<format default="json"></format>
+	<transaction>required</transaction>
+</webscript>

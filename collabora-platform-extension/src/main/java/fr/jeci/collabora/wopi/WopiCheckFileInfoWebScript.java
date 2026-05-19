@@ -11,6 +11,8 @@ import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+
+import fr.jeci.collabora.alfresco.restriction.FeatureRestrictionService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
 import org.joda.time.LocalDateTime;
@@ -40,6 +42,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private static final String USER_CAN_WRITE = "UserCanWrite";
 	private static final String IS_ADMIN_USER = "IsAdminUser";
 	private static final String IS_ANONYMOUS_USER = "IsAnonymousUser";
+	private static final String IS_USER_LOCKED = "IsUserLocked";
 
 	private static final String USER_ID = "UserId";
 	private static final String SIZE = "Size";
@@ -49,6 +52,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private AuthorityService authorityService;
 	private PermissionService permissionService;
+	private FeatureRestrictionService featureRestrictionService;
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
@@ -85,6 +89,11 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		boolean isGuest = authorityService.isGuestAuthority(userName);
 		model.put(IS_ANONYMOUS_USER, Boolean.toString(isGuest));
 
+		if (featureRestrictionService.isFeatureRestrictionEnabled()) {
+			boolean isLocked = !featureRestrictionService.hasLicense(userName);
+			model.put(IS_USER_LOCKED, Boolean.toString(isLocked));
+		}
+
 		jsonResponse(res, 200, model);
 	}
 
@@ -114,5 +123,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	public void setPermissionService(PermissionService permissionService) {
 		this.permissionService = permissionService;
+	}
+
+	public void setFeatureRestrictionService(FeatureRestrictionService featureRestrictionService) {
+		this.featureRestrictionService = featureRestrictionService;
 	}
 }

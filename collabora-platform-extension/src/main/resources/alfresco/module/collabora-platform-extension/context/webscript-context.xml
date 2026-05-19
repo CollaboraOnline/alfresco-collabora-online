@@ -58,6 +58,7 @@ SPDX-License-Identifier: Apache-2.0
 		parent="abstract-wopi-webscript">
 		<property name="permissionService" ref="PermissionService" />
 		<property name="authorityService" ref="AuthorityService" />
+		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.GetFile.get"
@@ -76,5 +77,31 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="copyService" ref="CopyService" />
 	</bean>
 
+
+	<!-- License Management Webscripts -->
+
+	<bean id="webscript.fr.jeci.collabora.license.license.get"
+		class="fr.jeci.collabora.alfresco.restriction.LicenseListWebScript"
+		parent="webscript">
+		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.license.license-grant.post"
+		class="fr.jeci.collabora.alfresco.restriction.LicenseGrantWebScript"
+		parent="webscript">
+		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.license.license-revoke.post"
+		class="fr.jeci.collabora.alfresco.restriction.LicenseRevokeWebScript"
+		parent="webscript">
+		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.license.license-config.post"
+		class="fr.jeci.collabora.alfresco.restriction.LicenseConfigWebScript"
+		parent="webscript">
+		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
+	</bean>
 
 </beans>
