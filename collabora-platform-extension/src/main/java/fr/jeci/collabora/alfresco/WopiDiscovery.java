@@ -6,8 +6,6 @@ package fr.jeci.collabora.alfresco;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -26,9 +24,9 @@ public class WopiDiscovery {
 	private static final Logger logger = LoggerFactory.getLogger(WopiDiscovery.class);
 
 	private static final String DEFAULT_HOSTING_DISCOVERY = "/hosting/discovery";
-	private static final int READ_TIMEOUT_MS = 500;
+	private static final int DEFAULT_READ_TIMEOUT_MS = 500;
+	private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MS;
 
-	private Document discoveryDoc;
 	private URL collaboraPrivateUrl;
 
 	private List<DiscoveryApp> applications = Collections.emptyList();
@@ -49,16 +47,16 @@ public class WopiDiscovery {
 		try {
 			logger.info("Load Wopi Discovery URI : {}", wopiDiscoveryURL);
 			URLConnection openConnection = wopiDiscoveryURL.openConnection();
-			openConnection.setReadTimeout(READ_TIMEOUT_MS);
+			openConnection.setConnectTimeout(readTimeoutMs);
+			openConnection.setReadTimeout(readTimeoutMs);
 			loadDiscoveryXML(openConnection.getInputStream());
 			this.hasCollaboraOnline.set(true);
 		} catch (IOException | XMLStreamException e) {
-			logger.warn("Can’t load Wopi Discovery URI : {}", wopiDiscoveryURL);
+			logger.warn("Can’t load Wopi Discovery URI : {} ({})", wopiDiscoveryURL, e.getMessage());
 		}
 	}
 
 	public void reload() {
-		this.discoveryDoc = null;
 		this.hasCollaboraOnline.set(false);
 		this.applications = Collections.emptyList();
 		this.actions = Collections.emptyMap();
@@ -114,10 +112,6 @@ public class WopiDiscovery {
 	 * Load discovery.xml from Collabora Online server
 	 */
 	protected void loadDiscoveryXML(InputStream in) throws XMLStreamException {
-		if (this.discoveryDoc != null) {
-			return;
-		}
-
 		final XMLInputFactory factory = XMLInputFactory.newInstance();
 		factory.setProperty(XMLInputFactory.IS_COALESCING, true);
 		// Security - Disable DOCTYPE declarations (Prevent XML External Entity (XXE) attack)
@@ -250,5 +244,9 @@ public class WopiDiscovery {
 
 	public void setCollaboraPrivateUrl(URL collaboraPrivateUrl) {
 		this.collaboraPrivateUrl = collaboraPrivateUrl;
+	}
+
+	public void setReadTimeoutMs(int readTimeoutMs) {
+		this.readTimeoutMs = readTimeoutMs;
 	}
 }

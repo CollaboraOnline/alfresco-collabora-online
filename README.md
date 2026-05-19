@@ -226,6 +226,22 @@ Internal URL of the Alfresco server used by Collabora Online to fetch documents.
 alfresco.private.url=http://alfresco-internal:8080/alfresco/
 ```
 
+### Discovery
+
+#### `fr.jeci.collabora.discovery.readTimeoutMs` (Optional)
+**Type:** Integer (milliseconds)
+**Default:** `500`
+
+Connect and read timeout for fetching the WOPI discovery XML from Collabora Online at startup. Increase this value if Collabora Online is hosted on a remote server with higher latency.
+
+**Example:**
+```properties
+# 2 seconds (for remote servers)
+fr.jeci.collabora.discovery.readTimeoutMs=2000
+```
+
+**Note:** If the discovery fetch fails at startup (e.g., Collabora Online not yet available), you can reload it at runtime via the admin UI or by calling `GET /collabora/admin/status?reload=true`.
+
 ### Token Configuration
 
 #### `lool.wopi.token.ttl` (Optional)
@@ -435,6 +451,9 @@ alfresco.private.url=http://alfresco-internal:8080/alfresco/
 
 # Token configuration
 lool.wopi.token.ttl=86400000
+
+# Discovery timeout (optional, default 500ms)
+#fr.jeci.collabora.discovery.readTimeoutMs=500
 
 # Renditions (optional)
 fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
