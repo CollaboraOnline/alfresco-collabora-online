@@ -22,13 +22,13 @@ alias = "b"
 run = "mvn resources:resources"
 
 [tasks.start]
-description = "Strat Docker Compose"
+description = "Start Docker Compose"
 depends = ["docker:ressources"]
 alias = "s"
 run = "docker compose up --build -d"
 
 [tasks.stop]
-description = "Strat Docker Compose"
+description = "Stop Docker Compose"
 alias = "s"
 run = "docker compose down"
 
