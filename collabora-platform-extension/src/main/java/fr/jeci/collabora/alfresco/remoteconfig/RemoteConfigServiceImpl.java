@@ -60,12 +60,20 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 
 	private void ensureFolderStructure() {
 		NodeRef companyHome = nodeLocatorService.getNode("companyhome", null, null);
-		NodeRef dataDictionary = nodeService.getChildByName(companyHome, ContentModel.ASSOC_CONTAINS, "Data Dictionary");
-		if (dataDictionary == null) {
-			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Data Dictionary not found");
-		}
+		NodeRef dataDictionary = getDataDictionary(companyHome);
 		baseFolderRef = getOrCreateFolder(dataDictionary, basePath);
 		fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
+	}
+
+	private NodeRef getDataDictionary(NodeRef companyHome) {
+		List<ChildAssociationRef> assocs = nodeService.getChildAssocs(companyHome, ContentModel.ASSOC_CONTAINS, QName
+				.createQName(NamespaceService.APP_MODEL_1_0_URI, "dictionary"));
+		if (assocs.isEmpty()) {
+			throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR,
+					"Data Dictionary (app:dictionary) not found");
+		}
+		return assocs.get(0)
+				.getChildRef();
 	}
 
 	private void ensureDefaultConfig() {
