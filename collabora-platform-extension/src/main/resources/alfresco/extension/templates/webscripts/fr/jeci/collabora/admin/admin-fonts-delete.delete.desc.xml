@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+	<shortname>Admin - Delete Collabora Font</shortname>
+	<description>Deletes a font file from Collabora Online</description>
+	<url>/collabora/admin/fonts/{font_name}</url>
+	<family>Collabora Online</family>
+	<authentication>admin</authentication>
+	<format default="json"></format>
+	<transaction>required</transaction>
+</webscript>

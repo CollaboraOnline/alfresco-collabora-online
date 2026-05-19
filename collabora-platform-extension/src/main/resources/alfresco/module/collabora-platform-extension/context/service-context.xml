@@ -48,6 +48,16 @@ SPDX-License-Identifier: Apache-2.0
       <property name="attributeService" ref="AttributeService"/>
   </bean>
 
+  <bean id="RemoteConfigService"
+        class="fr.jeci.collabora.alfresco.remoteconfig.RemoteConfigServiceImpl" init-method="init">
+      <property name="basePath" value="${fr.jeci.collabora.remoteConfig.basePath}"/>
+      <property name="fontsBaseUrl" value="${fr.jeci.collabora.remoteConfig.fontsUrl}"/>
+      <property name="nodeService" ref="NodeService"/>
+      <property name="contentService" ref="ContentService"/>
+      <property name="fileFolderService" ref="FileFolderService"/>
+      <property name="nodeLocatorService" ref="nodeLocatorService"/>
+  </bean>
+
   <bean id="WopiDiscovery"
         class="fr.jeci.collabora.alfresco.WopiDiscovery" init-method="init">
       <property name="collaboraPrivateUrl" value="${collabora.private.url}"/>

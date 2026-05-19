@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+	<shortname>Collabora Online Font File</shortname>
+	<description>Serves individual font files for Collabora Online</description>
+	<url>/collabora/fonts/{font_name}</url>
+	<family>Collabora Online</family>
+	<authentication>none</authentication>
+	<format default=""></format>
+	<transaction>required</transaction>
+</webscript>

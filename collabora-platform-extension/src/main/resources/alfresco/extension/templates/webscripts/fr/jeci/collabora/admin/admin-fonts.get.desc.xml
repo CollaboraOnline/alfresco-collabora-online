@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+	<shortname>Admin - List Collabora Fonts</shortname>
+	<description>Lists available font files for Collabora Online</description>
+	<url>/collabora/admin/fonts</url>
+	<family>Collabora Online</family>
+	<authentication>admin</authentication>
+	<format default="json"></format>
+	<transaction>required</transaction>
+</webscript>

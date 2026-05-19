@@ -82,7 +82,7 @@ public class FeatureRestrictionServiceImplTest {
 		users.add("user1");
 		users.add("user2");
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		Set<String> result = service.getLicensedUsers();
 		assertEquals(2, result.size());
@@ -97,7 +97,7 @@ public class FeatureRestrictionServiceImplTest {
 		users.add("user2");
 		users.add("user3");
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		assertEquals(3, service.getLicenseCount());
 	}
@@ -107,7 +107,7 @@ public class FeatureRestrictionServiceImplTest {
 		service.setEnabled(true);
 
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(new HashSet<>());
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(new HashSet<>());
 
 		service.grantLicense("newuser");
 
@@ -123,7 +123,7 @@ public class FeatureRestrictionServiceImplTest {
 		users.add("user1");
 		users.add("user2");
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		service.grantLicense("user3");
 	}
@@ -137,7 +137,7 @@ public class FeatureRestrictionServiceImplTest {
 			users.add("user" + i);
 		}
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		Set<String> emptyForNewUser = new HashSet<>(users);
 		service.grantLicense("newuser");
@@ -152,7 +152,7 @@ public class FeatureRestrictionServiceImplTest {
 		Set<String> users = new HashSet<>();
 		users.add("user1");
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		service.grantLicense("user1");
 	}
@@ -162,7 +162,7 @@ public class FeatureRestrictionServiceImplTest {
 		Set<String> users = new HashSet<>();
 		users.add("user1");
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(users);
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(users);
 
 		service.revokeLicense("user1");
 
@@ -172,7 +172,7 @@ public class FeatureRestrictionServiceImplTest {
 	@Test(expected = WebScriptException.class)
 	public void testRevokeLicense_notMember() {
 		when(authorityService.authorityExists(GROUP_NAME)).thenReturn(true);
-		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, true)).thenReturn(new HashSet<>());
+		when(authorityService.getContainedAuthorities(AuthorityType.USER, GROUP_NAME, false)).thenReturn(new HashSet<>());
 
 		service.revokeLicense("unknown");
 	}

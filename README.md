@@ -271,6 +271,64 @@ fr.jeci.collabora.renditions=doclib,pdf
 fr.jeci.collabora.renditions=
 ```
 
+### Remote/Dynamic Configuration
+
+This feature implements [Collabora Online Remote Configuration](https://sdk.collaboraonline.com/docs/installation/Configuration.html#remote-dynamic-configuration) to allow Alfresco to serve configuration and custom fonts to Collabora Online. Collabora polls the remote config endpoint every 60 seconds using ETag-based caching.
+
+Configuration and fonts are stored in the Alfresco repository under `/Data Dictionary/collabora-online/`.
+
+#### `fr.jeci.collabora.remoteConfig.basePath` (Optional)
+**Type:** String
+**Default:** `collabora-online`
+
+Folder name under `/Data Dictionary/` for storing the Collabora configuration and fonts. Created automatically on first startup.
+
+#### `fr.jeci.collabora.remoteConfig.fontsUrl` (Optional)
+**Type:** URL
+**Default:** `${alfresco.public.url}/s/collabora/fonts`
+
+Public base URL for serving font files. This URL is used in the font configuration JSON to build font URIs.
+
+#### Public Endpoints (no authentication)
+
+These endpoints are called by Collabora Online directly and require no authentication. Secure them at the network/reverse proxy level.
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/collabora/remote-config` | GET | Main configuration JSON (polled by coolwsd every 60s) |
+| `/collabora/fonts-config` | GET | Font configuration JSON (generated from fonts folder) |
+| `/collabora/fonts/{font_name}` | GET | Serves individual font files |
+
+#### Admin Endpoints
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/collabora/admin/remote-config` | GET | Read current configuration |
+| `/collabora/admin/remote-config` | POST | Update configuration (JSON body with `"kind": "configuration"`) |
+| `/collabora/admin/fonts` | GET | List available fonts |
+| `/collabora/admin/fonts?name={name}` | POST | Upload a font file (binary body) |
+| `/collabora/admin/fonts/{font_name}` | DELETE | Delete a font |
+
+#### Collabora Online Server Configuration
+
+Configure `coolwsd.xml` to point to the Alfresco remote config endpoint:
+
+```xml
+<remote_config>
+    <remote_url type="string" default="">https://alfresco.example.com/alfresco/s/collabora/remote-config</remote_url>
+</remote_config>
+```
+
+#### Font Preloading with pristy-init
+
+Use the `pristy-init` example configuration to preload fonts:
+
+```bash
+pristy-init --server http://localhost:8080 --app collabora-online --init-file examples/collabora-online/init.yaml
+```
+
+See `pristy-init/examples/collabora-online/` for the full configuration.
+
 ### Feature Restriction (License Management)
 
 This feature implements [Collabora Online Feature Restriction](https://sdk.collaboraonline.com/docs/installation/Configuration.html#feature-restriction) to manage user licenses. When enabled, only users belonging to a configurable Alfresco group can fully edit documents. Other users receive `IsUserLocked=true` in the WOPI CheckFileInfo response, which — combined with `feature_lock.is_lock_readonly=true` in Collabora's `coolwsd.xml` — forces them into read-only mode.
@@ -371,6 +429,10 @@ lool.wopi.token.ttl=86400000
 
 # Renditions (optional)
 fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
+
+# Remote/Dynamic Configuration (optional)
+fr.jeci.collabora.remoteConfig.basePath=collabora-online
+fr.jeci.collabora.remoteConfig.fontsUrl=https://alfresco.example.com/alfresco/s/collabora/fonts
 
 # Feature Restriction (optional - disabled by default)
 fr.jeci.collabora.featureRestriction.enabled=false

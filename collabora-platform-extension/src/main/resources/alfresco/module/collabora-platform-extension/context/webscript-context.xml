@@ -104,4 +104,56 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
 	</bean>
 
+	<!-- Remote Configuration Webscripts (public, no auth) -->
+
+	<bean id="webscript.fr.jeci.collabora.remote-config.remote-config.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.RemoteConfigWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.remote-config.fonts-config.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.FontsConfigWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.fonts.font-file.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.FontFileWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<!-- Remote Configuration Admin Webscripts -->
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-remote-config.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.AdminGetConfigWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-remote-config.post"
+		class="fr.jeci.collabora.alfresco.remoteconfig.AdminUpdateConfigWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-fonts.get"
+		class="fr.jeci.collabora.alfresco.remoteconfig.AdminListFontsWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-fonts.post"
+		class="fr.jeci.collabora.alfresco.remoteconfig.AdminUploadFontWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.admin.admin-fonts-delete.delete"
+		class="fr.jeci.collabora.alfresco.remoteconfig.AdminDeleteFontWebScript"
+		parent="webscript">
+		<property name="remoteConfigService" ref="RemoteConfigService" />
+	</bean>
+
 </beans>
