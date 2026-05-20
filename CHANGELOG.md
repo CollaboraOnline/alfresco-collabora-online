@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.5.2] - 2026-05-20
+
+### Bug Fixes
+
+- **restriction**: Run hasLicense authority check as system user
+
+### Features
+
+- **restriction**: Send email notification on license quota change
+
+### Miscellaneous
+
+- **version**: 1.5.2-SNAPSHOT
 ## [1.5.1] - 2026-05-19
 
 ### Miscellaneous
