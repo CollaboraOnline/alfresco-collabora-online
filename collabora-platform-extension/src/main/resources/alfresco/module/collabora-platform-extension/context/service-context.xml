@@ -46,6 +46,10 @@ SPDX-License-Identifier: Apache-2.0
       <property name="initialMaxLicenses" value="${fr.jeci.collabora.featureRestriction.maxLicenses}"/>
       <property name="authorityService" ref="AuthorityService"/>
       <property name="attributeService" ref="AttributeService"/>
+      <property name="actionService" ref="ActionService"/>
+      <property name="nodeService" ref="NodeService"/>
+      <property name="personService" ref="PersonService"/>
+      <property name="notificationFrom" value="${fr.jeci.collabora.featureRestriction.notificationFrom}"/>
   </bean>
 
   <bean id="RemoteConfigService"

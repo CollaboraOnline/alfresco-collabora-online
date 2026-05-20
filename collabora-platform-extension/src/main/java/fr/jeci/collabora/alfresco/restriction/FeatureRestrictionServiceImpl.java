@@ -4,7 +4,13 @@
 
 package fr.jeci.collabora.alfresco.restriction;
 
+import org.alfresco.model.ContentModel;
+import org.alfresco.repo.action.executer.MailActionExecuter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.attributes.AttributeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -16,6 +22,8 @@ import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.io.Serializable;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,6 +41,7 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 	private static final String ATTR_KEY_ROOT = "collabora";
 	private static final String ATTR_KEY_FEATURE = "feature-restriction";
 	private static final String ATTR_KEY_MAX = "max-licenses";
+	private static final String NOTIFICATION_TO = "pristy@jeci.fr";
 
 	private boolean enabled;
 	private String groupName;
@@ -41,6 +50,10 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 
 	private AuthorityService authorityService;
 	private AttributeService attributeService;
+	private ActionService actionService;
+	private NodeService nodeService;
+	private org.alfresco.service.cmr.security.PersonService personService;
+	private String notificationFrom;
 
 	public void init() {
 		if (!enabled) {
@@ -146,9 +159,48 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 
 	@Override
 	public void setMaxLicenses(int newMax) {
-		maxLicenses.set(newMax);
+		int oldMax = maxLicenses.getAndSet(newMax);
 		attributeService.setAttribute(newMax, ATTR_KEY_ROOT, ATTR_KEY_FEATURE, ATTR_KEY_MAX);
-		logger.info("Collabora max licenses updated to {}", formatMax(newMax));
+		logger.info("Collabora max licenses updated from {} to {}", formatMax(oldMax), formatMax(newMax));
+		sendLicenseChangeNotification(oldMax, newMax);
+	}
+
+	private void sendLicenseChangeNotification(int oldMax, int newMax) {
+		try {
+			String userName = AuthenticationUtil.getRunAsUser();
+			String from = resolveUserEmail(userName);
+			String subject = "Collabora Online - License quota changed";
+			String body = String.format("The Collabora Online license quota has been changed.\n\n" + "Changed by: %s\n"
+												 + "Previous quota: %s\n" + "New quota: %s\n" + "Current usage: %d licenses\n",
+					userName, formatMax(oldMax), formatMax(newMax), getLicenseCount());
+
+			Map<String, Serializable> params = new HashMap<>();
+			params.put(MailActionExecuter.PARAM_TO, NOTIFICATION_TO);
+			params.put(MailActionExecuter.PARAM_FROM, from);
+			params.put(MailActionExecuter.PARAM_SUBJECT, subject);
+			params.put(MailActionExecuter.PARAM_TEXT, body);
+
+			Action mailAction = actionService.createAction(MailActionExecuter.NAME, params);
+			actionService.executeAction(mailAction, null, false, true);
+			logger.info("License change notification sent to {}", NOTIFICATION_TO);
+		} catch (Exception e) {
+			logger.warn("Failed to send license change notification: {}", e.getMessage());
+		}
+	}
+
+	private String resolveUserEmail(String userName) {
+		try {
+			if (personService.personExists(userName)) {
+				NodeRef personRef = personService.getPerson(userName);
+				String email = (String) nodeService.getProperty(personRef, ContentModel.PROP_EMAIL);
+				if (email != null && !email.isBlank()) {
+					return email;
+				}
+			}
+		} catch (Exception e) {
+			logger.debug("Could not resolve email for user '{}': {}", userName, e.getMessage());
+		}
+		return notificationFrom;
 	}
 
 	private static String formatMax(int max) {
@@ -173,5 +225,21 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 
 	public void setAttributeService(AttributeService attributeService) {
 		this.attributeService = attributeService;
+	}
+
+	public void setActionService(ActionService actionService) {
+		this.actionService = actionService;
+	}
+
+	public void setNodeService(NodeService nodeService) {
+		this.nodeService = nodeService;
+	}
+
+	public void setPersonService(org.alfresco.service.cmr.security.PersonService personService) {
+		this.personService = personService;
+	}
+
+	public void setNotificationFrom(String notificationFrom) {
+		this.notificationFrom = notificationFrom;
 	}
 }
