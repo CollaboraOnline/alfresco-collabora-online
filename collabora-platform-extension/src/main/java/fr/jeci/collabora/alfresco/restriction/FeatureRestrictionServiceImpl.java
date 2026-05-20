@@ -89,8 +89,10 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 		if (!enabled) {
 			return true;
 		}
-		Set<String> authorities = authorityService.getAuthoritiesForUser(userName);
-		return authorities.contains(groupName);
+		return AuthenticationUtil.runAsSystem(() -> {
+			Set<String> authorities = authorityService.getAuthoritiesForUser(userName);
+			return authorities.contains(groupName);
+		});
 	}
 
 	@Override
