@@ -21,8 +21,10 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
+import org.springframework.dao.ConcurrencyFailureException;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.ArrayUtils;
@@ -213,6 +215,42 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			}
 
 		}, false, true);
+	}
+
+
+	/**
+	 * Wrapper around versionService.getCurrentVersion that auto-repairs corrupted version labels.
+	 * When cm:versionLabel on the live node is out of sync with the version store head,
+	 * Alfresco throws ConcurrencyFailureException. This method repairs cm:versionLabel
+	 * by reading the head version from the version history and retries.
+	 */
+	protected Version getOrRepairCurrentVersion(final NodeRef nodeRef) {
+		try {
+			return versionService.getCurrentVersion(nodeRef);
+		} catch (ConcurrencyFailureException e) {
+			logger.warn("Corrupted version label on node {} — attempting repair", nodeRef);
+			return repairVersionLabel(nodeRef);
+		}
+	}
+
+	private Version repairVersionLabel(final NodeRef nodeRef) {
+		VersionHistory history = versionService.getVersionHistory(nodeRef);
+		if (history == null) {
+			logger.warn("No version history found for node {} — cannot repair", nodeRef);
+			return null;
+		}
+
+		Version headVersion = history.getHeadVersion();
+		if (headVersion == null) {
+			logger.warn("No head version found for node {} — cannot repair", nodeRef);
+			return null;
+		}
+
+		String headLabel = headVersion.getVersionLabel();
+		logger.warn("Repairing cm:versionLabel on node {} to head version '{}'", nodeRef, headLabel);
+		nodeService.setProperty(nodeRef, ContentModel.PROP_VERSION_LABEL, headLabel);
+
+		return headVersion;
 	}
 
 	protected void askForRendition(final NodeRef nodeRef) {

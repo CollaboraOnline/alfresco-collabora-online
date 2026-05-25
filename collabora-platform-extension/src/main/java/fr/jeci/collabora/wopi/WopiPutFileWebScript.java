@@ -126,7 +126,7 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	 */
 	private void checkWopiTimestamp(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
 			throws IOException {
-		final Version currentVersion = versionService.getCurrentVersion(nodeRef);
+		final Version currentVersion = getOrRepairCurrentVersion(nodeRef);
 
 		if (currentVersion != null) {
 			// Check if X-LOOL-WOPI-Timestamp
