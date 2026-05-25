@@ -190,33 +190,44 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 			// Inhibit auto-version, we will create Version manually
 			this.behaviourFilter.disableBehaviour(ContentModel.ASPECT_VERSIONABLE);
+			Version newVersion = null;
 			try {
-				ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
-				// both streams are closed by putContent
-				writer.putContent(new BufferedInputStream(inputStream));
-			} catch (Exception e) {
-				logger.warn("Exception when writing content \"{}\": \"{}\" - will retry", nodeRef, e.getMessage());
-				throw new AlfrescoRuntimeException("Error when writing content - retry", e);
+				writeContent(inputStream, nodeRef);
+				newVersion = createVersion(isAutosave, nodeRef);
 			} finally {
 				this.behaviourFilter.enableBehaviour(ContentModel.ASPECT_VERSIONABLE);
 			}
 
-			try {
-				Map<String, Serializable> versionProperties = new HashMap<>(2);
-				versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
-				if (isAutosave) {
-					versionProperties.put(VersionBaseModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
-				}
-				versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
-				return versionService.createVersion(nodeRef, versionProperties);
-			} catch (Exception e) {
-				logger.warn("Exception when creating version \"{}\": \"{}\" - will retry", nodeRef, e.getMessage());
-				throw new AlfrescoRuntimeException("Error when creating version - retry", e);
-			}
+			return newVersion;
 
 		}, false, true);
 	}
 
+	private void writeContent(InputStream inputStream, NodeRef nodeRef) {
+		try {
+			ContentWriter writer = contentService.getWriter(nodeRef, ContentModel.PROP_CONTENT, true);
+			// both streams are closed by putContent
+			writer.putContent(new BufferedInputStream(inputStream));
+		} catch (Exception e) {
+			logger.warn("Exception when writing content \"{}\": \"{}\" - will retry", nodeRef, e.getMessage());
+			throw new AlfrescoRuntimeException("Error when writing content - retry", e);
+		}
+	}
+
+	private Version createVersion(boolean isAutosave, NodeRef nodeRef) {
+		try {
+			Map<String, Serializable> versionProperties = new HashMap<>(2);
+			versionProperties.put(VersionBaseModel.PROP_VERSION_TYPE, VersionType.MINOR);
+			if (isAutosave) {
+				versionProperties.put(VersionBaseModel.PROP_DESCRIPTION, CollaboraOnlineService.AUTOSAVE_DESCRIPTION);
+			}
+			versionProperties.put(CollaboraOnlineService.LOOL_AUTOSAVE, isAutosave);
+			return versionService.createVersion(nodeRef, versionProperties);
+		} catch (Exception e) {
+			logger.warn("Exception when creating version \"{}\": \"{}\" - will retry", nodeRef, e.getMessage());
+			throw new AlfrescoRuntimeException("Error when creating version - retry", e);
+		}
+	}
 
 	/**
 	 * Wrapper around versionService.getCurrentVersion that auto-repairs corrupted version labels.
