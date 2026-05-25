@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.5.3] - 2026-05-25
+
+### Bug Fixes
+
+- **wopi**: Auto-repair corrupted cm:versionLabel on WOPI calls
+- **wopi**: Create version erlier, in the try finally block
+
+### Miscellaneous
+
+- **version**: 1.5.3-SNAPSHOT
 ## [1.5.2] - 2026-05-20
 
 ### Bug Fixes
