@@ -53,6 +53,7 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 	private ActionService actionService;
 	private NodeService nodeService;
 	private org.alfresco.service.cmr.security.PersonService personService;
+	private org.alfresco.repo.admin.SysAdminParams sysAdminParams;
 	private String notificationFrom;
 
 	public void init() {
@@ -169,10 +170,12 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 		try {
 			String userName = AuthenticationUtil.getRunAsUser();
 			String from = resolveUserEmail(userName);
+			String server = resolveServerName();
 			String subject = "Collabora Online - License quota changed";
-			String body = String.format("The Collabora Online license quota has been changed.\n\n" + "Changed by: %s\n"
-												 + "Previous quota: %s\n" + "New quota: %s\n" + "Current usage: %d licenses\n",
-					userName, formatMax(oldMax), formatMax(newMax), getLicenseCount());
+			String body = String.format("The Collabora Online license quota has been changed.\n\n" + "Server: %s\n"
+												 + "Changed by: %s\n" + "Previous quota: %s\n" + "New quota: %s\n"
+												 + "Current usage: %d licenses\n", server, userName, formatMax(oldMax),
+					formatMax(newMax), getLicenseCount());
 
 			Map<String, Serializable> params = new HashMap<>();
 			params.put(MailActionExecuter.PARAM_TO, NOTIFICATION_TO);
@@ -201,6 +204,24 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 			logger.debug("Could not resolve email for user '{}': {}", userName, e.getMessage());
 		}
 		return notificationFrom;
+	}
+
+	/**
+	 * Resolves the configured Alfresco host (from {@code alfresco.host}) so the notification identifies which server the
+	 * change was made on. Falls back to the local hostname when {@link org.alfresco.repo.admin.SysAdminParams} is unset.
+	 */
+	private String resolveServerName() {
+		if (sysAdminParams != null) {
+			String host = sysAdminParams.getAlfrescoHost();
+			if (host != null && !host.isBlank()) {
+				return host;
+			}
+		}
+		try {
+			return java.net.InetAddress.getLocalHost().getHostName();
+		} catch (Exception e) {
+			return "unknown";
+		}
 	}
 
 	private static String formatMax(int max) {
@@ -237,6 +258,10 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 
 	public void setPersonService(org.alfresco.service.cmr.security.PersonService personService) {
 		this.personService = personService;
+	}
+
+	public void setSysAdminParams(org.alfresco.repo.admin.SysAdminParams sysAdminParams) {
+		this.sysAdminParams = sysAdminParams;
 	}
 
 	public void setNotificationFrom(String notificationFrom) {
