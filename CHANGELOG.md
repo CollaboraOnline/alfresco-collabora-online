@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.4] - 2026-06-04
+
+### Features
+
+- **restriction**: Add server name to license change email
+- **wopi**: Use full name for UserFriendlyName in CheckFileInfo
+
 ## [1.5.3] - 2026-05-25
 
 ### Bug Fixes
