@@ -58,6 +58,7 @@ SPDX-License-Identifier: Apache-2.0
 		parent="abstract-wopi-webscript">
 		<property name="permissionService" ref="PermissionService" />
 		<property name="authorityService" ref="AuthorityService" />
+		<property name="personService" ref="PersonService" />
 		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
 	</bean>
 

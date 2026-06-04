@@ -174,8 +174,8 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 			String subject = "Collabora Online - License quota changed";
 			String body = String.format("The Collabora Online license quota has been changed.\n\n" + "Server: %s\n"
 												 + "Changed by: %s\n" + "Previous quota: %s\n" + "New quota: %s\n"
-												 + "Current usage: %d licenses\n", server, userName, formatMax(oldMax),
-					formatMax(newMax), getLicenseCount());
+												 + "Current usage: %d licenses\n", server, userName, formatMax(oldMax), formatMax(
+														 newMax), getLicenseCount());
 
 			Map<String, Serializable> params = new HashMap<>();
 			params.put(MailActionExecuter.PARAM_TO, NOTIFICATION_TO);
@@ -218,7 +218,8 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 			}
 		}
 		try {
-			return java.net.InetAddress.getLocalHost().getHostName();
+			return java.net.InetAddress.getLocalHost()
+					.getHostName();
 		} catch (Exception e) {
 			return "unknown";
 		}

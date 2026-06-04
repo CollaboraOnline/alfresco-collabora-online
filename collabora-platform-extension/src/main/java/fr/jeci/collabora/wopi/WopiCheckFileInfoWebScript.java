@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 
 import fr.jeci.collabora.alfresco.restriction.FeatureRestrictionService;
 import org.alfresco.service.cmr.version.Version;
@@ -52,6 +53,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private AuthorityService authorityService;
 	private PermissionService permissionService;
+	private PersonService personService;
 	private FeatureRestrictionService featureRestrictionService;
 
 	@Override
@@ -83,7 +85,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		String userName = AuthenticationUtil.getRunAsUser();
 		model.put(USER_ID, userName);
 		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef)));
-		model.put(USER_FRIENDLY_NAME, userName);
+		model.put(USER_FRIENDLY_NAME, resolveUserFriendlyName(userName));
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
 		boolean isGuest = authorityService.isGuestAuthority(userName);
@@ -117,12 +119,34 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		return AccessStatus.ALLOWED == perm;
 	}
 
+	/**
+	 * Builds the display name shown in the Collabora UI (cursor labels, avatars, change attribution) from the person's
+	 * first and last name. Falls back to the login when neither is set, so the field is never blank.
+	 */
+	private String resolveUserFriendlyName(final String userName) {
+		if (personService.personExists(userName)) {
+			NodeRef personRef = personService.getPerson(userName);
+			Map<QName, Serializable> personProps = nodeService.getProperties(personRef);
+			String firstName = (String) personProps.get(ContentModel.PROP_FIRSTNAME);
+			String lastName = (String) personProps.get(ContentModel.PROP_LASTNAME);
+			String fullName = ((firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "")).trim();
+			if (!fullName.isEmpty()) {
+				return fullName;
+			}
+		}
+		return userName;
+	}
+
 	public void setAuthorityService(AuthorityService authorityService) {
 		this.authorityService = authorityService;
 	}
 
 	public void setPermissionService(PermissionService permissionService) {
 		this.permissionService = permissionService;
+	}
+
+	public void setPersonService(PersonService personService) {
+		this.personService = personService;
 	}
 
 	public void setFeatureRestrictionService(FeatureRestrictionService featureRestrictionService) {
