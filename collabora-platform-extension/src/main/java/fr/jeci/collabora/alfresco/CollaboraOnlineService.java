@@ -46,6 +46,19 @@ public interface CollaboraOnlineService {
 	WOPIAccessTokenInfo checkAccessToken(final String accessToken, final NodeRef nodeRef);
 
 	/**
+	 * Resolve an access token to its info without binding it to a file.
+	 * <p>
+	 * Used by the WOPI Settings endpoints, where the {@code fileId} is a virtual settings path (or {@code -1}) rather
+	 * than a document nodeRef. Only the token's existence and expiry are validated; the resolved {@code userName}
+	 * drives the runAs.
+	 *
+	 * @param accessToken Current Access Token
+	 * @return Access Token info
+	 * @throws org.springframework.extensions.webscripts.WebScriptException if the token is missing, unknown or expired
+	 */
+	WOPIAccessTokenInfo resolveToken(final String accessToken);
+
+	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.
 	 *
 	 * @param nodeRef Node to lock

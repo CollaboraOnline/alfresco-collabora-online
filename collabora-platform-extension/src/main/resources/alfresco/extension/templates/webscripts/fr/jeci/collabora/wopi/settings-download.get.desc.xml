@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+    <shortname>Wopi Download Settings</shortname>
+    <description>WOPI Settings API - serve the raw content of a single settings file</description>
+    <url>/wopi/settings/download?fileId={fileId}&amp;access_token={access_token}</url>
+    <family>WOPI</family>
+    <authentication>none</authentication>
+    <format default="">argument</format>
+    <transaction>required</transaction>
+</webscript>

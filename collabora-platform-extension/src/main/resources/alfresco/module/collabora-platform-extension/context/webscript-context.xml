@@ -79,6 +79,32 @@ SPDX-License-Identifier: Apache-2.0
 	</bean>
 
 
+	<!-- WOPI Settings API (UserSettings / SharedSettings) -->
+
+	<bean id="abstract-wopi-settings-webscript" abstract="true"
+		class="fr.jeci.collabora.wopi.AbstractWopiSettingsWebScript"
+		parent="webscript">
+		<property name="collaboraOnlineService" ref="CollaboraOnlineService" />
+		<property name="collaboraSettingsService" ref="CollaboraSettingsService" />
+	</bean>
+
+	<bean id="webscript.fr.jeci.collabora.wopi.settings.get"
+		class="fr.jeci.collabora.wopi.WopiFetchSettingsWebScript"
+		parent="abstract-wopi-settings-webscript" />
+
+	<bean id="webscript.fr.jeci.collabora.wopi.settings-download.get"
+		class="fr.jeci.collabora.wopi.WopiDownloadSettingsWebScript"
+		parent="abstract-wopi-settings-webscript" />
+
+	<bean id="webscript.fr.jeci.collabora.wopi.settings-upload.post"
+		class="fr.jeci.collabora.wopi.WopiUploadSettingsWebScript"
+		parent="abstract-wopi-settings-webscript" />
+
+	<bean id="webscript.fr.jeci.collabora.wopi.settings.delete"
+		class="fr.jeci.collabora.wopi.WopiDeleteSettingsWebScript"
+		parent="abstract-wopi-settings-webscript" />
+
+
 	<!-- License Management Webscripts -->
 
 	<bean id="webscript.fr.jeci.collabora.license.license.get"

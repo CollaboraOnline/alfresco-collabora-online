@@ -1,0 +1,131 @@
+// SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+//
+// SPDX-License-Identifier: Apache-2.0
+
+package fr.jeci.collabora.alfresco.settings;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.junit.Before;
+import org.junit.Test;
+import org.springframework.extensions.webscripts.WebScriptException;
+
+import fr.jeci.collabora.alfresco.settings.CollaboraSettingsServiceImpl.ParsedPath;
+
+public class CollaboraSettingsServiceImplTest {
+
+	private CollaboraSettingsServiceImpl service;
+	private AuthorityService authorityService;
+	private NodeService nodeService;
+
+	@Before
+	public void setUp() {
+		service = new CollaboraSettingsServiceImpl();
+		authorityService = mock(AuthorityService.class);
+		nodeService = mock(NodeService.class);
+		service.setAuthorityService(authorityService);
+		service.setNodeService(nodeService);
+		service.setDownloadBaseUrl("https://acs.example.com/s/wopi/settings/download");
+	}
+
+	// ========== Path parsing ==========
+
+	@Test
+	public void testParse_userConfigPath() {
+		ParsedPath path = service.parse("/settings/userconfig/wordbook/en_US.dic");
+
+		assertEquals(CollaboraSettingsService.TYPE_USERCONFIG, path.type);
+		assertEquals(List.of("wordbook"), path.folders);
+		assertEquals("en_US.dic", path.filename);
+	}
+
+	@Test
+	public void testParse_systemConfigBrowserSetting() {
+		ParsedPath path = service.parse("/settings/systemconfig/browsersetting/browsersetting.json");
+
+		assertEquals(CollaboraSettingsService.TYPE_SYSTEMCONFIG, path.type);
+		assertEquals(List.of("browsersetting"), path.folders);
+		assertEquals("browsersetting.json", path.filename);
+	}
+
+	@Test
+	public void testParse_nestedCategories() {
+		ParsedPath path = service.parse("/settings/userconfig/autotext/group/entry.bau");
+
+		assertEquals(List.of("autotext", "group"), path.folders);
+		assertEquals("entry.bau", path.filename);
+		assertEquals("/settings/userconfig/autotext/group/entry.bau", path.virtualPath());
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testParse_rejectsMissingPrefix() {
+		service.parse("/foo/userconfig/wordbook/en_US.dic");
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testParse_rejectsUnknownType() {
+		service.parse("/settings/bogusconfig/wordbook/en_US.dic");
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testParse_rejectsTraversal() {
+		service.parse("/settings/userconfig/../../etc/passwd");
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testParse_rejectsTooShort() {
+		service.parse("/settings/userconfig/en_US.dic");
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testParse_rejectsNull() {
+		service.parse(null);
+	}
+
+	// ========== Download URI ==========
+
+	@Test
+	public void testBuildDownloadUri_encodesFileId() {
+		String uri = service.buildDownloadUri("/settings/userconfig/wordbook/en US.dic");
+
+		assertTrue("uri should target the download endpoint", uri.startsWith(
+				"https://acs.example.com/s/wopi/settings/download?fileId="));
+		assertTrue("path separators should be percent-encoded", uri.contains("%2Fsettings%2Fuserconfig"));
+		assertTrue("space should be encoded", uri.contains("en+US.dic") || uri.contains("en%20US.dic"));
+	}
+
+	// ========== Shared settings authorization ==========
+
+	@Test(expected = WebScriptException.class)
+	public void testUploadSystemConfig_deniedForNonAdmin() {
+		when(authorityService.hasAdminAuthority()).thenReturn(false);
+
+		InputStream content = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+		service.uploadSettingsFile("/settings/systemconfig/wordbook/en_US.dic", content, null);
+	}
+
+	@Test
+	public void testDeleteSystemConfig_deniedForNonAdmin_doesNotTouchRepository() {
+		when(authorityService.hasAdminAuthority()).thenReturn(false);
+
+		try {
+			service.deleteSettingsFile("/settings/systemconfig/wordbook/en_US.dic");
+		} catch (WebScriptException expected) {
+			// admin gate must fire before any node access
+		}
+
+		verify(nodeService, never()).deleteNode(org.mockito.ArgumentMatchers.any());
+	}
+}

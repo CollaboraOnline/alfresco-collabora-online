@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+    <shortname>Wopi Upload Settings</shortname>
+    <description>WOPI Settings API - create or replace a settings file (multipart 'file' field)</description>
+    <url>/wopi/settings/upload?fileId={fileId}&amp;access_token={access_token}</url>
+    <family>WOPI</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

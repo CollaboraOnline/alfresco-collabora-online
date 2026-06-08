@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+    <shortname>Wopi Fetch Settings</shortname>
+    <description>WOPI Settings API - list available user/shared settings files. See https://sdk.collaboraonline.com/docs/advanced_integration.html</description>
+    <url>/wopi/settings?type={type}&amp;fileId={fileId?}&amp;access_token={access_token}</url>
+    <family>WOPI</family>
+    <authentication>none</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>

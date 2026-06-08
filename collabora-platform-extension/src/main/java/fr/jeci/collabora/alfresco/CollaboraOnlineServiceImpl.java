@@ -189,6 +189,27 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	@Override
+	public WOPIAccessTokenInfo resolveToken(final String accessToken) {
+		if (accessToken == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "AccessToken is null");
+		}
+
+		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
+
+		if (tokenInfo == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + WOPIAccessTokenInfo
+					.maskToken(accessToken));
+		}
+
+		if (!tokenInfo.isValid()) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token expired for " + WOPIAccessTokenInfo.maskToken(
+					accessToken));
+		}
+
+		return tokenInfo;
+	}
+
+	@Override
 	public Map<String, String> serverInfo() {
 		return new HashMap<>(this.serverInfo);
 	}
