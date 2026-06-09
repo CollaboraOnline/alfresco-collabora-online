@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0] - 2026-06-09
+
+### Documentation
+
+- Document the WOPI Settings API and endpoints
+
+### Features
+
+- **wopi**: Support UserSettings and SharedSettings
+- **vue**: Add CollaboraSettingsIframe component
+- **wopi**: Add settings iframe launch endpoint
+
 ## [1.5.4] - 2026-06-04
 
 ### Features
