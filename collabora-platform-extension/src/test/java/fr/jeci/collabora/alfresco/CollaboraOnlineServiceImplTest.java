@@ -8,7 +8,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -16,10 +21,17 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
+import org.alfresco.repo.cache.SimpleCache;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.joda.time.LocalDateTime;
+import org.springframework.extensions.webscripts.WebScriptException;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.impl.AllowPermissionServiceImpl;
@@ -43,6 +55,7 @@ public class CollaboraOnlineServiceImplTest {
 
 	NodeRef nodeRef = null;
 	NodeService nodeService = null;
+	SimpleCache<String, WOPIAccessTokenInfo> tokenCache = null;
 
 	static String LOCALHOST_SERVER = "http://localhost:8080/";
 	static String PUBLICHOST_SERVER = "https://my.server.demo.com/";
@@ -62,10 +75,22 @@ public class CollaboraOnlineServiceImplTest {
 		this.collaboraOnlineService.setAlfrescoPrivateURL(new URL(LOCALHOST_SERVER));
 		this.collaboraOnlineService.setAlfrescoPublicURL(new URL(PUBLICHOST_SERVER));
 
+		// Minimal in-memory cache backing the token map
+		final Map<String, WOPIAccessTokenInfo> backing = new HashMap<>();
+		@SuppressWarnings("unchecked") SimpleCache<String, WOPIAccessTokenInfo> cache = mock(SimpleCache.class);
+		when(cache.get(anyString())).thenAnswer(i -> backing.get(i.getArgument(0)));
+		doAnswer(i -> {
+			backing.put(i.getArgument(0), i.getArgument(1));
+			return null;
+		}).when(cache)
+				.put(anyString(), any());
+		this.tokenCache = cache;
+		this.collaboraOnlineService.setTokenMap(cache);
 	}
 
 	@After
 	public void tearDown() throws Exception {
+		AuthenticationUtil.clearCurrentSecurityContext();
 	}
 
 	@Test
@@ -200,6 +225,56 @@ public class CollaboraOnlineServiceImplTest {
 	public void testMaskToken_fiveChars() {
 		String masked = WOPIAccessTokenInfo.maskToken("abcde");
 		assertEquals("5-char token should show last 4", "****bcde", masked);
+	}
+
+	// ========== Settings token Tests ==========
+
+	@Test(expected = WebScriptException.class)
+	public void testCreateSettingsAccessToken_rejectsAnonymous() {
+		// No authenticated user in this lightweight harness
+		this.collaboraOnlineService.createSettingsAccessToken();
+	}
+
+	// ========== resolveToken (user-only, no file binding) ==========
+
+	@Test
+	public void testResolveToken_returnsStoredTokenWithoutFileCheck() {
+		LocalDateTime now = LocalDateTime.now();
+		WOPIAccessTokenInfo stored = new WOPIAccessTokenInfo("settings-token", now.minusMinutes(1), now.plusHours(1),
+				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
+		this.tokenCache.put("settings-token", stored);
+
+		WOPIAccessTokenInfo resolved = this.collaboraOnlineService.resolveToken("settings-token");
+
+		assertSame("resolveToken must not bind to a file", stored, resolved);
+		assertEquals("alice", resolved.getUserName());
+		assertEquals(CollaboraOnlineService.SETTINGS_FILE_ID, resolved.getFileId());
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testResolveToken_rejectsNull() {
+		this.collaboraOnlineService.resolveToken(null);
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testResolveToken_rejectsUnknownToken() {
+		this.collaboraOnlineService.resolveToken("does-not-exist");
+	}
+
+	@Test
+	public void testResolveToken_rejectsExpiredToken() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("expired-token", past, past.plusHours(1),
+				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
+		this.tokenCache.put("expired-token", expired);
+
+		try {
+			this.collaboraOnlineService.resolveToken("expired-token");
+			fail("Expected WebScriptException for expired token");
+		} catch (WebScriptException expectedException) {
+			// expected
+		}
 	}
 
 }

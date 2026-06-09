@@ -210,6 +210,26 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	@Override
+	public WOPIAccessTokenInfo createSettingsAccessToken() {
+		if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Cannot create settings token for System user");
+		}
+
+		final String userName = AuthenticationUtil.getFullyAuthenticatedUser();
+		if (userName == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No authenticated user");
+		}
+
+		LocalDateTime now = LocalDateTime.now();
+		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now),
+				SETTINGS_FILE_ID, userName);
+		this.tokenMap.put(tokenInfo.getAccessToken(), tokenInfo);
+
+		logger.debug("Created settings access token for user '{}'", userName);
+		return tokenInfo;
+	}
+
+	@Override
 	public Map<String, String> serverInfo() {
 		return new HashMap<>(this.serverInfo);
 	}

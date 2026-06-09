@@ -67,7 +67,7 @@ SPDX-License-Identifier: Apache-2.0
         class="fr.jeci.collabora.alfresco.settings.CollaboraSettingsServiceImpl" init-method="init">
       <property name="basePath" value="${fr.jeci.collabora.remoteConfig.basePath}"/>
       <property name="userPath" value="${fr.jeci.collabora.settings.userPath}"/>
-      <property name="downloadBaseUrl" value="${fr.jeci.collabora.settings.downloadUrl}"/>
+      <property name="wopiBaseUrl" value="${fr.jeci.collabora.settings.wopiBaseUrl}"/>
       <property name="nodeService" ref="NodeService"/>
       <property name="contentService" ref="ContentService"/>
       <property name="fileFolderService" ref="FileFolderService"/>

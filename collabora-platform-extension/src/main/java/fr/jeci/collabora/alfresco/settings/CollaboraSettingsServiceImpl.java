@@ -52,7 +52,7 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 
 	private String basePath;
 	private String userPath;
-	private String downloadBaseUrl;
+	private String wopiBaseUrl;
 
 	private NodeService nodeService;
 	private ContentService contentService;
@@ -331,8 +331,8 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		return Long.toString(modified != null ? modified.getTime() : 0);
 	}
 
-	String buildDownloadUri(String virtualPath) {
-		return downloadBaseUrl + "?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
+	private String buildDownloadUri(String virtualPath) {
+		return wopiBaseUrl + "/settings/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
 	}
 
 	private static String guessMimeType(String fileName) {
@@ -360,8 +360,8 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		this.userPath = userPath;
 	}
 
-	public void setDownloadBaseUrl(String downloadBaseUrl) {
-		this.downloadBaseUrl = downloadBaseUrl;
+	public void setWopiBaseUrl(String wopiBaseUrl) {
+		this.wopiBaseUrl = wopiBaseUrl;
 	}
 
 	public void setNodeService(NodeService nodeService) {

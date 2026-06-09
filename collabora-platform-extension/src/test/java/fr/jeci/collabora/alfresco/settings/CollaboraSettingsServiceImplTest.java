@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class CollaboraSettingsServiceImplTest {
 		nodeService = mock(NodeService.class);
 		service.setAuthorityService(authorityService);
 		service.setNodeService(nodeService);
-		service.setDownloadBaseUrl("https://acs.example.com/s/wopi/settings/download");
+		service.setWopiBaseUrl("https://acs.example.com/s/wopi");
 	}
 
 	// ========== Path parsing ==========
@@ -96,9 +97,18 @@ public class CollaboraSettingsServiceImplTest {
 
 	// ========== Download URI ==========
 
+	/**
+	 * Invoke the private buildDownloadUri(String) via reflection.
+	 */
+	private String invokeBuildDownloadUri(String virtualPath) throws Exception {
+		Method method = CollaboraSettingsServiceImpl.class.getDeclaredMethod("buildDownloadUri", String.class);
+		method.setAccessible(true);
+		return (String) method.invoke(service, virtualPath);
+	}
+
 	@Test
-	public void testBuildDownloadUri_encodesFileId() {
-		String uri = service.buildDownloadUri("/settings/userconfig/wordbook/en US.dic");
+	public void testBuildDownloadUri_encodesFileId() throws Exception {
+		String uri = invokeBuildDownloadUri("/settings/userconfig/wordbook/en US.dic");
 
 		assertTrue("uri should target the download endpoint", uri.startsWith(
 				"https://acs.example.com/s/wopi/settings/download?fileId="));

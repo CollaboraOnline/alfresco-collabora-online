@@ -16,6 +16,10 @@ import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 
 public class WopiDiscoveryTest {
 	WopiDiscovery wopiDiscovery = null;
@@ -71,6 +75,25 @@ public class WopiDiscoveryTest {
 				.getName());
 		assertEquals("pdf", action.get(0)
 				.getExt());
+	}
+
+	@Test
+	public void testGetSettingsUrlSrc() throws XMLStreamException, IOException {
+		File discoveryFile = new File("src/test/resources/discovery_collabora_online.xml");
+		FileInputStream in = new FileInputStream(discoveryFile);
+		wopiDiscovery.loadDiscoveryXML(in);
+
+		assertEquals("http://localhost:9980/browser/1430151/cool.html?", wopiDiscovery.getSettingsUrlSrc());
+	}
+
+	@Test
+	public void testGetSettingsUrlSrc_absentWhenNoSettingsApp() throws XMLStreamException {
+		String xml = "<wopi-discovery><net-zone name=\"z\">"
+						 + "<app name=\"writer\"><action name=\"edit\" ext=\"odt\" urlsrc=\"http://x/cool.html?\"/></app>"
+						 + "</net-zone></wopi-discovery>";
+		wopiDiscovery.loadDiscoveryXML(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+
+		assertNull(wopiDiscovery.getSettingsUrlSrc());
 	}
 
 }

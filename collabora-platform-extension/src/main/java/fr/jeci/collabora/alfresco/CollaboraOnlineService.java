@@ -25,6 +25,9 @@ public interface CollaboraOnlineService {
 	String LOOL_AUTOSAVE = "collabora:autosave";
 	String AUTOSAVE_DESCRIPTION = "Edit with Collabora";
 
+	/** Sentinel fileId for settings access tokens, which are not bound to any document. */
+	String SETTINGS_FILE_ID = "settings";
+
 	/**
 	 * Generate and store an access token only valid for the current user/file id combination.
 	 * <p>
@@ -57,6 +60,18 @@ public interface CollaboraOnlineService {
 	 * @throws org.springframework.extensions.webscripts.WebScriptException if the token is missing, unknown or expired
 	 */
 	WOPIAccessTokenInfo resolveToken(final String accessToken);
+
+	/**
+	 * Generate and store an access token for the WOPI Settings API, not bound to any document.
+	 * <p>
+	 * Used to launch the standalone settings management iframe. The token carries the {@link #SETTINGS_FILE_ID}
+	 * sentinel as its fileId and the currently authenticated user; it is validated by {@link #resolveToken(String)}.
+	 *
+	 * @return Settings access token
+	 * @throws org.springframework.extensions.webscripts.WebScriptException if there is no authenticated (non-System)
+	 *                                                                      user
+	 */
+	WOPIAccessTokenInfo createSettingsAccessToken();
 
 	/**
 	 * Returns the WOPI src URL for a given nodeRef and action.

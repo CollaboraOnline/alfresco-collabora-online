@@ -185,6 +185,31 @@ public class WopiDiscovery {
 		return applications;
 	}
 
+	private static final String SETTINGS_APP = "settings";
+
+	/**
+	 * Return the {@code urlsrc} of the "settings" action exposed by Collabora's discovery.xml (the iframe used to
+	 * manage WOPI settings), or {@code null} when the Collabora server does not advertise it.
+	 *
+	 * @return settings iframe urlsrc, or {@code null} if unsupported
+	 */
+	public String getSettingsUrlSrc() {
+		if (applications == null) {
+			return null;
+		}
+		for (DiscoveryApp app : applications) {
+			if (!SETTINGS_APP.equals(app.name)) {
+				continue;
+			}
+			for (DiscoveryAction action : app.actions) {
+				if (action.urlsrc != null) {
+					return action.urlsrc;
+				}
+			}
+		}
+		return null;
+	}
+
 	public static class DiscoveryApp {
 		private String name;
 		private String favIconUrl;

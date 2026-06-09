@@ -7,6 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 <wopi-discovery>
     <net-zone name="external-http">
 
+        <!-- Settings management iframe (WOPI Settings API) -->
+        <app name="settings">
+            <action name="settings" ext="" urlsrc="http://localhost:9980/browser/1430151/cool.html?"/>
+        </app>
+
         <!-- Writer documents -->
         <app favIconUrl="http://localhost:9980/loleaflet/1430151/images/x-office-document.svg" name="writer">
             <action default="true" ext="sxw" name="view" urlsrc="http://localhost:9980/loleaflet/1430151/loleaflet.html?"/>

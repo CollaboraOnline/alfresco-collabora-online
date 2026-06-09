@@ -1,0 +1,15 @@
+<!--
+SPDX-FileCopyrightText: 2025 Jeci SARL - https://jeci.fr
+
+SPDX-License-Identifier: Apache-2.0
+-->
+
+<webscript>
+    <shortname>Collabora Settings Config</shortname>
+    <description>Returns the token, settings iframe urlsrc and WOPI base URL to launch the Collabora settings management iframe</description>
+    <url>/collabora/settings-config?type={type?}</url>
+    <family>Collabora Online</family>
+    <authentication>user</authentication>
+    <format default="json"></format>
+    <transaction>required</transaction>
+</webscript>
