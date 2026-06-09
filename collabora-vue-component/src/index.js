@@ -4,3 +4,4 @@
 // SPDX-License-Identifier: Apache-2.0
 
 export { default as CollaboraIframe } from "./components/CollaboraIframe.vue";
+export { default as CollaboraSettingsIframe } from "./components/CollaboraSettingsIframe.vue";
