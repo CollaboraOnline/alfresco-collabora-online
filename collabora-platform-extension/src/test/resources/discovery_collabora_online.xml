@@ -8,8 +8,8 @@ SPDX-License-Identifier: Apache-2.0
     <net-zone name="external-http">
 
         <!-- Settings management iframe (WOPI Settings API) -->
-        <app name="settings">
-            <action name="settings" ext="" urlsrc="http://localhost:9980/browser/1430151/cool.html?"/>
+        <app name="Settings">
+            <action name="iframe" ext="" urlsrc="http://localhost:9980/browser/1430151/cool.html?"/>
         </app>
 
         <!-- Writer documents -->
