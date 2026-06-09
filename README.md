@@ -414,6 +414,47 @@ curl -u admin:admin -X POST "http://localhost:8080/alfresco/s/collabora/license/
 
 Each grant or revoke operation is logged at `INFO` level with the total license count.
 
+### WOPI Settings (UserSettings / SharedSettings)
+
+This feature implements the [Collabora Online WOPI Settings API](https://sdk.collaboraonline.com/docs/advanced_integration.html) so Collabora can store and retrieve per-user and shared settings (AutoText, dictionaries, interface preferences `xcu`, and the `browsersetting.json` UI state) directly in the Alfresco repository. It also exposes the settings management iframe used by `pristy-portail` (a per-user preferences page and an admin shared-settings tab).
+
+**Requirement:** Collabora Online **24.04 or newer** — the `/hosting/discovery` must advertise the `Settings` app (`<app name="Settings"><action name="iframe" .../></app>`). If absent, the launch endpoint returns `501`.
+
+Settings are persisted in the repository:
+- **systemconfig** (shared) → `/Data Dictionary/<remoteConfig.basePath>/shared-settings/`. Writing requires administrator rights; readable by all.
+- **userconfig** (per user) → `<user home>/<settings.userPath>/`, under the authenticated user.
+
+Settings files receive the `cm:versionable` aspect (auto-version on change).
+
+#### `fr.jeci.collabora.settings.userPath` (Optional)
+**Type:** String
+**Default:** `Configuration/Collabora Online`
+
+Relative folder path under each user's home folder where per-user (userconfig) settings are stored.
+
+#### `fr.jeci.collabora.settings.wopiBaseUrl` (Optional)
+**Type:** URL
+**Default:** `${alfresco.public.url}/s/wopi/settings`
+
+The full `/wopi/settings` endpoint Collabora calls back. Collabora appends the query string (Fetch/Delete) or `/download` / `/upload` **directly** to this base, so it must point at `/wopi/settings` (not `/wopi`). Sent to the settings iframe as `wopi_setting_base_url` and used to build the download URI in Fetch settings.
+
+#### WOPI Settings Endpoints (no authentication)
+
+Called by Collabora Online directly (the access token is validated to a user, not bound to a document). Secure them at the network/reverse proxy level.
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/wopi/settings?type={userconfig\|systemconfig}&fileId=-1&access_token=` | GET | Fetch settings: list available files per category |
+| `/wopi/settings/download?fileId={/settings/...}&access_token=` | GET | Download a single settings file (incl. `browsersetting.json`) |
+| `/wopi/settings/upload?fileId={/settings/...}&access_token=` | POST | Create/replace a settings file (multipart `file`) |
+| `/wopi/settings?fileId={/settings/...}&access_token=` | DELETE | Delete a settings file |
+
+#### Settings Iframe Launch Endpoint
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/collabora/settings-config?type={user\|admin}` | GET | User authentication. Returns `access_token`, `access_token_ttl`, `settings_url` (discovery iframe urlsrc), `wopi_setting_base_url` and `iframe_type` to launch the settings management iframe. `type=admin` requires administrator rights; returns `501` when the Collabora server does not advertise the settings iframe. |
+
 ### Lock Cleanup Job (Deprecated)
 
 The lock cleanup job is **deprecated** since version 1.0.0. Alfresco's native lock management is now used instead.
