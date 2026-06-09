@@ -38,7 +38,7 @@ public class CollaboraSettingsServiceImplTest {
 		nodeService = mock(NodeService.class);
 		service.setAuthorityService(authorityService);
 		service.setNodeService(nodeService);
-		service.setWopiBaseUrl("https://acs.example.com/s/wopi");
+		service.setWopiBaseUrl("https://acs.example.com/s/wopi/settings");
 	}
 
 	// ========== Path parsing ==========

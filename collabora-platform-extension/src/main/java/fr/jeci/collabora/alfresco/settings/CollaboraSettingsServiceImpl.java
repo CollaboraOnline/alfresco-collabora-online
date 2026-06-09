@@ -332,7 +332,8 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 	}
 
 	private String buildDownloadUri(String virtualPath) {
-		return wopiBaseUrl + "/settings/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
+		// wopiBaseUrl is the full /wopi/settings endpoint; the download operation is "<base>/download".
+		return wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
 	}
 
 	private static String guessMimeType(String fileName) {
