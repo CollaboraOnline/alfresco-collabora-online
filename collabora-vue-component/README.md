@@ -50,6 +50,7 @@ http://localhost:8008/index.html?collaboraUrl=http://localhost:9980/browser/b639
 - v0.4.0 : add postMessage dispatcher and Doc_ModifiedStatus handling
 - v0.5.0 : add CollaboraSettingsIframe for the WOPI Settings management UI (UserSettings / SharedSettings)
 - v0.5.1 : fix CollaboraSettingsIframe settings urlsrc separator (avoid ".htmllang=fr" 404)
+- v0.5.2 : CollaboraSettingsIframe fills its container by default (inline sizing, no CSS import needed); opt-in `autoHeight` for content-height sizing
 
 ## CollaboraSettingsIframe
 
@@ -65,5 +66,6 @@ Props:
 - lang : UI language (default `en`)
 - uiTheme : `light` or `dark` (optional)
 - cssVariables : theming variables (optional, see https://sdk.collaboraonline.com/docs/theming.html)
+- autoHeight : when true, size the iframe to the content height from the `Iframe_Height` postMessage. Default false: the iframe fills its container (use a sized container).
 
-The iframe auto-resizes from the `Iframe_Height` postMessage and re-emits it via the `iframe-height` event.
+The `Iframe_Height` postMessage is always re-emitted via the `iframe-height` event, regardless of `autoHeight`.

@@ -5,7 +5,7 @@ SPDX-License-Identifier: Apache-2.0
 -->
 
 <template>
-  <div id="settingscontainer">
+  <div id="settingscontainer" style="width: 100%; height: 100%">
     <form
       id="settingsform"
       name="settingsform"
@@ -81,6 +81,12 @@ export default {
       description:
         "https://sdk.collaboraonline.com/docs/theming.html#available-variables",
     },
+    autoHeight: {
+      type: Boolean,
+      default: false,
+      description:
+        "When true, size the iframe to the content height reported by the Iframe_Height postMessage. When false (default), the iframe fills its container; use this when embedding in a fixed-size container.",
+    },
   },
   data() {
     return {
@@ -113,10 +119,22 @@ export default {
       return `${url}${separator}lang=${this.lang}`;
     },
     iframeStyle() {
-      // Collabora drives the height via the Iframe_Height postMessage; fall back to full height before the first one.
-      return this.iframeHeight
-        ? { width: "100%", height: `${this.iframeHeight}px` }
-        : { width: "100%", height: "100%" };
+      // By default fill the container. Only follow the Iframe_Height postMessage when autoHeight is enabled
+      // (flowing layout with no fixed-size container).
+      if (this.autoHeight && this.iframeHeight) {
+        return {
+          width: "100%",
+          height: `${this.iframeHeight}px`,
+          display: "block",
+          border: "0 none",
+        };
+      }
+      return {
+        width: "100%",
+        height: "100%",
+        display: "block",
+        border: "0 none",
+      };
     },
   },
   watch: {
