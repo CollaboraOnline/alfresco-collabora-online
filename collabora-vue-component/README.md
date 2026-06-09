@@ -49,6 +49,7 @@ http://localhost:8008/index.html?collaboraUrl=http://localhost:9980/browser/b639
 - v0.3.4 : iframe allow must have collabora origin
 - v0.4.0 : add postMessage dispatcher and Doc_ModifiedStatus handling
 - v0.5.0 : add CollaboraSettingsIframe for the WOPI Settings management UI (UserSettings / SharedSettings)
+- v0.5.1 : fix CollaboraSettingsIframe settings urlsrc separator (avoid ".htmllang=fr" 404)
 
 ## CollaboraSettingsIframe
 

@@ -10,7 +10,7 @@ SPDX-License-Identifier: Apache-2.0
       id="settingsform"
       name="settingsform"
       method="POST"
-      :action="`${settingsUrl}lang=${lang}`"
+      :action="formAction"
       target="settingsframe"
       hidden="hidden"
     >
@@ -37,8 +37,9 @@ SPDX-License-Identifier: Apache-2.0
  * Renders the Collabora Online settings management iframe (WOPI Settings API).
  * @see https://sdk.collaboraonline.com/docs/advanced_integration.html
  *
- * The {@code settingsUrl} is the {@code urlsrc} of the "settings" action from the Collabora discovery.xml (it ends
- * with {@code ?}). Collabora derives the {@code /wopi/settings} endpoint it calls from {@code wopiSettingBaseUrl}.
+ * The {@code settingsUrl} is the {@code urlsrc} of the "Settings" action from the Collabora discovery.xml. Depending
+ * on the server it may or may not already end with {@code ?}, so the {@code lang} query parameter is appended with the
+ * right separator. Collabora derives the {@code /wopi/settings} endpoint it calls from {@code wopiSettingBaseUrl}.
  */
 export default {
   name: "CollaboraSettingsIframe",
@@ -97,6 +98,19 @@ export default {
       } catch {
         return "";
       }
+    },
+    formAction() {
+      // The discovery urlsrc may end with "?", contain a query string, or end with neither.
+      // Append lang with the matching separator so we never produce ".htmllang=fr".
+      const url = this.settingsUrl || "";
+      if (!url) {
+        return url;
+      }
+      let separator = "?";
+      if (url.includes("?")) {
+        separator = url.endsWith("?") || url.endsWith("&") ? "" : "&";
+      }
+      return `${url}${separator}lang=${this.lang}`;
     },
     iframeStyle() {
       // Collabora drives the height via the Iframe_Height postMessage; fall back to full height before the first one.
