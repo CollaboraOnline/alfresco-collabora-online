@@ -178,6 +178,19 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	/**
+	 * Serialize any object (e.g. a model holding nested objects such as the WOPI settings references) to JSON. Use this
+	 * instead of the {@code Map<String, String>} variant when the model holds values that are not plain strings.
+	 */
+	protected void jsonResponse(final WebScriptResponse res, int code, Object response) throws IOException {
+		try {
+			jsonResponse(res, code, objectMapper.writeValueAsString(response));
+		} catch (JsonProcessingException e) {
+			logger.error("Failed to serialize response to JSON", e);
+			throw new IOException("Failed to serialize response to JSON", e);
+		}
+	}
+
+	/**
 	 * Write content file to disk on set version properties.
 	 *
 	 * @param inputStream input stream data

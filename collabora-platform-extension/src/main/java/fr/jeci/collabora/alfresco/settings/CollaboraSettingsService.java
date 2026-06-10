@@ -63,4 +63,23 @@ public interface CollaboraSettingsService {
 	 * @param fileId virtual path {@code /settings/{type}/{category}/{filename}}
 	 */
 	void deleteSettingsFile(String fileId);
+
+	/**
+	 * Build the settings fetch URL advertised in WOPI CheckFileInfo ({@code UserSettings} / {@code SharedSettings}), so
+	 * Collabora loads the settings when a document is opened.
+	 *
+	 * @param type        {@link #TYPE_USERCONFIG} or {@link #TYPE_SYSTEMCONFIG}
+	 * @param accessToken the document access token Collabora will reuse
+	 * @return {@code <base>/wopi/settings?access_token=...&type=...&fileId=-1}
+	 */
+	String settingsUrl(String type, String accessToken);
+
+	/**
+	 * Compute an opaque cache stamp for the settings of a given type. It changes only when a settings file of that type
+	 * changes, so Collabora re-fetches only when needed.
+	 *
+	 * @param type {@link #TYPE_USERCONFIG} or {@link #TYPE_SYSTEMCONFIG}
+	 * @return stamp (millis of the most recently modified settings file, {@code "0"} when none)
+	 */
+	String settingsStamp(String type);
 }

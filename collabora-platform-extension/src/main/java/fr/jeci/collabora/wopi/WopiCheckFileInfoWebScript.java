@@ -14,6 +14,7 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 
 import fr.jeci.collabora.alfresco.restriction.FeatureRestrictionService;
+import fr.jeci.collabora.alfresco.settings.CollaboraSettingsService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
 import org.joda.time.LocalDateTime;
@@ -25,6 +26,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -51,10 +53,18 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private static final String BASE_FILE_NAME = "BaseFileName";
 
+	// WOPI Settings references: tell Collabora where to fetch user/shared settings when a document is opened.
+	// See https://sdk.collaboraonline.com/docs/advanced_integration.html#usersettings
+	private static final String USER_SETTINGS = "UserSettings";
+	private static final String SHARED_SETTINGS = "SharedSettings";
+	private static final String URL = "url";
+	private static final String STAMP = "stamp";
+
 	private AuthorityService authorityService;
 	private PermissionService permissionService;
 	private PersonService personService;
 	private FeatureRestrictionService featureRestrictionService;
+	private CollaboraSettingsService collaboraSettingsService;
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
@@ -96,7 +106,28 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 			model.put(IS_USER_LOCKED, Boolean.toString(isLocked));
 		}
 
-		jsonResponse(res, 200, model);
+		// CheckFileInfo carries string values only; copy into an Object map to add the nested settings references.
+		final Map<String, Object> response = new LinkedHashMap<>(model);
+		addSettingsReferences(req, response);
+
+		jsonResponse(res, 200, response);
+	}
+
+	/**
+	 * Advertise the WOPI Settings fetch URLs so Collabora loads the user's and the shared settings when the document
+	 * opens. The document access token is reused; the stamp lets Collabora cache and only re-fetch on change.
+	 */
+	private void addSettingsReferences(final WebScriptRequest req, final Map<String, Object> response) {
+		final String accessToken = req.getParameter(ACCESS_TOKEN);
+		response.put(USER_SETTINGS, settingsReference(CollaboraSettingsService.TYPE_USERCONFIG, accessToken));
+		response.put(SHARED_SETTINGS, settingsReference(CollaboraSettingsService.TYPE_SYSTEMCONFIG, accessToken));
+	}
+
+	private Map<String, String> settingsReference(final String type, final String accessToken) {
+		final Map<String, String> ref = new LinkedHashMap<>(2);
+		ref.put(URL, collaboraSettingsService.settingsUrl(type, accessToken));
+		ref.put(STAMP, collaboraSettingsService.settingsStamp(type));
+		return ref;
 	}
 
 	private void ensureVersioningEnabled(final NodeRef nodeRef) {
@@ -151,5 +182,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	public void setFeatureRestrictionService(FeatureRestrictionService featureRestrictionService) {
 		this.featureRestrictionService = featureRestrictionService;
+	}
+
+	public void setCollaboraSettingsService(CollaboraSettingsService collaboraSettingsService) {
+		this.collaboraSettingsService = collaboraSettingsService;
 	}
 }

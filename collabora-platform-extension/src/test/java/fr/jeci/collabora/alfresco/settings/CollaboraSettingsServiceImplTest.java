@@ -116,6 +116,21 @@ public class CollaboraSettingsServiceImplTest {
 		assertTrue("space should be encoded", uri.contains("en+US.dic") || uri.contains("en%20US.dic"));
 	}
 
+	@Test
+	public void testSettingsUrl_format() {
+		String url = service.settingsUrl(CollaboraSettingsService.TYPE_USERCONFIG, "tok en/+");
+
+		assertTrue("targets the settings endpoint", url.startsWith("https://acs.example.com/s/wopi/settings?"));
+		assertTrue("carries the type", url.contains("type=userconfig"));
+		assertTrue("carries fileId=-1", url.contains("fileId=-1"));
+		assertTrue("access token is encoded", url.contains("access_token=tok+en%2F%2B"));
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testSettingsUrl_rejectsUnknownType() {
+		service.settingsUrl("bogus", "tok");
+	}
+
 	// ========== Shared settings authorization ==========
 
 	@Test(expected = WebScriptException.class)

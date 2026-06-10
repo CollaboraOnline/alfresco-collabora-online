@@ -69,6 +69,7 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="authorityService" ref="AuthorityService" />
 		<property name="personService" ref="PersonService" />
 		<property name="featureRestrictionService" ref="FeatureRestrictionService" />
+		<property name="collaboraSettingsService" ref="CollaboraSettingsService" />
 	</bean>
 
 	<bean id="webscript.fr.jeci.collabora.wopi.GetFile.get"

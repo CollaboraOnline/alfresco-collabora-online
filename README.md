@@ -418,7 +418,9 @@ Each grant or revoke operation is logged at `INFO` level with the total license 
 
 This feature implements the [Collabora Online WOPI Settings API](https://sdk.collaboraonline.com/docs/advanced_integration.html) so Collabora can store and retrieve per-user and shared settings (AutoText, dictionaries, interface preferences `xcu`, and the `browsersetting.json` UI state) directly in the Alfresco repository. It also exposes the settings management iframe used by `pristy-portail` (a per-user preferences page and an admin shared-settings tab).
 
-**Requirement:** Collabora Online **24.04 or newer** — the `/hosting/discovery` must advertise the `Settings` app (`<app name="Settings"><action name="iframe" .../></app>`). If absent, the launch endpoint returns `501`.
+Settings are loaded in two ways: when a document is opened, `CheckFileInfo` advertises `UserSettings` and `SharedSettings` (each a `{url, stamp}` pointing at `/wopi/settings`) so Collabora fetches them automatically; and through the standalone settings management iframe (launched via `/collabora/settings-config`).
+
+**Requirement:** Collabora Online **24.04 or newer** — for the standalone iframe, the `/hosting/discovery` must advertise the `Settings` app (`<app name="Settings"><action name="iframe" .../></app>`). If absent, the launch endpoint returns `501`.
 
 Settings are persisted in the repository:
 - **systemconfig** (shared) → `/Data Dictionary/<remoteConfig.basePath>/shared-settings/`. Writing requires administrator rights; readable by all.

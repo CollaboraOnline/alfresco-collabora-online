@@ -336,6 +336,42 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		return wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
 	}
 
+	@Override
+	public String settingsUrl(String type, String accessToken) {
+		validateType(type);
+		return "%s?access_token=%s&type=%s&fileId=-1".formatted(wopiBaseUrl, URLEncoder.encode(accessToken == null
+				? ""
+				: accessToken, StandardCharsets.UTF_8), type);
+	}
+
+	@Override
+	public String settingsStamp(String type) {
+		validateType(type);
+		if (TYPE_SYSTEMCONFIG.equals(type)) {
+			return AuthenticationUtil.runAsSystem(() -> maxModified(sharedRootRef));
+		}
+		return maxModified(getUserRoot(false));
+	}
+
+	/**
+	 * Most recent {@code cm:modified} (millis) across all settings files under the given root, or {@code "0"} when the
+	 * root is missing or empty.
+	 */
+	private String maxModified(NodeRef root) {
+		long max = 0;
+		if (root != null) {
+			for (FileInfo categoryFolder : fileFolderService.listFolders(root)) {
+				for (FileInfo file : fileFolderService.listFiles(categoryFolder.getNodeRef())) {
+					Date modified = (Date) nodeService.getProperty(file.getNodeRef(), ContentModel.PROP_MODIFIED);
+					if (modified != null && modified.getTime() > max) {
+						max = modified.getTime();
+					}
+				}
+			}
+		}
+		return Long.toString(max);
+	}
+
 	private static String guessMimeType(String fileName) {
 		int dot = fileName.lastIndexOf('.');
 		if (dot >= 0) {
