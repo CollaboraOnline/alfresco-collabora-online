@@ -57,7 +57,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	// See https://sdk.collaboraonline.com/docs/advanced_integration.html#usersettings
 	private static final String USER_SETTINGS = "UserSettings";
 	private static final String SHARED_SETTINGS = "SharedSettings";
-	private static final String URL = "url";
+	// Collabora expects the settings reference key to be "uri" (wsd/RequestVettingStation.cpp,
+	// wsd/wopi/WopiStorage.cpp); a "url" key is rejected by its JSON misspelling check.
+	private static final String URI = "uri";
 	private static final String STAMP = "stamp";
 
 	private AuthorityService authorityService;
@@ -125,7 +127,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 	private Map<String, String> settingsReference(final String type, final String accessToken) {
 		final Map<String, String> ref = new LinkedHashMap<>(2);
-		ref.put(URL, collaboraSettingsService.settingsUrl(type, accessToken));
+		ref.put(URI, collaboraSettingsService.settingsUrl(type, accessToken));
 		ref.put(STAMP, collaboraSettingsService.settingsStamp(type));
 		return ref;
 	}
