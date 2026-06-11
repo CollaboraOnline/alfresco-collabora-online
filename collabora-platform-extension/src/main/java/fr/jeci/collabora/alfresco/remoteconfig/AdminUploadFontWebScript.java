@@ -50,11 +50,11 @@ public class AdminUploadFontWebScript extends AbstractWebScript {
 																					  + ALLOWED_MIME_TYPES);
 		}
 
-		remoteConfigService.uploadFont(name, content, mimeType);
+		String storedName = remoteConfigService.uploadFont(name, content, mimeType);
 
 		res.setContentType("application/json;charset=UTF-8");
 		res.getWriter()
-				.write("{\"success\":true,\"font\":\"" + name + "\"}");
+				.write("{\"success\":true,\"font\":\"" + storedName + "\"}");
 	}
 
 	private static String guessMimeType(String fileName) {

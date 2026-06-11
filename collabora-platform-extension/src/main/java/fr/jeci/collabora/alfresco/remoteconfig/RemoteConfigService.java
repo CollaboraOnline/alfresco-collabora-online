@@ -75,9 +75,13 @@ public interface RemoteConfigService {
 	ContentReader getFontContentReader(String fontName);
 
 	/**
-	 * Uploads a font file to the fonts folder.
+	 * Uploads a font file to the fonts folder. The file name is sanitized so it stays usable in
+	 * the font URLs advertised to Collabora (some characters, e.g. square brackets, are rejected
+	 * by Tomcat and reverse proxies even when percent-encoded).
+	 *
+	 * @return the sanitized file name under which the font is stored
 	 */
-	void uploadFont(String fontName, InputStream content, String mimeType);
+	String uploadFont(String fontName, InputStream content, String mimeType);
 
 	/**
 	 * Deletes a font file from the fonts folder.

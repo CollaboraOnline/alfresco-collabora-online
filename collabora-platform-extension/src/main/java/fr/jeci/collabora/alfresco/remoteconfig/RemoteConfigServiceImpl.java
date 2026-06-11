@@ -19,6 +19,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -182,7 +183,7 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 			sb.append("{\"uri\":\"")
 					.append(fontsBaseUrl)
 					.append("/")
-					.append(name)
+					.append(encodePathSegment(name))
 					.append("\",\"stamp\":\"")
 					.append(stamp)
 					.append("\"}");
@@ -229,25 +230,37 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 	}
 
 	@Override
-	public void uploadFont(String fontName, InputStream content, String mimeType) {
+	public String uploadFont(String fontName, InputStream content, String mimeType) {
+		String safeName = sanitizeFontName(fontName);
 		AuthenticationUtil.runAsSystem(() -> {
-			NodeRef existing = nodeService.getChildByName(fontsFolderRef, ContentModel.ASSOC_CONTAINS, fontName);
+			NodeRef existing = nodeService.getChildByName(fontsFolderRef, ContentModel.ASSOC_CONTAINS, safeName);
 			if (existing != null) {
 				writeContent(existing, content, mimeType);
-				logger.info("Updated font '{}'", fontName);
+				logger.info("Updated font '{}'", safeName);
 			} else {
 				Map<QName, Serializable> props = new HashMap<>(1);
-				props.put(ContentModel.PROP_NAME, fontName);
+				props.put(ContentModel.PROP_NAME, safeName);
 
 				NodeRef fontNode = nodeService.createNode(fontsFolderRef, ContentModel.ASSOC_CONTAINS, QName.createQName(
-						NamespaceService.CONTENT_MODEL_1_0_URI, fontName), ContentModel.TYPE_CONTENT, props)
+						NamespaceService.CONTENT_MODEL_1_0_URI, safeName), ContentModel.TYPE_CONTENT, props)
 						.getChildRef();
 				writeContent(fontNode, content, mimeType);
-				logger.info("Uploaded font '{}'", fontName);
+				logger.info("Uploaded font '{}'", safeName);
 			}
 			regenerateFontsConfigFile();
 			return null;
 		});
+		return safeName;
+	}
+
+	/**
+	 * Restricts font file names to characters that survive the whole URL chain (Collabora fetch,
+	 * reverse proxy, Tomcat). Tomcat rejects raw square brackets in the request line, and proxies
+	 * commonly decode percent-encoded paths before forwarding, so encoding alone is not enough.
+	 * The font name displayed in LibreOffice comes from the TTF 'name' tables, not the file name.
+	 */
+	static String sanitizeFontName(String fontName) {
+		return fontName.replaceAll("[^A-Za-z0-9._-]", "_");
 	}
 
 	@Override
@@ -310,6 +323,15 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 		}
 		return fileFolderService.create(parentRef, folderName, ContentModel.TYPE_FOLDER)
 				.getNodeRef();
+	}
+
+	/**
+	 * Percent-encodes a URL path segment. URLEncoder targets form data, where a space becomes
+	 * '+'; in a path '+' is a literal plus, so it must be re-encoded as %20.
+	 */
+	private static String encodePathSegment(String segment) {
+		return URLEncoder.encode(segment, StandardCharsets.UTF_8)
+				.replace("+", "%20");
 	}
 
 	private static String computeETag(String content) {
