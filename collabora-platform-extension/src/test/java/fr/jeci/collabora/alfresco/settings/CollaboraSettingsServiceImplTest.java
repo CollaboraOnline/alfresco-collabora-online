@@ -5,6 +5,7 @@
 package fr.jeci.collabora.alfresco.settings;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -129,6 +130,18 @@ public class CollaboraSettingsServiceImplTest {
 	@Test(expected = WebScriptException.class)
 	public void testSettingsUrl_rejectsUnknownType() {
 		service.settingsUrl("bogus", "tok");
+	}
+
+	@Test
+	public void testWopiBaseUrl_collapsesDoubleSlash() {
+		// alfresco.public.url often ends with "/", which would yield /alfresco//s/wopi/settings
+		service.setWopiBaseUrl("https://acs.example.com/alfresco//s/wopi/settings/");
+
+		String url = service.settingsUrl(CollaboraSettingsService.TYPE_SYSTEMCONFIG, "tok");
+		assertTrue("no double slash after the host: " + url, url.startsWith(
+				"https://acs.example.com/alfresco/s/wopi/settings?"));
+		assertFalse("scheme slashes preserved, path slashes collapsed", url.replaceFirst("https://", "")
+				.contains("//"));
 	}
 
 	// ========== Shared settings authorization ==========

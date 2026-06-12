@@ -398,7 +398,28 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 	}
 
 	public void setWopiBaseUrl(String wopiBaseUrl) {
-		this.wopiBaseUrl = wopiBaseUrl;
+		this.wopiBaseUrl = normalizeUrl(wopiBaseUrl);
+	}
+
+	/**
+	 * Collapse duplicate slashes (except after the scheme) and drop any trailing slash, so a base built from a
+	 * trailing-slashed {@code alfresco.public.url} does not yield {@code /alfresco//s/wopi/settings}.
+	 */
+	private static String normalizeUrl(String url) {
+		if (url == null) {
+			return null;
+		}
+		int schemeEnd = url.indexOf("://");
+		if (schemeEnd < 0) {
+			return url.replaceAll("/+", "/");
+		}
+		String scheme = url.substring(0, schemeEnd + 3);
+		String rest = url.substring(schemeEnd + 3)
+				.replaceAll("/+", "/");
+		if (rest.endsWith("/")) {
+			rest = rest.substring(0, rest.length() - 1);
+		}
+		return scheme + rest;
 	}
 
 	public void setNodeService(NodeService nodeService) {
