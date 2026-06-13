@@ -5,6 +5,8 @@
 package fr.jeci.collabora.wopi;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.slf4j.Logger;
@@ -56,7 +58,7 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final String accessToken = req.getParameter(ACCESS_TOKEN);
+		final String accessToken = queryParam(req, ACCESS_TOKEN);
 		final WOPIAccessTokenInfo token = this.collaboraOnlineService.resolveToken(accessToken);
 
 		logger.debug("{} user='{}'", req.getPathInfo(), token.getUserName());
@@ -68,6 +70,40 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 		} finally {
 			AuthenticationUtil.popAuthentication();
 		}
+	}
+
+	/**
+	 * Read a request parameter from the raw query string only.
+	 * <p>
+	 * The upload endpoint receives the file as the request body; Collabora posts it with
+	 * {@code Content-Type: application/x-www-form-urlencoded}. Calling {@code req.getParameter(...)} would make the
+	 * servlet container parse (and consume) that body to build the parameter map, leaving an empty body for
+	 * {@code getContent().getInputStream()} — the file would be stored empty. Parsing the query string ourselves never
+	 * touches the body.
+	 *
+	 * @param req  the request
+	 * @param name parameter name
+	 * @return the decoded value, or {@code null} if absent
+	 */
+	protected static String queryParam(final WebScriptRequest req, final String name) {
+		String queryString = req.getQueryString();
+		if (queryString == null) {
+			String url = req.getURL();
+			int q = url.indexOf('?');
+			queryString = q >= 0 ? url.substring(q + 1) : null;
+		}
+		if (queryString == null) {
+			return null;
+		}
+		for (String pair : queryString.split("&")) {
+			int eq = pair.indexOf('=');
+			String key = eq >= 0 ? pair.substring(0, eq) : pair;
+			if (key.equals(name)) {
+				String value = eq >= 0 ? pair.substring(eq + 1) : "";
+				return URLDecoder.decode(value, StandardCharsets.UTF_8);
+			}
+		}
+		return null;
 	}
 
 	protected void writeJson(final WebScriptResponse res, int code, Object response) throws IOException {

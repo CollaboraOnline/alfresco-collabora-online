@@ -29,7 +29,7 @@ public class WopiUploadSettingsWebScript extends AbstractWopiSettingsWebScript {
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final String fileId = req.getParameter(FILE_ID);
+		final String fileId = queryParam(req, FILE_ID);
 		if (fileId == null || fileId.isBlank()) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter 'fileId' is required");
 		}
@@ -44,8 +44,8 @@ public class WopiUploadSettingsWebScript extends AbstractWopiSettingsWebScript {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Request body is required");
 		}
 
-		final SettingFile stored = this.collaboraSettingsService.uploadSettingsFile(fileId, content, null, req
-				.getParameter(ACCESS_TOKEN));
+		final SettingFile stored = this.collaboraSettingsService.uploadSettingsFile(fileId, content, null, queryParam(req,
+				ACCESS_TOKEN));
 
 		final Map<String, Object> details = new LinkedHashMap<>(2);
 		details.put(STAMP, stored.getStamp());

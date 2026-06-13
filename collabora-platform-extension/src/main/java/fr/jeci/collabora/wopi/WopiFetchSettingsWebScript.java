@@ -27,12 +27,12 @@ public class WopiFetchSettingsWebScript extends AbstractWopiSettingsWebScript {
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final String type = req.getParameter(TYPE);
+		final String type = queryParam(req, TYPE);
 		if (type == null || type.isBlank()) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter 'type' is required");
 		}
 
-		final SettingsListing listing = this.collaboraSettingsService.listSettings(type, req.getParameter(ACCESS_TOKEN));
+		final SettingsListing listing = this.collaboraSettingsService.listSettings(type, queryParam(req, ACCESS_TOKEN));
 
 		final Map<String, Object> model = new LinkedHashMap<>(listing.getCategories()
 				.size() + 1);

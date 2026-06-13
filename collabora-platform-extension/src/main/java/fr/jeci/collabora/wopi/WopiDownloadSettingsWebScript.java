@@ -29,7 +29,7 @@ public class WopiDownloadSettingsWebScript extends AbstractWopiSettingsWebScript
 
 	@Override
 	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final String fileId = req.getParameter(FILE_ID);
+		final String fileId = queryParam(req, FILE_ID);
 		if (fileId == null || fileId.isBlank()) {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Parameter 'fileId' is required");
 		}
