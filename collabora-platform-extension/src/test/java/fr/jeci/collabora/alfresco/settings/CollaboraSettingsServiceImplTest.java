@@ -153,6 +153,18 @@ public class CollaboraSettingsServiceImplTest {
 				.contains("//"));
 	}
 
+	@Test
+	public void testGuessMimeType() throws Exception {
+		Method method = CollaboraSettingsServiceImpl.class.getDeclaredMethod("guessMimeType", String.class);
+		method.setAccessible(true);
+
+		assertEquals("text/plain", method.invoke(null, "standard.dic"));
+		assertEquals("application/json", method.invoke(null, "browsersetting.json"));
+		assertEquals("application/xml", method.invoke(null, "documentView.xcu"));
+		assertEquals("application/octet-stream", method.invoke(null, "entry.bau"));
+		assertEquals("application/octet-stream", method.invoke(null, "noextension"));
+	}
+
 	// ========== Shared settings authorization ==========
 
 	@Test(expected = WebScriptException.class)

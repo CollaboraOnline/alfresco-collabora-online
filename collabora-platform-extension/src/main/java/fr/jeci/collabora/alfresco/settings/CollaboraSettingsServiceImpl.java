@@ -392,6 +392,9 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 			case "xml":
 			case "xcu":
 				return "application/xml";
+			case "dic":
+				// Hunspell/LibreOffice user dictionaries (wordbook) are plain text
+				return "text/plain";
 			default:
 				break;
 			}
