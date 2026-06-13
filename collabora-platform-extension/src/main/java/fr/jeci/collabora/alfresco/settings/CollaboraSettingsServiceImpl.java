@@ -76,15 +76,15 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 	}
 
 	@Override
-	public SettingsListing listSettings(String type) {
+	public SettingsListing listSettings(String type, String accessToken) {
 		validateType(type);
 		if (TYPE_SYSTEMCONFIG.equals(type)) {
-			return AuthenticationUtil.runAsSystem(() -> listFrom(type, sharedRootRef, KIND_SHARED));
+			return AuthenticationUtil.runAsSystem(() -> listFrom(type, sharedRootRef, KIND_SHARED, accessToken));
 		}
-		return listFrom(type, getUserRoot(false), KIND_USER);
+		return listFrom(type, getUserRoot(false), KIND_USER, accessToken);
 	}
 
-	private SettingsListing listFrom(String type, NodeRef root, String kind) {
+	private SettingsListing listFrom(String type, NodeRef root, String kind, String accessToken) {
 		if (root == null) {
 			return new SettingsListing(kind, new LinkedHashMap<>());
 		}
@@ -95,7 +95,7 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 			List<SettingFile> files = new ArrayList<>();
 			for (FileInfo file : fileFolderService.listFiles(categoryFolder.getNodeRef())) {
 				String virtualPath = "%s%s/%s/%s".formatted(SETTINGS_PREFIX, type, category, file.getName());
-				files.add(new SettingFile(computeStamp(file.getNodeRef()), buildDownloadUri(virtualPath)));
+				files.add(new SettingFile(computeStamp(file.getNodeRef()), buildDownloadUri(virtualPath, accessToken)));
 			}
 			categories.put(category, files);
 		}
@@ -124,18 +124,18 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 	}
 
 	@Override
-	public SettingFile uploadSettingsFile(String fileId, InputStream content, String mimeType) {
+	public SettingFile uploadSettingsFile(String fileId, InputStream content, String mimeType, String accessToken) {
 		ParsedPath path = parse(fileId);
 		String mime = (mimeType != null && !mimeType.isBlank()) ? mimeType : guessMimeType(path.filename);
 
 		if (TYPE_SYSTEMCONFIG.equals(path.type)) {
 			requireAdmin();
-			return AuthenticationUtil.runAsSystem(() -> doUpload(path, sharedRootRef, content, mime));
+			return AuthenticationUtil.runAsSystem(() -> doUpload(path, sharedRootRef, content, mime, accessToken));
 		}
-		return doUpload(path, getUserRoot(true), content, mime);
+		return doUpload(path, getUserRoot(true), content, mime, accessToken);
 	}
 
-	private SettingFile doUpload(ParsedPath path, NodeRef root, InputStream content, String mime) {
+	private SettingFile doUpload(ParsedPath path, NodeRef root, InputStream content, String mime, String accessToken) {
 		NodeRef folder = getOrCreateFolderPath(root, path.folders);
 		NodeRef fileNode = nodeService.getChildByName(folder, ContentModel.ASSOC_CONTAINS, path.filename);
 		if (fileNode == null) {
@@ -148,7 +148,7 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		writeContent(fileNode, content, mime);
 		ensureVersioningEnabled(fileNode);
 		logger.info("Stored settings file {}", path.virtualPath());
-		return new SettingFile(computeStamp(fileNode), buildDownloadUri(path.virtualPath()));
+		return new SettingFile(computeStamp(fileNode), buildDownloadUri(path.virtualPath(), accessToken));
 	}
 
 	@Override
@@ -331,9 +331,19 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		return Long.toString(modified != null ? modified.getTime() : 0);
 	}
 
-	private String buildDownloadUri(String virtualPath) {
+	private String buildDownloadUri(String virtualPath, String accessToken) {
 		// wopiBaseUrl is the full /wopi/settings endpoint; the download operation is "<base>/download".
-		return wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
+		// The access token is embedded because Collabora fetches this uri verbatim when installing presets.
+		String uri = wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
+		if (accessToken != null && !accessToken.isBlank()) {
+			uri += "&access_token=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+		}
+		return uri;
+	}
+
+	@Override
+	public String getWopiBaseUrl() {
+		return wopiBaseUrl;
 	}
 
 	@Override

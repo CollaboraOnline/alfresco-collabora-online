@@ -32,7 +32,7 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="collaboraOnlineService" ref="CollaboraOnlineService" />
 		<property name="wopiDiscovery" ref="WopiDiscovery" />
 		<property name="authorityService" ref="AuthorityService" />
-		<property name="wopiBaseUrl" value="${fr.jeci.collabora.settings.wopiBaseUrl}" />
+		<property name="collaboraSettingsService" ref="CollaboraSettingsService" />
 	</bean>
 
 	<bean

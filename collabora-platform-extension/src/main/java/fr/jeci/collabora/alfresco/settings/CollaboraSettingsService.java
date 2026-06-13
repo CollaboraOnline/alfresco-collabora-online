@@ -30,11 +30,15 @@ public interface CollaboraSettingsService {
 
 	/**
 	 * List the settings files available for the given type, grouped by category.
+	 * <p>
+	 * The access token is embedded in each file's download {@code uri}: Collabora fetches those URIs verbatim when
+	 * installing presets (it does not append a token in that flow), so the token must already be present.
 	 *
-	 * @param type {@link #TYPE_USERCONFIG} or {@link #TYPE_SYSTEMCONFIG}
+	 * @param type        {@link #TYPE_USERCONFIG} or {@link #TYPE_SYSTEMCONFIG}
+	 * @param accessToken the token to embed in each download uri
 	 * @return the listing exposed to Collabora's "Fetch settings"
 	 */
-	SettingsListing listSettings(String type);
+	SettingsListing listSettings(String type, String accessToken);
 
 	/**
 	 * Return a reader on the content of a single settings file.
@@ -50,12 +54,13 @@ public interface CollaboraSettingsService {
 	 * Writing a {@code systemconfig} file requires administrator rights; {@code userconfig} always targets the caller's
 	 * own home folder.
 	 *
-	 * @param fileId   virtual path {@code /settings/{type}/{category}/{filename}}
-	 * @param content  file content
-	 * @param mimeType MIME type, may be {@code null} to guess from the extension
+	 * @param fileId      virtual path {@code /settings/{type}/{category}/{filename}}
+	 * @param content     file content
+	 * @param mimeType    MIME type, may be {@code null} to guess from the extension
+	 * @param accessToken the token to embed in the returned download uri
 	 * @return the stored file descriptor (stamp + download uri)
 	 */
-	SettingFile uploadSettingsFile(String fileId, InputStream content, String mimeType);
+	SettingFile uploadSettingsFile(String fileId, InputStream content, String mimeType, String accessToken);
 
 	/**
 	 * Delete a settings file. Deleting a {@code systemconfig} file requires administrator rights.
@@ -82,4 +87,10 @@ public interface CollaboraSettingsService {
 	 * @return stamp (millis of the most recently modified settings file, {@code "0"} when none)
 	 */
 	String settingsStamp(String type);
+
+	/**
+	 * @return the normalized WOPI settings base URL (the full {@code /wopi/settings} endpoint), without duplicate
+	 *         slashes
+	 */
+	String getWopiBaseUrl();
 }

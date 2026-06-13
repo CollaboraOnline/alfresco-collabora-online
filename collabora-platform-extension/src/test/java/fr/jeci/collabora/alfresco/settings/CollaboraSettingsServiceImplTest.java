@@ -99,22 +99,31 @@ public class CollaboraSettingsServiceImplTest {
 	// ========== Download URI ==========
 
 	/**
-	 * Invoke the private buildDownloadUri(String) via reflection.
+	 * Invoke the private buildDownloadUri(String, String) via reflection.
 	 */
-	private String invokeBuildDownloadUri(String virtualPath) throws Exception {
-		Method method = CollaboraSettingsServiceImpl.class.getDeclaredMethod("buildDownloadUri", String.class);
+	private String invokeBuildDownloadUri(String virtualPath, String accessToken) throws Exception {
+		Method method = CollaboraSettingsServiceImpl.class.getDeclaredMethod("buildDownloadUri", String.class,
+				String.class);
 		method.setAccessible(true);
-		return (String) method.invoke(service, virtualPath);
+		return (String) method.invoke(service, virtualPath, accessToken);
 	}
 
 	@Test
-	public void testBuildDownloadUri_encodesFileId() throws Exception {
-		String uri = invokeBuildDownloadUri("/settings/userconfig/wordbook/en US.dic");
+	public void testBuildDownloadUri_encodesFileIdAndEmbedsToken() throws Exception {
+		String uri = invokeBuildDownloadUri("/settings/userconfig/wordbook/en US.dic", "tok+1");
 
 		assertTrue("uri should target the download endpoint", uri.startsWith(
 				"https://acs.example.com/s/wopi/settings/download?fileId="));
 		assertTrue("path separators should be percent-encoded", uri.contains("%2Fsettings%2Fuserconfig"));
 		assertTrue("space should be encoded", uri.contains("en+US.dic") || uri.contains("en%20US.dic"));
+		assertTrue("access token is embedded and encoded", uri.contains("&access_token=tok%2B1"));
+	}
+
+	@Test
+	public void testBuildDownloadUri_omitsTokenWhenBlank() throws Exception {
+		String uri = invokeBuildDownloadUri("/settings/userconfig/wordbook/en_US.dic", null);
+
+		assertFalse("no access_token when none provided", uri.contains("access_token"));
 	}
 
 	@Test
@@ -151,7 +160,7 @@ public class CollaboraSettingsServiceImplTest {
 		when(authorityService.hasAdminAuthority()).thenReturn(false);
 
 		InputStream content = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
-		service.uploadSettingsFile("/settings/systemconfig/wordbook/en_US.dic", content, null);
+		service.uploadSettingsFile("/settings/systemconfig/wordbook/en_US.dic", content, null, "tok");
 	}
 
 	@Test

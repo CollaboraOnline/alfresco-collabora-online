@@ -7,6 +7,7 @@ package fr.jeci.collabora.alfresco;
 import java.util.HashMap;
 import java.util.Map;
 
+import fr.jeci.collabora.alfresco.settings.CollaboraSettingsService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,7 @@ public class SettingsConfigWebScript extends DeclarativeWebScript {
 	private CollaboraOnlineService collaboraOnlineService;
 	private WopiDiscovery wopiDiscovery;
 	private AuthorityService authorityService;
-	private String wopiBaseUrl;
+	private CollaboraSettingsService collaboraSettingsService;
 
 	@Override
 	protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
@@ -72,7 +73,7 @@ public class SettingsConfigWebScript extends DeclarativeWebScript {
 				.toDate()
 				.getTime());
 		model.put(SETTINGS_URL, settingsUrl);
-		model.put(WOPI_SETTING_BASE_URL, wopiBaseUrl);
+		model.put(WOPI_SETTING_BASE_URL, collaboraSettingsService.getWopiBaseUrl());
 		model.put(IFRAME_TYPE, type);
 		return model;
 	}
@@ -89,7 +90,7 @@ public class SettingsConfigWebScript extends DeclarativeWebScript {
 		this.authorityService = authorityService;
 	}
 
-	public void setWopiBaseUrl(String wopiBaseUrl) {
-		this.wopiBaseUrl = wopiBaseUrl;
+	public void setCollaboraSettingsService(CollaboraSettingsService collaboraSettingsService) {
+		this.collaboraSettingsService = collaboraSettingsService;
 	}
 }

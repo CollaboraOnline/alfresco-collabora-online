@@ -57,7 +57,8 @@ public class WopiUploadSettingsWebScript extends AbstractWopiSettingsWebScript {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Multipart 'file' field is required");
 		}
 
-		final SettingFile stored = this.collaboraSettingsService.uploadSettingsFile(fileId, content, null);
+		final SettingFile stored = this.collaboraSettingsService.uploadSettingsFile(fileId, content, null, req
+				.getParameter(ACCESS_TOKEN));
 
 		final Map<String, Object> details = new LinkedHashMap<>(2);
 		details.put(STAMP, stored.getStamp());
