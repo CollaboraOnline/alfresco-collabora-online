@@ -37,6 +37,12 @@ public class WopiDownloadSettingsWebScript extends AbstractWopiSettingsWebScript
 		final ContentReader reader = this.collaboraSettingsService.getSettingsFile(fileId);
 
 		res.setContentType(reader.getMimetype());
+		// Advertise the exact length so Collabora's HTTP client gets an identity-encoded (non-chunked) response and can
+		// finalize the cached preset file reliably.
+		final long size = reader.getSize();
+		if (size > 0) {
+			res.setHeader("Content-Length", Long.toString(size));
+		}
 		try (InputStream inputStream = reader.getContentInputStream()) {
 			long copied = IOUtils.copyLarge(inputStream, res.getOutputStream(), new byte[BUFFER_SIZE]);
 			logger.debug("Served settings file '{}' ({} bytes)", fileId, copied);
