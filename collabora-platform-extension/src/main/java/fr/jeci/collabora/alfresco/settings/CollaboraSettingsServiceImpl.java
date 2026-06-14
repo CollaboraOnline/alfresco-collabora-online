@@ -331,10 +331,28 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		return Long.toString(modified != null ? modified.getTime() : 0);
 	}
 
+	/**
+	 * Build the download URL advertised to Collabora for a settings file: {@code <wopiBaseUrl>/download?fileId=...}.
+	 * <p>
+	 * Three query parameters matter:
+	 * <ul>
+	 * <li>{@code fileId} — the settings file to serve.</li>
+	 * <li>{@code file_name} — the destination filename Collabora must use. For {@code wordbook}/{@code autotext}/
+	 * {@code template} presets, Collabora takes the filename from this parameter, otherwise it derives it from the URL
+	 * path (which is {@code .../download}, with no extension) — an extension-less wordbook file is not loaded by
+	 * LibreOffice. See {@code PresetsInstallTask::addGroup} in Collabora Online ({@code wsd/DocumentBroker.cpp}).</li>
+	 * <li>{@code access_token} — embedded because Collabora fetches this URI verbatim when installing presets, without
+	 * appending a token itself. Omitted when blank.</li>
+	 * </ul>
+	 *
+	 * @param virtualPath the settings file virtual path ({@code /settings/{type}/{category}/{filename}})
+	 * @param accessToken the token to embed, or {@code null}/blank to omit
+	 * @return the absolute download URL
+	 */
 	private String buildDownloadUri(String virtualPath, String accessToken) {
-		// wopiBaseUrl is the full /wopi/settings endpoint; the download operation is "<base>/download".
-		// The access token is embedded because Collabora fetches this uri verbatim when installing presets.
-		String uri = wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8);
+		String fileName = virtualPath.substring(virtualPath.lastIndexOf('/') + 1);
+		String uri = wopiBaseUrl + "/download?fileId=" + URLEncoder.encode(virtualPath, StandardCharsets.UTF_8)
+						 + "&file_name=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8);
 		if (accessToken != null && !accessToken.isBlank()) {
 			uri += "&access_token=" + URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
 		}
