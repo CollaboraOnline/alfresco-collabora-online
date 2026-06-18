@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.7.0] - 2026-06-18
+
+### Features
+
+- **wopi**: Advertise UserSettings/SharedSettings in CheckFileInfo
+
+### Bug Fixes
+
+- **wopi**: Use 'uri' key in UserSettings/SharedSettings references
+- **remote-config**: Sanitize font file names for URL safety
+- **wopi**: Normalize settings base URL to avoid double slash
+- **wopi**: Embed access token in settings download URIs
+- **wopi**: Read raw body in settings upload instead of parseContent
+- **wopi**: Read settings params from query string, not getParameter
+- **wopi**: Store .dic settings files as text/plain
+- **wopi**: Add file_name to settings download URI for wordbook presets
+- **wopi**: Set Content-Length on settings download
+
 ## [1.6.0] - 2026-06-09
 
 ### Documentation
