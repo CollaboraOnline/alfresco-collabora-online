@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.1] - 2026-06-19
+
+### Bug Fixes
+
+- **collabora**: Defer repository init to bootstrap phase
+
+
 ## [1.7.0] - 2026-06-18
 
 ### Features
