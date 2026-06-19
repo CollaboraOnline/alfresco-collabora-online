@@ -32,6 +32,8 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.extensions.surf.util.AbstractLifecycleBean;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
@@ -42,7 +44,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
  * (userconfig) settings live under each user's home folder and are resolved per call, under the currently
  * authenticated user.
  */
-public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
+public class CollaboraSettingsServiceImpl extends AbstractLifecycleBean implements CollaboraSettingsService {
 
 	private static final Logger logger = LoggerFactory.getLogger(CollaboraSettingsServiceImpl.class);
 
@@ -63,7 +65,13 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 
 	private NodeRef sharedRootRef;
 
-	public void init() {
+	/**
+	 * Resolve and cache the shared settings root on startup. Runs on {@code ContextRefreshedEvent}, after the
+	 * Alfresco schema bootstrap has completed, so the repository tables are guaranteed to exist (unlike a Spring
+	 * {@code init-method}, which runs during bean instantiation, before the schema is created on a fresh database).
+	 */
+	@Override
+	protected void onBootstrap(ApplicationEvent event) {
 		AuthenticationUtil.runAsSystem(() -> {
 			NodeRef companyHome = nodeLocatorService.getNode("companyhome", null, null);
 			NodeRef dataDictionary = getDataDictionary(companyHome);
@@ -73,6 +81,11 @@ public class CollaboraSettingsServiceImpl implements CollaboraSettingsService {
 		});
 		logger.info("Collabora settings initialized: shared=/Data Dictionary/{}/{}, user=<userhome>/{}", basePath,
 				SHARED_FOLDER_NAME, userPath);
+	}
+
+	@Override
+	protected void onShutdown(ApplicationEvent event) {
+		// No resources to release.
 	}
 
 	@Override

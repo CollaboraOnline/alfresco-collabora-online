@@ -40,7 +40,7 @@ SPDX-License-Identifier: Apache-2.0
   </bean>
 
   <bean id="FeatureRestrictionService"
-        class="fr.jeci.collabora.alfresco.restriction.FeatureRestrictionServiceImpl" init-method="init">
+        class="fr.jeci.collabora.alfresco.restriction.FeatureRestrictionServiceImpl">
       <property name="enabled" value="${fr.jeci.collabora.featureRestriction.enabled}"/>
       <property name="groupName" value="${fr.jeci.collabora.featureRestriction.group}"/>
       <property name="initialMaxLicenses" value="${fr.jeci.collabora.featureRestriction.maxLicenses}"/>
@@ -54,7 +54,7 @@ SPDX-License-Identifier: Apache-2.0
   </bean>
 
   <bean id="RemoteConfigService"
-        class="fr.jeci.collabora.alfresco.remoteconfig.RemoteConfigServiceImpl" init-method="init">
+        class="fr.jeci.collabora.alfresco.remoteconfig.RemoteConfigServiceImpl">
       <property name="basePath" value="${fr.jeci.collabora.remoteConfig.basePath}"/>
       <property name="fontsBaseUrl" value="${fr.jeci.collabora.remoteConfig.fontsUrl}"/>
       <property name="nodeService" ref="NodeService"/>
@@ -64,7 +64,7 @@ SPDX-License-Identifier: Apache-2.0
   </bean>
 
   <bean id="CollaboraSettingsService"
-        class="fr.jeci.collabora.alfresco.settings.CollaboraSettingsServiceImpl" init-method="init">
+        class="fr.jeci.collabora.alfresco.settings.CollaboraSettingsServiceImpl">
       <property name="basePath" value="${fr.jeci.collabora.remoteConfig.basePath}"/>
       <property name="userPath" value="${fr.jeci.collabora.settings.userPath}"/>
       <property name="wopiBaseUrl" value="${fr.jeci.collabora.settings.wopiBaseUrl}"/>

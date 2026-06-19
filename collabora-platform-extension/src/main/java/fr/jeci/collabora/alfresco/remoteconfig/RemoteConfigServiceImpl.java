@@ -14,6 +14,8 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.extensions.surf.util.AbstractLifecycleBean;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
@@ -29,7 +31,7 @@ import java.util.*;
  * Implementation of {@link RemoteConfigService} storing configuration and fonts
  * in the Alfresco Data Dictionary under a configurable base path.
  */
-public class RemoteConfigServiceImpl implements RemoteConfigService {
+public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements RemoteConfigService {
 
 	private static final Logger logger = LoggerFactory.getLogger(RemoteConfigServiceImpl.class);
 
@@ -49,7 +51,13 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 	private NodeRef baseFolderRef;
 	private NodeRef fontsFolderRef;
 
-	public void init() {
+	/**
+	 * Resolve and cache repository node references on startup. Runs on {@code ContextRefreshedEvent}, after the
+	 * Alfresco schema bootstrap has completed, so the repository tables are guaranteed to exist (unlike a Spring
+	 * {@code init-method}, which runs during bean instantiation, before the schema is created on a fresh database).
+	 */
+	@Override
+	protected void onBootstrap(ApplicationEvent event) {
 		boolean enabled = AuthenticationUtil.runAsSystem(() -> {
 			initBaseFolderRef();
 			boolean configEnabled = isRemoteConfigEnabledInternal();
@@ -60,6 +68,11 @@ public class RemoteConfigServiceImpl implements RemoteConfigService {
 			return configEnabled;
 		});
 		logger.info("Collabora remote config initialized at /Data Dictionary/{}, enabled={}", basePath, enabled);
+	}
+
+	@Override
+	protected void onShutdown(ApplicationEvent event) {
+		// No resources to release.
 	}
 
 	private void initBaseFolderRef() {

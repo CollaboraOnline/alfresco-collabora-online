@@ -17,6 +17,8 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.extensions.surf.util.AbstractLifecycleBean;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
@@ -34,7 +36,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * The maximum number of licenses is persisted via {@link AttributeService} and survives restarts.
  * The group is auto-created on first startup if it does not exist.
  */
-public class FeatureRestrictionServiceImpl implements FeatureRestrictionService {
+public class FeatureRestrictionServiceImpl extends AbstractLifecycleBean implements FeatureRestrictionService {
 
 	private static final Logger logger = LoggerFactory.getLogger(FeatureRestrictionServiceImpl.class);
 
@@ -56,7 +58,14 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 	private org.alfresco.repo.admin.SysAdminParams sysAdminParams;
 	private String notificationFrom;
 
-	public void init() {
+	/**
+	 * Ensure the license group exists and load the persisted max-license count on startup. Runs on
+	 * {@code ContextRefreshedEvent}, after the Alfresco schema bootstrap has completed, so the repository tables are
+	 * guaranteed to exist (unlike a Spring {@code init-method}, which runs during bean instantiation, before the
+	 * schema is created on a fresh database).
+	 */
+	@Override
+	protected void onBootstrap(ApplicationEvent event) {
 		if (!enabled) {
 			logger.info("Collabora feature restriction is disabled");
 			return;
@@ -70,6 +79,11 @@ public class FeatureRestrictionServiceImpl implements FeatureRestrictionService 
 
 		logger.info("Collabora feature restriction enabled. Group: {}, Max licenses: {}", groupName, formatMax(maxLicenses
 				.get()));
+	}
+
+	@Override
+	protected void onShutdown(ApplicationEvent event) {
+		// No resources to release.
 	}
 
 	private void ensureGroupExists() {
