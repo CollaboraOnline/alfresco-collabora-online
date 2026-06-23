@@ -74,4 +74,54 @@ public class AbstractWopiSettingsWebScriptTest {
 
 		assertEquals("", AbstractWopiSettingsWebScript.queryParam(req, "flag"));
 	}
+
+	@Test
+	public void testResolveAccessToken_prefersQueryStringValue() {
+		// Fetch/Download URLs carry the token in the query (the WOPI host embeds it).
+		WebScriptRequest req = mock(WebScriptRequest.class);
+		when(req.getQueryString()).thenReturn("access_token=query-token&type=userconfig");
+
+		assertEquals("query-token", AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
+
+	@Test
+	public void testResolveAccessToken_fallsBackToBearerHeader() {
+		// The preset round-trip upload (wordbook/xcu) sends the token only as a Bearer header,
+		// with no access_token query parameter. Without this fallback the upload is rejected.
+		WebScriptRequest req = mock(WebScriptRequest.class);
+		when(req.getQueryString()).thenReturn("fileId=%2Fsettings%2Fuserconfig%2Fwordbook%2Fstandard.dic");
+		when(req.getHeader("Authorization")).thenReturn("Bearer header-token");
+
+		assertEquals("header-token", AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
+
+	@Test
+	public void testResolveAccessToken_bearerSchemeIsCaseInsensitiveAndTrimmed() {
+		WebScriptRequest req = mock(WebScriptRequest.class);
+		when(req.getQueryString()).thenReturn(null);
+		when(req.getURL()).thenReturn("/wopi/settings/upload?fileId=%2Fx");
+		when(req.getHeader("Authorization")).thenReturn("bearer   spaced-token  ");
+
+		assertEquals("spaced-token", AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
+
+	@Test
+	public void testResolveAccessToken_returnsNullWhenNeitherPresent() {
+		WebScriptRequest req = mock(WebScriptRequest.class);
+		when(req.getQueryString()).thenReturn("type=userconfig");
+		when(req.getHeader("Authorization")).thenReturn(null);
+
+		assertNull(AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
+
+	@Test
+	public void testResolveAccessToken_ignoresNonBearerAuthorization() {
+		// A Basic auth header must not be mistaken for a settings access token.
+		WebScriptRequest req = mock(WebScriptRequest.class);
+		when(req.getQueryString()).thenReturn(null);
+		when(req.getURL()).thenReturn("/wopi/settings/upload");
+		when(req.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
+
+		assertNull(AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
 }

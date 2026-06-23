@@ -451,6 +451,13 @@ Called by Collabora Online directly (the access token is validated to a user, no
 | `/wopi/settings/upload?fileId={/settings/...}&access_token=` | POST | Create/replace a settings file (multipart `file`) |
 | `/wopi/settings?fileId={/settings/...}&access_token=` | DELETE | Delete a settings file |
 
+**Access token delivery (query *or* `Authorization: Bearer`).** These endpoints accept the access token from **either** the `access_token` query parameter **or** an `Authorization: Bearer <token>` header. This is required because Collabora delivers the token differently depending on the call:
+
+- **Fetch** and **Download** use URLs that the WOPI host itself builds, so the token is embedded in the `access_token` query parameter.
+- The **preset round-trip upload** (`wordbook`, `xcu`, `themes` — e.g. words added via *Add to dictionary*) is built by Collabora's `DocumentBroker::uploadPresetsToWopiHost`, which — unlike every other WOPI call — does **not** add the token to the query and sends it **only** as an `Authorization: Bearer` header.
+
+Without the header fallback, those round-trip uploads are rejected (HTTP 401) and never persist, so the saved settings (the user dictionary in particular) silently fail to reload on the next document open. Every rejected settings request is now logged at `WARN` (`Rejected settings request <path>: <reason>`).
+
 #### Settings Iframe Launch Endpoint
 
 | Endpoint | Method | Description |

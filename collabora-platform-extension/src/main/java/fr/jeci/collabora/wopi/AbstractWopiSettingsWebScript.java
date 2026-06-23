@@ -12,6 +12,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -35,6 +36,8 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 	private static final ObjectMapper objectMapper = new ObjectMapper();
 
 	static final String ACCESS_TOKEN = "access_token";
+	private static final String AUTHORIZATION = "Authorization";
+	private static final String BEARER_PREFIX = "Bearer ";
 	// Collabora's WOPI Settings API uses the camelCase query parameter "fileId" (e.g. ?fileId=-1 or
 	// ?fileId=/settings/...). This intentionally differs from the document WOPI flow, where AbstractWopiWebScript reads
 	// the "file_id" URL template variable mandated by the Microsoft WOPI spec. Do not unify the two.
@@ -58,8 +61,16 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final String accessToken = queryParam(req, ACCESS_TOKEN);
-		final WOPIAccessTokenInfo token = this.collaboraOnlineService.resolveToken(accessToken);
+		final String accessToken = resolveAccessToken(req);
+		final WOPIAccessTokenInfo token;
+		try {
+			token = this.collaboraOnlineService.resolveToken(accessToken);
+		} catch (final WebScriptException e) {
+			// Surface rejected authentication: until now these failures were silent, which made the
+			// settings round-trip (e.g. wordbook upload) hard to diagnose.
+			logger.warn("Rejected settings request {}: {}", req.getPathInfo(), e.getMessage());
+			throw e;
+		}
 
 		logger.debug("{} user='{}'", req.getPathInfo(), token.getUserName());
 
@@ -70,6 +81,36 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 		} finally {
 			AuthenticationUtil.popAuthentication();
 		}
+	}
+
+	/**
+	 * Resolve the WOPI access token from the request, accepting either delivery mechanism Collabora uses.
+	 * <p>
+	 * Fetch and Download URLs carry the token in the {@code access_token} query parameter (the WOPI host embeds it when
+	 * it builds those URLs). The preset round-trip upload ({@code wordbook}/{@code xcu}/{@code themes}), however, builds
+	 * its own URL and sends the token only as an {@code Authorization: Bearer <token>} header — see
+	 * {@code DocumentBroker::uploadPresetsToWopiHost} in Collabora Online, which (unlike every other WOPI call) does not
+	 * call {@code authorizeURI}. Without the header fallback those uploads are rejected and never persist.
+	 *
+	 * @param req the request
+	 * @return the access token, or {@code null} if neither source provides one
+	 */
+	static String resolveAccessToken(final WebScriptRequest req) {
+		final String queryToken = queryParam(req, ACCESS_TOKEN);
+		if (queryToken != null && !queryToken.isBlank()) {
+			return queryToken;
+		}
+
+		final String authorization = req.getHeader(AUTHORIZATION);
+		if (authorization != null && authorization.regionMatches(true, 0, BEARER_PREFIX, 0, BEARER_PREFIX.length())) {
+			final String bearer = authorization.substring(BEARER_PREFIX.length())
+					.trim();
+			if (!bearer.isEmpty()) {
+				return bearer;
+			}
+		}
+
+		return null;
 	}
 
 	/**
