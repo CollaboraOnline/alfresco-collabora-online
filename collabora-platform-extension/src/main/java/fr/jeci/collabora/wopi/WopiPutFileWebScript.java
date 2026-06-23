@@ -64,6 +64,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 			collaboraOnlineService.lockSteal(nodeRef, lockId);
 			final Version newVersion = writeFileToDisk(inputStream, isAutosave, nodeRef);
 
+			warnIfUploadedSizeMismatch(req, nodeRef);
+
 			final Map<String, String> model = new HashMap<>(1);
 			if (newVersion == null) {
 				logger.warn("No version create for {}", nodeRef);

@@ -40,7 +40,6 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	static final String X_WOPI_SUGGESTED_TARGET = "X-WOPI-SuggestedTarget";
 	static final String X_WOPI_RELATIVE_TARGET = "X-WOPI-RelativeTarget";
 	static final String X_WOPI_OVERWRITE_RELATIVE_TARGET = "X-WOPI-OverwriteRelativeTarget";
-	static final String X_WOPI_SIZE = "X-WOPI-Size";
 	static final String X_WOPI_FILE_CONVERSION = "X-WOPI-FileConversion";
 
 	private static final int MAX_RETRY = 5;
@@ -54,11 +53,6 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
-		}
-
-		final String wopiSize = req.getHeader(X_WOPI_SIZE);
-		if (StringUtils.isNotBlank(wopiSize)) {
-			logger.warn("Header {} is not implements: {}", X_WOPI_SIZE, LogSanitizer.sanitize(wopiSize));
 		}
 
 		try {
@@ -141,6 +135,8 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 		try {
 			writeFileToDisk(inputStream, false, newNodeRef);
+
+			warnIfUploadedSizeMismatch(req, newNodeRef);
 
 			askForRendition(newNodeRef);
 

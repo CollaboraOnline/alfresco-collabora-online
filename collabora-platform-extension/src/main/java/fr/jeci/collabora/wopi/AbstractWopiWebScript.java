@@ -49,6 +49,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	static final String ACCESS_TOKEN = "access_token";
 	static final String FILE_ID = "file_id";
 	static final String LAST_MODIFIED_TIME = "LastModifiedTime";
+	static final String X_WOPI_SIZE = "X-WOPI-Size";
 
 	private String[] renditions;
 
@@ -225,6 +226,54 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			logger.warn("Exception when writing content \"{}\": \"{}\" - will retry", nodeRef, e.getMessage());
 			throw new AlfrescoRuntimeException("Error when writing content - retry", e);
 		}
+	}
+
+	/**
+	 * Integrity check against the {@code X-WOPI-Size} header: warn (but never fail) when the stored content size
+	 * contradicts the size Collabora declared, which signals a truncated upload.
+	 * <p>
+	 * Per the WOPI spec {@code X-WOPI-Size} is informational and optional — the request body is the authoritative
+	 * content — so a mismatch is only logged, never rejected. The header is absent on most {@code PutFile} requests
+	 * (Collabora sends it mainly with {@code PutRelativeFile}), in which case this is a no-op.
+	 *
+	 * @param req     the request carrying the optional {@code X-WOPI-Size} header
+	 * @param nodeRef the node whose freshly written content size is compared
+	 */
+	protected void warnIfUploadedSizeMismatch(final WebScriptRequest req, final NodeRef nodeRef) {
+		final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+		final long storedSize = reader != null ? reader.getSize() : -1;
+		final String warning = sizeMismatchWarning(req.getHeader(X_WOPI_SIZE), storedSize);
+		if (warning != null) {
+			logger.warn("{} for node {}", LogSanitizer.sanitize(warning), nodeRef);
+		}
+	}
+
+	/**
+	 * Compare a declared {@code X-WOPI-Size} value against the actually stored size.
+	 *
+	 * @param wopiSizeHeader the raw {@code X-WOPI-Size} header value, may be {@code null}/blank
+	 * @param storedSize     the size in bytes actually written to the repository
+	 * @return a warning message when the header is present and contradicts {@code storedSize} (or is not a number),
+	 *         or {@code null} when there is nothing to warn about
+	 */
+	static String sizeMismatchWarning(final String wopiSizeHeader, final long storedSize) {
+		if (StringUtils.isBlank(wopiSizeHeader)) {
+			return null;
+		}
+
+		final long declaredSize;
+		try {
+			declaredSize = Long.parseLong(wopiSizeHeader.trim());
+		} catch (final NumberFormatException e) {
+			return "non-numeric X-WOPI-Size header: " + wopiSizeHeader;
+		}
+
+		if (declaredSize != storedSize) {
+			return "stored size " + storedSize + " bytes differs from declared X-WOPI-Size " + declaredSize
+					 + " bytes (possible truncated upload)";
+		}
+
+		return null;
 	}
 
 	private Version createVersion(boolean isAutosave, NodeRef nodeRef) {
