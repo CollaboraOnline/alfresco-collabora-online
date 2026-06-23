@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Bug Fixes
+
+- **wopi**: Fix self-deadlock on save by flattening nested transactions. `writeFileToDisk` and `headerActions` now run with `requiresNew=false` (participate in the webscript transaction) instead of opening a nested `requiresNew` transaction that wrote the same node row the outer transaction held — an undetectable lock wait that hung Tomcat threads indefinitely.
+- **wopi**: Remove the ineffective `cm:versionLabel` auto-repair. `getCurrentVersion` no longer swallows `ConcurrencyFailureException` to rewrite the protected, system-managed `cm:versionLabel`; the error now propagates so the `RetryingTransactionHelper` resolves transient cases, and a WARN points administrators to the repair tool (`/fr/jeci/pristy/version/repair-version-store` in pristy-core-platform) for genuinely corrupted nodes.
+
 ## [1.7.1] - 2026-06-19
 
 ### Bug Fixes

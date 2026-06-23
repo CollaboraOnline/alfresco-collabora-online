@@ -21,7 +21,6 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.version.Version;
-import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.cmr.version.VersionType;
 import org.springframework.dao.ConcurrencyFailureException;
@@ -200,6 +199,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @return The new version create
 	 */
 	protected Version writeFileToDisk(final InputStream inputStream, final boolean isAutosave, final NodeRef nodeRef) {
+		// requiresNew=false: participate in the webscript transaction instead of opening a nested
+		// transaction. A requiresNew transaction here would write the node row while the webscript
+		// transaction (or headerActions) holds/awaits the same lock — an undetectable self-deadlock.
 		return retryingTransactionHelper.doInTransaction(() -> {
 
 			// Inhibit auto-version, we will create Version manually
@@ -214,7 +216,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 			return newVersion;
 
-		}, false, true);
+		}, false, false);
 	}
 
 	private void writeContent(InputStream inputStream, NodeRef nodeRef) {
@@ -292,38 +294,26 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	/**
-	 * Wrapper around versionService.getCurrentVersion that auto-repairs corrupted version labels.
-	 * When cm:versionLabel on the live node is out of sync with the version store head,
-	 * Alfresco throws ConcurrencyFailureException. This method repairs cm:versionLabel
-	 * by reading the head version from the version history and retries.
+	 * Read the current version of the node. Does <b>not</b> attempt any repair.
+	 * <p>
+	 * {@link VersionService#getCurrentVersion} throws {@link ConcurrencyFailureException} when the live node's
+	 * cm:versionLabel does not match the head of its version store. In normal operation this is a transient, retryable
+	 * signal and the webscript's RetryingTransactionHelper resolves it by replaying the transaction. When it is
+	 * permanent — the version store holds an orphan "future" head version the live node never reached — the error
+	 * surfaces to the caller. We do not silently rewrite the protected, system-managed cm:versionLabel here: an
+	 * administrator must run the repair tool instead:
+	 * {@code GET /alfresco/s/fr/jeci/pristy/version/repair-version-store?nodeRef=<nodeRef>} (pristy-core-platform).
 	 */
-	protected Version getOrRepairCurrentVersion(final NodeRef nodeRef) {
+	protected Version getCurrentVersion(final NodeRef nodeRef) {
 		try {
 			return versionService.getCurrentVersion(nodeRef);
 		} catch (ConcurrencyFailureException e) {
-			logger.warn("Corrupted version label on node {} — attempting repair", nodeRef);
-			return repairVersionLabel(nodeRef);
+			logger.warn(
+					"Inconsistent version label on node {}: live cm:versionLabel does not match the version store head. "
+							+ "If this persists, an administrator must run the repair tool: "
+							+ "GET /alfresco/s/fr/jeci/pristy/version/repair-version-store?nodeRef={}", nodeRef, nodeRef);
+			throw e;
 		}
-	}
-
-	private Version repairVersionLabel(final NodeRef nodeRef) {
-		VersionHistory history = versionService.getVersionHistory(nodeRef);
-		if (history == null) {
-			logger.warn("No version history found for node {} — cannot repair", nodeRef);
-			return null;
-		}
-
-		Version headVersion = history.getHeadVersion();
-		if (headVersion == null) {
-			logger.warn("No head version found for node {} — cannot repair", nodeRef);
-			return null;
-		}
-
-		String headLabel = headVersion.getVersionLabel();
-		logger.warn("Repairing cm:versionLabel on node {} to head version '{}'", nodeRef, headLabel);
-		nodeService.setProperty(nodeRef, ContentModel.PROP_VERSION_LABEL, headLabel);
-
-		return headVersion;
 	}
 
 	protected void askForRendition(final NodeRef nodeRef) {
@@ -355,6 +345,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 			prop.setValue((Serializable) DefaultTypeConverter.INSTANCE.convert(dataType, prop.getValue()));
 		}
 
+		// requiresNew=false: participate in the webscript transaction. This runs right after
+		// writeFileToDisk has written the same node within that transaction; a nested requiresNew
+		// transaction would wait for the row lock the outer transaction holds — a self-deadlock.
 		retryingTransactionHelper.doInTransaction((RetryingTransactionHelper.RetryingTransactionCallback<Void>) () -> {
 			if (aspectToDel != null && nodeService.hasAspect(nodeRef, aspectToDel)) {
 				nodeService.removeAspect(nodeRef, aspectToDel);
@@ -368,7 +361,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 			nodeService.addProperties(nodeRef, properties);
 			return null;
-		}, false, true);
+		}, false, false);
 
 	}
 

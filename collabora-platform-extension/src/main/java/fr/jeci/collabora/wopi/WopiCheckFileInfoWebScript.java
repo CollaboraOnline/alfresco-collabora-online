@@ -74,7 +74,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		final Map<String, String> model = this.collaboraOnlineService.serverInfo();
 		final Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
-		final Version currentVersion = getOrRepairCurrentVersion(nodeRef);
+		final Version currentVersion = getCurrentVersion(nodeRef);
 
 		if (currentVersion != null) {
 			Date lastModifiedDate = currentVersion.getFrozenModifiedDate();
