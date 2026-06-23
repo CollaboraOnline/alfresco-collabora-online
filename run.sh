@@ -15,7 +15,7 @@ build() {
 
 build_resources() {
   if [ ! -f "$COMPOSE_FILE" ]; then
-    $MVN_EXEC package -pl collabora-platform-extension-docker,collabora-share-extension-docker
+    $MVN_EXEC package -am -pl collabora-platform-extension-docker,collabora-share-extension-docker
     $MVN_EXEC resources:resources
   fi
 }
