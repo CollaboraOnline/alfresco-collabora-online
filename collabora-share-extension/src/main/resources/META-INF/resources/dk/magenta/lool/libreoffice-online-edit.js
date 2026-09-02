@@ -102,7 +102,19 @@ if (typeof Magenta == "undefined" || !Magenta) {
                     // Go back to directory (or details-view ?)
                     console.log("PostMessage Recev: UI_Close - move to ");
                     var $siteURL = Alfresco.util.siteURL;
-                    window.location.href = $siteURL("document-details") + "?nodeRef=" + me.options.nodeRef;
+                    
+                    // Show message that document editing is being saved and closed.
+                    // This happens regardless in the background, but the user should be informed that the document is being saved and closed as it gives confidence that the document is being saved and closed.
+                    Alfresco.util.PopupManager.displayMessage(
+                        {
+                            // Reuse the existing message key for "Save and Close" button, as it is appropriate for this context.
+                            text: Alfresco.util.message("button.saveandclose"),
+                        });
+                    // 2.5s delay before reloading, same as dialog shows
+                    setTimeout(function () {
+                        window.location.href = $siteURL("document-details") + "?nodeRef=" + me.options.nodeRef;
+                    }, 2500);
+
                     
                     break;
                     
