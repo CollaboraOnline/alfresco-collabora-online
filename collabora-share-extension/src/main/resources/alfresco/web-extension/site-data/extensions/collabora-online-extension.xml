@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 <extension>
     <modules>
         <module>
-            <id>Global Extensions</id>
-            <version>1.0</version>
+            <id>Collabora Global Extensions</id>
+            <version>${project.version}</version>
             <auto-deploy>true</auto-deploy>
             <auto-deploy-index>1</auto-deploy-index>
 
@@ -40,6 +40,15 @@ SPDX-License-Identifier: Apache-2.0
                         <action id="document-edit-collabora-online" type="link" label="actions.document.edit-collabora-online">
                             <param name="href">collabora-online-edit?nodeRef={node.nodeRef}</param>
                             <param name="target">_self</param>
+                            <permissions>
+                                <permission allow="true">Write</permission>
+                            </permissions>
+                            <evaluator>evaluator.dk.magenta.doclib.action.isMimetypeEditableLibreOffice</evaluator>
+                        </action>
+
+                        <action id="document-edit-collabora-online-full" type="link" label="actions.document.edit-collabora-online">
+                            <param name="href">collabora-online-edit?nodeRef={node.nodeRef}&amp;fullwidth=true</param>
+                            <param name="target">_blank</param>
                             <permissions>
                                 <permission allow="true">Write</permission>
                             </permissions>
@@ -154,14 +163,6 @@ SPDX-License-Identifier: Apache-2.0
                             <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
                          </action>
                     </actions>
-                    <actionGroups>
-                        <actionGroup id="document-browse">
-                            <action index="199" id="document-edit-collabora-online"/>
-                        </actionGroup>
-                        <actionGroup id="document-details">
-                            <action index="339" subgroup="30" id="document-edit-collabora-online"/>
-                        </actionGroup>
-                    </actionGroups>
                 </config>
                 <config evaluator="string-compare" condition="DocumentLibrary">
                     <indicators>
@@ -174,10 +175,77 @@ SPDX-License-Identifier: Apache-2.0
             </configurations>
         </module>
 
+
+        <module>
+            <id>Collabora Edit Inline Menu</id>
+            <version>${project.version}</version>
+            <auto-deploy>false</auto-deploy>
+            <auto-deploy-index>5</auto-deploy-index>
+
+            <components>
+                <component>
+                </component>
+            </components>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>org.alfresco.fakeroot</sourcePackageRoot>
+                    <!-- Needs a fake root package, else module won't deploy -->
+                </customization>
+            </customizations>
+            
+            <configurations>
+                <config evaluator="string-compare" condition="DocLibActions">
+                                        <actionGroups>
+                        <actionGroup id="document-browse">
+                            <action index="199" id="document-edit-collabora-online"/>
+                        </actionGroup>
+                        <actionGroup id="document-details">
+                            <action index="339" subgroup="30" id="document-edit-collabora-online"/>
+                        </actionGroup>
+                    </actionGroups>
+                </config>
+            </configurations>
+        </module>
+
+        <module>
+            <id>Collabora Edit Fullpage Menu</id>
+            <version>${project.version}</version>
+            <auto-deploy>false</auto-deploy>
+            <auto-deploy-index>6</auto-deploy-index>
+
+            <components>
+                <component>
+                </component>
+            </components>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>org.alfresco.fakeroot</sourcePackageRoot>
+                    <!-- Needs a fake root package, else module won't deploy -->
+                </customization>
+            </customizations>
+            
+            <configurations>
+                <config evaluator="string-compare" condition="DocLibActions">
+                    <actionGroups>
+                        <actionGroup id="document-browse">
+                            <action index="199" id="document-edit-collabora-online-full"/>
+                        </actionGroup>
+                        <actionGroup id="document-details">
+                            <action index="339" subgroup="30" id="document-edit-collabora-online-full"/>
+                        </actionGroup>
+                    </actionGroups>
+                </config>
+            </configurations>
+        </module>
+
         <module>
             <id>collabora-online-Page</id>
-            <version>1.0</version>
-            <auto-deploy>true</auto-deploy>
+            <version>${project.version}</version>
+            <auto-deploy>false</auto-deploy>
             <auto-deploy-index>7</auto-deploy-index>
             <evaluator type="magenta.page.module.evaluator">
                 <params>

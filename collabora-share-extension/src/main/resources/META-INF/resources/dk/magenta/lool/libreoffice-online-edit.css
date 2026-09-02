@@ -17,3 +17,12 @@
 	left: 0;
 	background: white;
 }
+
+/* Full-page layout has no header/footer chrome, so the editor can take the entire viewport */
+body.collabora-fullscreen #loolcontainer {
+	top: 0;
+	bottom: 0;
+	margin: 0;
+	padding: 0;
+	height: 100vh;
+}
