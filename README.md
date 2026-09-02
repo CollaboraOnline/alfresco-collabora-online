@@ -71,6 +71,14 @@ mise run start
 
 2. Restart Share
 
+#### Share Extension Module Deployment
+
+In order for the Collabora menu options for editing to show, visit page <servername>/share/page/modules/deploy, login with administrator priviliges first using the regular login page.
+Make sure the module "Collabora Global Extension" is deployed.
+For the editing menu, make a choice between these module for the editing menu option:
+ - Collabora Edit Inline Menu, this will add the menu option that opens the Collabora editor with Alfresco Share menu options visible
+ - Collabora Edit Fullpage Menu, this will add the menu option that opens the Collabora editor in full view, removing Alfresco Share menus and footer. Editing is still in Share context, and if editor is closed using close button in upper right corner, the page will return to Alfresco Share detaials page.
+
 ## Test
 
 You can start the application for local test with docker-compose.
