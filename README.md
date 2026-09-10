@@ -71,13 +71,26 @@ mise run start
 
 2. Restart Share
 
-#### Share Extension Module Deployment
+#### Editor layout
 
-In order for the Collabora menu options for editing to show, visit page <servername>/share/page/modules/deploy, login with administrator priviliges first using the regular login page.
-Make sure the module "Collabora Global Extension" is deployed.
-For the editing menu, make a choice between these module for the editing menu option:
- - Collabora Edit Inline Menu, this will add the menu option that opens the Collabora editor with Alfresco Share menu options visible
- - Collabora Edit Fullpage Menu, this will add the menu option that opens the Collabora editor in full view, removing Alfresco Share menus and footer. Editing is still in Share context, and if editor is closed using close button in upper right corner, the page will return to Alfresco Share detaials page.
+The "Edit in Collabora" menu action is deployed automatically, no administrator action is
+required on `<servername>/share/page/modules/deploy`.
+
+By default the editor opens with the Alfresco Share header and footer visible. To open it in
+full page view instead — Share menus and footer removed, editing still in Share context, the
+close button in the upper right corner returning to the document details page — set the
+following in `share-config-custom.xml`:
+
+```xml
+<config evaluator="string-compare" condition="CollaboraOnline">
+  <editor>
+    <full-page>true</full-page>
+  </editor>
+</config>
+```
+
+The layout can also be forced per request with the `fullwidth` URL parameter, which overrides
+the configured default: `collabora-online-edit?nodeRef=<nodeRef>&fullwidth=true`.
 
 ## Test
 

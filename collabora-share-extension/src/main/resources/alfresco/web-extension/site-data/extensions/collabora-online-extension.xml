@@ -46,15 +46,6 @@ SPDX-License-Identifier: Apache-2.0
                             <evaluator>evaluator.dk.magenta.doclib.action.isMimetypeEditableLibreOffice</evaluator>
                         </action>
 
-                        <action id="document-edit-collabora-online-full" type="link" label="actions.document.edit-collabora-online">
-                            <param name="href">collabora-online-edit?nodeRef={node.nodeRef}&amp;fullwidth=true</param>
-                            <param name="target">_blank</param>
-                            <permissions>
-                                <permission allow="true">Write</permission>
-                            </permissions>
-                            <evaluator>evaluator.dk.magenta.doclib.action.isMimetypeEditableLibreOffice</evaluator>
-                        </action>
-
                          <!-- Upload new version -->
                          <action id="document-upload-new-version" type="javascript" label="actions.document.upload-new-version">
                             <param name="function">onActionUploadNewVersion</param>
@@ -163,41 +154,7 @@ SPDX-License-Identifier: Apache-2.0
                             <evaluator negate="true">evaluator.doclib.indicator.collaboraEditing</evaluator>
                          </action>
                     </actions>
-                </config>
-                <config evaluator="string-compare" condition="DocumentLibrary">
-                    <indicators>
-                        <!-- Being edited by current user -->
-                        <indicator id="collabora-editing" index="15" action="document-edit-collabora-online">
-                            <evaluator>evaluator.doclib.indicator.collaboraEditing</evaluator>
-                        </indicator>
-                    </indicators>
-                </config>
-            </configurations>
-        </module>
-
-
-        <module>
-            <id>Collabora Edit Inline Menu</id>
-            <version>${project.version}</version>
-            <auto-deploy>false</auto-deploy>
-            <auto-deploy-index>5</auto-deploy-index>
-
-            <components>
-                <component>
-                </component>
-            </components>
-
-            <customizations>
-                <customization>
-                    <targetPackageRoot>org.alfresco</targetPackageRoot>
-                    <sourcePackageRoot>org.alfresco.fakeroot</sourcePackageRoot>
-                    <!-- Needs a fake root package, else module won't deploy -->
-                </customization>
-            </customizations>
-            
-            <configurations>
-                <config evaluator="string-compare" condition="DocLibActions">
-                                        <actionGroups>
+                    <actionGroups>
                         <actionGroup id="document-browse">
                             <action index="199" id="document-edit-collabora-online"/>
                         </actionGroup>
@@ -206,38 +163,13 @@ SPDX-License-Identifier: Apache-2.0
                         </actionGroup>
                     </actionGroups>
                 </config>
-            </configurations>
-        </module>
-
-        <module>
-            <id>Collabora Edit Fullpage Menu</id>
-            <version>${project.version}</version>
-            <auto-deploy>false</auto-deploy>
-            <auto-deploy-index>6</auto-deploy-index>
-
-            <components>
-                <component>
-                </component>
-            </components>
-
-            <customizations>
-                <customization>
-                    <targetPackageRoot>org.alfresco</targetPackageRoot>
-                    <sourcePackageRoot>org.alfresco.fakeroot</sourcePackageRoot>
-                    <!-- Needs a fake root package, else module won't deploy -->
-                </customization>
-            </customizations>
-            
-            <configurations>
-                <config evaluator="string-compare" condition="DocLibActions">
-                    <actionGroups>
-                        <actionGroup id="document-browse">
-                            <action index="199" id="document-edit-collabora-online-full"/>
-                        </actionGroup>
-                        <actionGroup id="document-details">
-                            <action index="339" subgroup="30" id="document-edit-collabora-online-full"/>
-                        </actionGroup>
-                    </actionGroups>
+                <config evaluator="string-compare" condition="DocumentLibrary">
+                    <indicators>
+                        <!-- Being edited by current user -->
+                        <indicator id="collabora-editing" index="15" action="document-edit-collabora-online">
+                            <evaluator>evaluator.doclib.indicator.collaboraEditing</evaluator>
+                        </indicator>
+                    </indicators>
                 </config>
             </configurations>
         </module>

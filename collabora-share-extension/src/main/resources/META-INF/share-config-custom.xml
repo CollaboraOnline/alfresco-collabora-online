@@ -42,4 +42,10 @@
     </dependencies>
   </config>
 
+  <config evaluator="string-compare" condition="CollaboraOnline">
+    <editor>
+      <full-page>false</full-page>
+    </editor>
+  </config>
+
 </alfresco-config>

@@ -6,8 +6,8 @@ SPDX-License-Identifier: Apache-2.0
 
 <#include "include/alfresco-template.ftl" />
 
-<#-- ?fullwidth=true renders the editor alone, without the Share header/footer chrome -->
-<#assign fullwidth = (page.url.args.fullwidth!"false") == "true">
+<#assign fullPageDefault = config.scoped['CollaboraOnline']['editor'].getChildValue('full-page')!"false">
+<#assign fullwidth = (page.url.args.fullwidth!fullPageDefault) == "true">
 
 <#if fullwidth>
 <@templateHeader />
