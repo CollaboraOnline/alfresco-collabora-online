@@ -174,34 +174,5 @@ SPDX-License-Identifier: Apache-2.0
             </configurations>
         </module>
 
-        <module>
-            <id>collabora-online-Page</id>
-            <version>${project.version}</version>
-            <auto-deploy>false</auto-deploy>
-            <auto-deploy-index>7</auto-deploy-index>
-            <evaluator type="magenta.page.module.evaluator">
-                <params>
-                    <pageId>collabora-online-edit</pageId>
-                </params>
-            </evaluator>
-            <configurations>
-                <config evaluator="string-compare" condition="WebFramework" replace="false">
-                    <web-framework>
-                        <dojo-pages>
-                            <packages>
-                                <package name="libreofficepage" location="js/magenta/libreofficepage"/>
-                            </packages>
-                        </dojo-pages>
-                    </web-framework>
-                </config>
-            </configurations>
-            <customizations>
-                <customization>
-                    <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
-                    <sourcePackageRoot>dk.magenta.header</sourcePackageRoot>
-                </customization>
-            </customizations>
-        </module>
-
     </modules>
 </extension>

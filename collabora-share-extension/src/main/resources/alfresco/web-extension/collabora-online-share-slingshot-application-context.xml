@@ -17,8 +17,6 @@ SPDX-License-Identifier: Apache-2.0
   placed in the tomcat/shared/classes/alfresco/web-extension/custom-slingshot-application-context.xml file
   -->
 
-  <bean id="magenta.page.module.evaluator" class="dk.magenta.libreOffice.online.PageModuleEvaluator" />
-
   <!-- Being edited with the libreoffice online -->
   <bean id="evaluator.doclib.indicator.collaboraEditing" class="fr.jeci.collabora.evaluator.doclib.indicator.EditingEvaluator" />
 
