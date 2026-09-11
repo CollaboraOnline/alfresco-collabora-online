@@ -255,18 +255,11 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_BAD_REQUEST, "This node as no name: " + nodeRef);
 		}
 
-		int lastDot = filename.lastIndexOf('.');
-		if (lastDot < 0) {
-			logger.warn("This node has no extension: {} fileName={} use mimeType (legacy)", nodeRef, filename);
-			final ContentData contentData = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
-			return this.wopiDiscovery.getSrcURL(contentData.getMimetype(), action);
-		}
-		String ext = filename.substring(lastDot + 1);
-		List<DiscoveryAction> actions = this.wopiDiscovery.getAction(ext.toLowerCase());
+		final String ext = fileExtension(filename);
+		final List<DiscoveryAction> actions = (ext == null) ? null : this.wopiDiscovery.getAction(ext);
 
 		if (actions == null || actions.isEmpty()) {
-			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED, "No action for node=" + nodeRef + " fileName="
-																							+ filename);
+			return srcURLFromMimetype(nodeRef, filename, action);
 		}
 
 		DiscoveryAction found = null;
@@ -284,6 +277,33 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		return found.getUrlsrc();
+	}
+
+	/**
+	 * Returns the lower-cased suffix of a file name, or {@code null} when it carries none.
+	 */
+	private static String fileExtension(String filename) {
+		final int lastDot = filename.lastIndexOf('.');
+		if (lastDot < 0 || lastDot == filename.length() - 1) {
+			return null;
+		}
+		return filename.substring(lastDot + 1)
+				.toLowerCase();
+	}
+
+	private String srcURLFromMimetype(NodeRef nodeRef, String filename, String action) {
+		final ContentData contentData = (ContentData) this.nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
+		final String mimetype = (contentData == null) ? null : contentData.getMimetype();
+		final String urlsrc = (mimetype == null) ? null : this.wopiDiscovery.getSrcURL(mimetype, action);
+
+		if (urlsrc == null) {
+			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED, "No action for node=" + nodeRef + " fileName="
+																							+ filename + " mimeType=" + mimetype);
+		}
+
+		logger.warn("No discovery action for the extension of fileName={}, resolved with mimeType={} (legacy)", filename,
+				mimetype);
+		return urlsrc;
 	}
 
 	@Override

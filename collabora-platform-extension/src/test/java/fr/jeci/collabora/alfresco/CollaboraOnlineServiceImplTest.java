@@ -36,6 +36,7 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.impl.AllowPermissionServiceImpl;
 import org.alfresco.repo.version.NodeServiceImpl;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -111,6 +112,74 @@ public class CollaboraOnlineServiceImplTest {
 
 		String wopiSrcURL = this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit");
 		assertEquals(urlsrc, wopiSrcURL);
+	}
+
+	// ========== Extension Resolution Tests ==========
+
+	private static final String PDF_MIMETYPE = "application/pdf";
+	private static final String PDF_URLSRC = PUBLICHOST_SERVER + "/browser/1430151/cool.html?";
+
+	private WopiDiscovery onlineDiscovery() {
+		WopiDiscovery wopiDiscovery = mock(WopiDiscovery.class);
+		when(wopiDiscovery.hasCollaboraOnline()).thenReturn(true);
+		this.collaboraOnlineService.setWopiDiscovery(wopiDiscovery);
+		return wopiDiscovery;
+	}
+
+	private void givenNode(String name, String mimetype) {
+		when(nodeService.getProperty(nodeRef, ContentModel.PROP_NAME)).thenReturn(name);
+		when(nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT)).thenReturn(new ContentData("store://any.bin",
+				mimetype, 1024L, "UTF-8"));
+	}
+
+	@Test
+	public void testGetWopiSrcURL_dotInVersionNumberFallsBackToMimetype() throws IOException {
+		givenNode("Alfresco 7.4 - Installation et exploitation", PDF_MIMETYPE);
+
+		WopiDiscovery wopiDiscovery = onlineDiscovery();
+		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+
+		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
+	}
+
+	@Test
+	public void testGetWopiSrcURL_numericSuffixFallsBackToMimetype() throws IOException {
+		givenNode("Budget 2024.11", PDF_MIMETYPE);
+
+		WopiDiscovery wopiDiscovery = onlineDiscovery();
+		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+
+		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
+	}
+
+	@Test
+	public void testGetWopiSrcURL_trailingDotFallsBackToMimetype() throws IOException {
+		givenNode("toto.", PDF_MIMETYPE);
+
+		WopiDiscovery wopiDiscovery = onlineDiscovery();
+		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+
+		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
+	}
+
+	@Test
+	public void testGetWopiSrcURL_uppercaseExtensionStillResolved() throws IOException {
+		givenNode("toto.ODS", "application/vnd.oasis.opendocument.spreadsheet");
+
+		WopiDiscovery wopiDiscovery = onlineDiscovery();
+		String urlsrc = PUBLICHOST_SERVER + "/browser/1430151/cool.html?ods";
+		when(wopiDiscovery.getAction("ods")).thenReturn(List.of(new DiscoveryAction("ods", "edit", urlsrc)));
+
+		assertEquals(urlsrc, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testGetWopiSrcURL_unknownExtensionAndMimetype() throws IOException {
+		givenNode("archive.dwg", "image/vnd.dwg");
+
+		onlineDiscovery();
+
+		this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit");
 	}
 
 	// ========== Token Generation Tests ==========
