@@ -17,6 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.nio.charset.StandardCharsets;
@@ -75,6 +76,25 @@ public class WopiDiscoveryTest {
 				.getName());
 		assertEquals("pdf", action.get(0)
 				.getExt());
+	}
+
+	@Test
+	public void testGetLegacyAction() throws XMLStreamException, IOException {
+		File discoveryFile = new File("src/test/resources/discovery_collabora_online.xml");
+		FileInputStream in = new FileInputStream(discoveryFile);
+		wopiDiscovery.loadDiscoveryXML(in);
+
+		List<DiscoveryAction> actions = wopiDiscovery.getLegacyAction("application/pdf");
+		assertEquals(1, actions.size());
+		assertEquals("view_comment", actions.get(0)
+				.getName());
+
+		assertFalse(wopiDiscovery.getLegacyAction("APPLICATION/VND.MS-EXCEL")
+				.isEmpty());
+		assertTrue(wopiDiscovery.getLegacyAction("image/vnd.dwg")
+				.isEmpty());
+		assertTrue(wopiDiscovery.getLegacyAction(null)
+				.isEmpty());
 	}
 
 	@Test

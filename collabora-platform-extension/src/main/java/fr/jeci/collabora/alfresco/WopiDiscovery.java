@@ -31,7 +31,7 @@ public class WopiDiscovery {
 
 	private List<DiscoveryApp> applications = Collections.emptyList();
 	private Map<String, List<DiscoveryAction>> actions = Collections.emptyMap();
-	private Map<String, DiscoveryAction> legacyActions = Collections.emptyMap();
+	private Map<String, List<DiscoveryAction>> legacyActions = Collections.emptyMap();
 
 	private final AtomicBoolean hasCollaboraOnline = new AtomicBoolean(false);
 
@@ -88,12 +88,23 @@ public class WopiDiscovery {
 			return null;
 		}
 
-		DiscoveryAction discoveryAction = this.legacyActions.get(String.format("%s/%s", mimeType.toLowerCase(), action
-				.toLowerCase()));
-		if (discoveryAction == null) {
-			return null;
+		for (DiscoveryAction discoveryAction : getLegacyAction(mimeType)) {
+			if (discoveryAction.name.equalsIgnoreCase(action)) {
+				return discoveryAction.urlsrc;
+			}
 		}
-		return discoveryAction.urlsrc;
+		return null;
+	}
+
+	/**
+	 * Returns the actions advertised for a mimetype by the legacy section of the discovery, never {@code null}.
+	 */
+	public List<DiscoveryAction> getLegacyAction(String mimetype) {
+		if (mimetype == null) {
+			logger.warn("get legacy action for null mimetype");
+			return Collections.emptyList();
+		}
+		return this.legacyActions.getOrDefault(mimetype.toLowerCase(), Collections.emptyList());
 	}
 
 	public Map<String, List<DiscoveryAction>> getActions() {
@@ -123,7 +134,7 @@ public class WopiDiscovery {
 
 		List<DiscoveryApp> mApplications = new ArrayList<>(7);
 		Map<String, List<DiscoveryAction>> mActions = new HashMap<>();
-		Map<String, DiscoveryAction> mLegacyActions = new HashMap<>();
+		Map<String, List<DiscoveryAction>> mLegacyActions = new HashMap<>();
 
 		DiscoveryApp app = null;
 		DiscoveryAction action = null;
@@ -155,7 +166,8 @@ public class WopiDiscovery {
 
 					if (app.name.contains("/")) {
 						// legacy format
-						mLegacyActions.put(String.format("%s/%s", app.name, action.name), action);
+						mLegacyActions.computeIfAbsent(app.name.toLowerCase(), k -> new ArrayList<>(1))
+								.add(action);
 					} else {
 						app.actions.add(action);
 

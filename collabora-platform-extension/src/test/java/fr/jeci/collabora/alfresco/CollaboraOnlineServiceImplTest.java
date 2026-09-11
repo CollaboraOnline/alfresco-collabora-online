@@ -137,7 +137,8 @@ public class CollaboraOnlineServiceImplTest {
 		givenNode("Alfresco 7.4 - Installation et exploitation", PDF_MIMETYPE);
 
 		WopiDiscovery wopiDiscovery = onlineDiscovery();
-		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+		when(wopiDiscovery.getLegacyAction(PDF_MIMETYPE)).thenReturn(List.of(new DiscoveryAction("", "edit",
+				PDF_URLSRC)));
 
 		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
 	}
@@ -147,7 +148,8 @@ public class CollaboraOnlineServiceImplTest {
 		givenNode("Budget 2024.11", PDF_MIMETYPE);
 
 		WopiDiscovery wopiDiscovery = onlineDiscovery();
-		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+		when(wopiDiscovery.getLegacyAction(PDF_MIMETYPE)).thenReturn(List.of(new DiscoveryAction("", "edit",
+				PDF_URLSRC)));
 
 		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
 	}
@@ -157,7 +159,8 @@ public class CollaboraOnlineServiceImplTest {
 		givenNode("toto.", PDF_MIMETYPE);
 
 		WopiDiscovery wopiDiscovery = onlineDiscovery();
-		when(wopiDiscovery.getSrcURL(PDF_MIMETYPE, "edit")).thenReturn(PDF_URLSRC);
+		when(wopiDiscovery.getLegacyAction(PDF_MIMETYPE)).thenReturn(List.of(new DiscoveryAction("", "edit",
+				PDF_URLSRC)));
 
 		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
 	}
@@ -171,6 +174,17 @@ public class CollaboraOnlineServiceImplTest {
 		when(wopiDiscovery.getAction("ods")).thenReturn(List.of(new DiscoveryAction("ods", "edit", urlsrc)));
 
 		assertEquals(urlsrc, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
+	}
+
+	@Test
+	public void testGetWopiSrcURL_mimetypeFallbackDegradesToAvailableAction() throws IOException {
+		givenNode("Alfresco 7.4 - Installation et exploitation", PDF_MIMETYPE);
+
+		WopiDiscovery wopiDiscovery = onlineDiscovery();
+		when(wopiDiscovery.getLegacyAction(PDF_MIMETYPE)).thenReturn(List.of(new DiscoveryAction("", "view_comment",
+				PDF_URLSRC)));
+
+		assertEquals(PDF_URLSRC, this.collaboraOnlineService.getWopiSrcURL(nodeRef, "edit"));
 	}
 
 	@Test(expected = WebScriptException.class)

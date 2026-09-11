@@ -256,27 +256,28 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		}
 
 		final String ext = fileExtension(filename);
-		final List<DiscoveryAction> actions = (ext == null) ? null : this.wopiDiscovery.getAction(ext);
+		List<DiscoveryAction> actions = (ext == null) ? null : this.wopiDiscovery.getAction(ext);
 
 		if (actions == null || actions.isEmpty()) {
-			return srcURLFromMimetype(nodeRef, filename, action);
+			actions = legacyActions(nodeRef, filename);
 		}
 
-		DiscoveryAction found = null;
+		return selectAction(actions, action, filename).getUrlsrc();
+	}
+
+	/**
+	 * Returns the action matching the requested name, or the first one advertised for the file when none matches.
+	 */
+	private static DiscoveryAction selectAction(List<DiscoveryAction> actions, String action, String filename) {
 		for (DiscoveryAction act : actions) {
 			if (act.getName()
 					.equals(action)) {
-				found = act;
-				break;
+				return act;
 			}
 		}
 
-		if (found == null) {
-			logger.warn("Action name not found for action={} fileName={}", action, filename);
-			found = actions.get(0);
-		}
-
-		return found.getUrlsrc();
+		logger.warn("Action name not found for action={} fileName={}", action, filename);
+		return actions.get(0);
 	}
 
 	/**
@@ -291,19 +292,21 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 				.toLowerCase();
 	}
 
-	private String srcURLFromMimetype(NodeRef nodeRef, String filename, String action) {
+	private List<DiscoveryAction> legacyActions(NodeRef nodeRef, String filename) {
 		final ContentData contentData = (ContentData) this.nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
 		final String mimetype = (contentData == null) ? null : contentData.getMimetype();
-		final String urlsrc = (mimetype == null) ? null : this.wopiDiscovery.getSrcURL(mimetype, action);
+		final List<DiscoveryAction> actions = (mimetype == null)
+				? Collections.emptyList()
+				: this.wopiDiscovery.getLegacyAction(mimetype);
 
-		if (urlsrc == null) {
+		if (actions == null || actions.isEmpty()) {
 			throw new WebScriptException(Status.STATUS_NOT_IMPLEMENTED, "No action for node=" + nodeRef + " fileName="
 																							+ filename + " mimeType=" + mimetype);
 		}
 
 		logger.warn("No discovery action for the extension of fileName={}, resolved with mimeType={} (legacy)", filename,
 				mimetype);
-		return urlsrc;
+		return actions;
 	}
 
 	@Override
