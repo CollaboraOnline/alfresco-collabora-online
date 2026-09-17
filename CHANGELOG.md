@@ -1,5 +1,24 @@
 # Changelog
 
+
+## [1.8.0] - 2026-09-17
+
+### Features
+
+- *(share)* Add a full-page editor view as a Share menu action
+- *(share)* Add Swedish localization
+- *(share)* Show a save dialog when closing the editor
+
+### Bug Fixes
+
+- *(share)* Restore auto-deployed Collabora action
+- *(wopi)* Fall back to mimetype on unknown ext
+- *(wopi)* Degrade gracefully on the mimetype fallback
+
+### Documentation
+
+- Add CONTRIBUTORS.md and its generator
+
 ## [1.7.2] - 2026-06-24
 
 ### Bug Fixes
