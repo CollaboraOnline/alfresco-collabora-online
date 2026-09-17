@@ -1,5 +1,5 @@
 [tools]
-maven = "3.9.9"
+maven = "3.9.16"
 java = "temurin-17"
 git-cliff = "latest"
 
