@@ -49,7 +49,6 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 	private NodeLocatorService nodeLocatorService;
 
 	private NodeRef baseFolderRef;
-	private NodeRef fontsFolderRef;
 
 	/**
 	 * Resolve and cache repository node references on startup. Runs on {@code ContextRefreshedEvent}, after the
@@ -62,8 +61,7 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 			initBaseFolderRef();
 			boolean configEnabled = isRemoteConfigEnabledInternal();
 			if (configEnabled) {
-				fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
-				regenerateFontsConfigFile();
+				regenerateFontsConfigFile(getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME));
 			}
 			return configEnabled;
 		});
@@ -98,8 +96,7 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 				String defaultConfig = "{\"kind\":\"configuration\",\"remote_font_config\":{\"url\":\"" + fontsConfigUrl
 											  + "\"}}";
 				createJsonFile(baseFolderRef, CONFIG_FILE_NAME, defaultConfig);
-				fontsFolderRef = getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME);
-				regenerateFontsConfigFile();
+				regenerateFontsConfigFile(getOrCreateFolder(baseFolderRef, FONTS_FOLDER_NAME));
 				logger.info("Remote configuration enabled");
 			}
 			return null;
@@ -123,7 +120,6 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 			if (fontsFolder != null) {
 				nodeService.deleteNode(fontsFolder);
 			}
-			fontsFolderRef = null;
 			logger.info("Remote configuration disabled");
 			return null;
 		});
@@ -166,10 +162,14 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 	@Override
 	public String getFontsConfig() {
 		return AuthenticationUtil.runAsSystem(() -> {
+			NodeRef fontsFolder = getFontsFolder();
+			if (fontsFolder == null) {
+				return buildFontsConfig(Collections.emptyList());
+			}
 			NodeRef fontsConfigNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS,
 					FONTS_CONFIG_FILE_NAME);
 			if (fontsConfigNode == null) {
-				return regenerateFontsConfigFile();
+				return regenerateFontsConfigFile(fontsFolder);
 			}
 			return readContent(fontsConfigNode);
 		});
@@ -180,8 +180,32 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 		return computeETag(getFontsConfig());
 	}
 
-	private String regenerateFontsConfigFile() {
-		List<FileInfo> fonts = fileFolderService.listFiles(fontsFolderRef);
+	private NodeRef getFontsFolder() {
+		return nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS, FONTS_FOLDER_NAME);
+	}
+
+	private NodeRef getFontNode(String fontName) {
+		NodeRef fontsFolder = getFontsFolder();
+		if (fontsFolder == null) {
+			return null;
+		}
+		return nodeService.getChildByName(fontsFolder, ContentModel.ASSOC_CONTAINS, fontName);
+	}
+
+	private String regenerateFontsConfigFile(NodeRef fontsFolder) {
+		String json = buildFontsConfig(fileFolderService.listFiles(fontsFolder));
+		NodeRef fontsConfigNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS,
+				FONTS_CONFIG_FILE_NAME);
+		if (fontsConfigNode != null) {
+			writeContent(fontsConfigNode, json, JSON_MIMETYPE);
+		} else {
+			createJsonFile(baseFolderRef, FONTS_CONFIG_FILE_NAME, json);
+		}
+		logger.debug("Regenerated {}", FONTS_CONFIG_FILE_NAME);
+		return json;
+	}
+
+	private String buildFontsConfig(List<FileInfo> fonts) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{\"kind\":\"fontconfiguration\",\"server\":\"Alfresco\",\"fonts\":[");
 		boolean first = true;
@@ -202,23 +226,17 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 					.append("\"}");
 		}
 		sb.append("]}");
-
-		String json = sb.toString();
-		NodeRef fontsConfigNode = nodeService.getChildByName(baseFolderRef, ContentModel.ASSOC_CONTAINS,
-				FONTS_CONFIG_FILE_NAME);
-		if (fontsConfigNode != null) {
-			writeContent(fontsConfigNode, json, JSON_MIMETYPE);
-		} else {
-			createJsonFile(baseFolderRef, FONTS_CONFIG_FILE_NAME, json);
-		}
-		logger.debug("Regenerated {}", FONTS_CONFIG_FILE_NAME);
-		return json;
+		return sb.toString();
 	}
 
 	@Override
 	public List<String> listFonts() {
 		return AuthenticationUtil.runAsSystem(() -> {
-			List<FileInfo> fonts = fileFolderService.listFiles(fontsFolderRef);
+			NodeRef fontsFolder = getFontsFolder();
+			if (fontsFolder == null) {
+				return Collections.<String>emptyList();
+			}
+			List<FileInfo> fonts = fileFolderService.listFiles(fontsFolder);
 			List<String> names = new ArrayList<>(fonts.size());
 			for (FileInfo font : fonts) {
 				names.add(font.getName());
@@ -230,7 +248,7 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 	@Override
 	public ContentReader getFontContentReader(String fontName) {
 		return AuthenticationUtil.runAsSystem(() -> {
-			NodeRef fontNode = nodeService.getChildByName(fontsFolderRef, ContentModel.ASSOC_CONTAINS, fontName);
+			NodeRef fontNode = getFontNode(fontName);
 			if (fontNode == null) {
 				throw new WebScriptException(Status.STATUS_NOT_FOUND, "Font not found: " + fontName);
 			}
@@ -246,7 +264,11 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 	public String uploadFont(String fontName, InputStream content, String mimeType) {
 		String safeName = sanitizeFontName(fontName);
 		AuthenticationUtil.runAsSystem(() -> {
-			NodeRef existing = nodeService.getChildByName(fontsFolderRef, ContentModel.ASSOC_CONTAINS, safeName);
+			NodeRef fontsFolder = getFontsFolder();
+			if (fontsFolder == null) {
+				throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Remote configuration is disabled");
+			}
+			NodeRef existing = nodeService.getChildByName(fontsFolder, ContentModel.ASSOC_CONTAINS, safeName);
 			if (existing != null) {
 				writeContent(existing, content, mimeType);
 				logger.info("Updated font '{}'", safeName);
@@ -254,13 +276,13 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 				Map<QName, Serializable> props = new HashMap<>(1);
 				props.put(ContentModel.PROP_NAME, safeName);
 
-				NodeRef fontNode = nodeService.createNode(fontsFolderRef, ContentModel.ASSOC_CONTAINS, QName.createQName(
+				NodeRef fontNode = nodeService.createNode(fontsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(
 						NamespaceService.CONTENT_MODEL_1_0_URI, safeName), ContentModel.TYPE_CONTENT, props)
 						.getChildRef();
 				writeContent(fontNode, content, mimeType);
 				logger.info("Uploaded font '{}'", safeName);
 			}
-			regenerateFontsConfigFile();
+			regenerateFontsConfigFile(fontsFolder);
 			return null;
 		});
 		return safeName;
@@ -279,13 +301,13 @@ public class RemoteConfigServiceImpl extends AbstractLifecycleBean implements Re
 	@Override
 	public void deleteFont(String fontName) {
 		AuthenticationUtil.runAsSystem(() -> {
-			NodeRef fontNode = nodeService.getChildByName(fontsFolderRef, ContentModel.ASSOC_CONTAINS, fontName);
+			NodeRef fontNode = getFontNode(fontName);
 			if (fontNode == null) {
 				throw new WebScriptException(Status.STATUS_NOT_FOUND, "Font not found: " + fontName);
 			}
 			nodeService.deleteNode(fontNode);
 			logger.info("Deleted font '{}'", fontName);
-			regenerateFontsConfigFile();
+			regenerateFontsConfigFile(getFontsFolder());
 			return null;
 		});
 	}
