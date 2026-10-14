@@ -11,7 +11,7 @@ workflow:
     - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/
 
 default:
-  image: docker.io/maven:3.9-eclipse-temurin-17
+  image: rg.fr-par.scw.cloud/public/docker.io/library/maven:3.9.16-eclipse-temurin-17-noble
   tags:
     - docker
     - jeci
