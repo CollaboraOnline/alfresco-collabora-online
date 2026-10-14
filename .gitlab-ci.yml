@@ -1,6 +1,14 @@
 ---
 stages:
+  - security
   - deploy
+
+workflow:
+  rules:
+    - if: $CI_COMMIT_BRANCH == "stable"
+      when: never
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/
 
 default:
   image: docker.io/maven:3.9-eclipse-temurin-17
@@ -23,6 +31,55 @@ cache:
   paths:
     - .m2/repository
 
+sbom:
+  stage: security
+  script:
+    - source ${NEXUS_SECRET_FILE}
+    - mvn $MAVEN_CLI_OPTS org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
+      -DoutputFormat=json -DoutputName=bom-runtime
+      -DincludeProvidedScope=false -DincludeTestScope=false
+    - mvn $MAVEN_CLI_OPTS org.cyclonedx:cyclonedx-maven-plugin:makeAggregateBom
+      -DoutputFormat=json -DoutputName=bom-full
+      -DincludeProvidedScope=true -DincludeTestScope=false
+  artifacts:
+    paths:
+      - target/bom-runtime.json
+      - target/bom-full.json
+    expire_in: 1 week
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/
+
+dependency-scan:
+  stage: security
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/
+  image:
+    name: rg.fr-par.scw.cloud/public/docker.io/aquasec/trivy:0.74.0
+    entrypoint: [""]
+  needs:
+    - job: sbom
+      artifacts: true
+  variables:
+    TRIVY_CACHE_DIR: .trivycache
+    TRIVY_NO_PROGRESS: "true"
+  cache:
+    key: trivy-db
+    paths:
+      - .trivycache/
+  script:
+    - trivy sbom --quiet --format json --output trivy-full.json target/bom-full.json
+    - trivy convert --quiet --format table --severity HIGH,CRITICAL trivy-full.json
+    - trivy sbom --quiet --format json --output trivy-runtime.json target/bom-runtime.json
+    - trivy convert --quiet --format table --severity CRITICAL --exit-code 1 trivy-runtime.json
+  artifacts:
+    when: always
+    paths:
+      - trivy-full.json
+      - trivy-runtime.json
+    expire_in: 1 week
+
 maven-deploy:
   stage: deploy
   script:
@@ -33,5 +90,23 @@ maven-deploy:
       - "**/target/*.jar"
       - "**/target/*.amp"
       - "**/target/*.tgz"
-  except:
-    - tags
+  needs:
+    - job: dependency-scan
+      artifacts: false
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/
+
+sbom-publish:
+  stage: deploy
+  needs:
+    - job: sbom
+      artifacts: true
+    - job: maven-deploy
+      artifacts: false
+  script:
+    - source ${NEXUS_SECRET_FILE}
+    - mvn $MAVEN_CLI_OPTS -N deploy:deploy-file@sbom-runtime deploy:deploy-file@sbom-full
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^[0-9]+\.[0-9]+/

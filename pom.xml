@@ -39,6 +39,9 @@
 
     <!-- This parameter is only required for those cases in which ACS is not exposed in http://localhost:8080/alfresco (i.e. Windows Docker) -->
     <test.acs.endpoint.path/>
+
+    <sbom.repository.id>${project.distributionManagement.repository.id}</sbom.repository.id>
+    <sbom.repository.url>${project.distributionManagement.repository.url}</sbom.repository.url>
   </properties>
   <!-- Libs used in Unit and Integration tests -->
   <!--
@@ -202,6 +205,15 @@
           <artifactId>maven-dependency-plugin</artifactId>
           <version>3.8.1</version>
         </plugin>
+        <plugin>
+          <groupId>org.cyclonedx</groupId>
+          <artifactId>cyclonedx-maven-plugin</artifactId>
+          <version>2.9.3</version>
+          <configuration>
+            <outputFormat>json</outputFormat>
+            <includeTestScope>false</includeTestScope>
+          </configuration>
+        </plugin>
           <plugin>
             <groupId>com.diffplug.spotless</groupId>
             <artifactId>spotless-maven-plugin</artifactId>
@@ -326,6 +338,49 @@
                 <exclude>**/*.min.css</exclude>
               </excludes>
               <force>true</force>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>3.1.4</version>
+        <executions>
+          <execution>
+            <id>sbom-runtime</id>
+            <phase>none</phase>
+            <goals>
+              <goal>deploy-file</goal>
+            </goals>
+            <configuration>
+              <file>${project.build.directory}/bom-runtime.json</file>
+              <classifier>cyclonedx</classifier>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${project.version}</version>
+              <packaging>json</packaging>
+              <generatePom>false</generatePom>
+              <repositoryId>${sbom.repository.id}</repositoryId>
+              <url>${sbom.repository.url}</url>
+            </configuration>
+          </execution>
+          <execution>
+            <id>sbom-full</id>
+            <phase>none</phase>
+            <goals>
+              <goal>deploy-file</goal>
+            </goals>
+            <configuration>
+              <file>${project.build.directory}/bom-full.json</file>
+              <classifier>cyclonedx-full</classifier>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>${project.version}</version>
+              <packaging>json</packaging>
+              <generatePom>false</generatePom>
+              <repositoryId>${sbom.repository.id}</repositoryId>
+              <url>${sbom.repository.url}</url>
             </configuration>
           </execution>
         </executions>
