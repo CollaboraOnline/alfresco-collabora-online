@@ -4,10 +4,11 @@
 
 package fr.jeci.collabora.alfresco.job;
 
+import java.time.Instant;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.schedule.AbstractScheduledLockedJob;
-import org.joda.time.LocalDateTime;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
@@ -32,7 +33,7 @@ public class PurgeWopiTokensJob extends AbstractScheduledLockedJob implements St
 		if (!(store instanceof WopiTokenStore tokenStore)) {
 			throw new AlfrescoRuntimeException("PurgeWopiTokensJob data must contain a valid 'tokenStore' reference");
 		}
-		final int purged = AuthenticationUtil.runAsSystem(() -> tokenStore.purgeExpired(LocalDateTime.now()));
+		final int purged = AuthenticationUtil.runAsSystem(() -> tokenStore.purgeExpired(Instant.now()));
 		logger.debug("Purged {} expired WOPI tokens", purged);
 	}
 }

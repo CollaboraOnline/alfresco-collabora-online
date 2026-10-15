@@ -10,14 +10,17 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import java.time.Duration;
+import java.time.Instant;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.StoreRef;
-import org.joda.time.LocalDateTime;
 import org.junit.Test;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import fr.jeci.collabora.alfresco.WopiTokenKind;
 
 /**
  * Tests {@link AbstractWopiWebScript#sizeMismatchWarning(String, long)}, the integrity check against the optional,
@@ -56,10 +59,11 @@ public class AbstractWopiWebScriptTest {
 
 	private static final NodeRef INPUT = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "input");
 	private static final NodeRef OUTPUT = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "output");
-	private static final LocalDateTime NOW = LocalDateTime.now();
+	private static final Instant NOW = Instant.now();
 
 	private static WOPIAccessTokenInfo scoped(String writeFileId) {
-		return new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(1), "input", writeFileId, "alice", false);
+		return new WOPIAccessTokenInfo("t", NOW.minus(Duration.ofMinutes(1)), NOW.plus(Duration.ofHours(1)), "input",
+				writeFileId, "alice", WopiTokenKind.TASK);
 	}
 
 	@Test
@@ -94,8 +98,8 @@ public class AbstractWopiWebScriptTest {
 
 	@Test
 	public void testCheckWriteScope_collaboraTokenWritesItsFile() {
-		WOPIAccessTokenInfo collabora = new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(1), "input",
-				"alice");
+		WOPIAccessTokenInfo collabora = new WOPIAccessTokenInfo("t", NOW.minus(Duration.ofMinutes(1)), NOW.plus(Duration
+				.ofHours(1)), "input", "alice");
 
 		AbstractWopiWebScript.checkWriteScope(collabora, INPUT, true);
 	}
@@ -110,19 +114,19 @@ public class AbstractWopiWebScriptTest {
 
 	@Test
 	public void testCheckPutRelativeAllowed_acceptsCollaboraToken() {
-		LocalDateTime now = LocalDateTime.now();
+		Instant now = Instant.now();
 
-		WopiPutRelativeFileWebScript.checkPutRelativeAllowed(new WOPIAccessTokenInfo("t", now, now.plusHours(1), "file-a",
-				"alice"));
+		WopiPutRelativeFileWebScript.checkPutRelativeAllowed(new WOPIAccessTokenInfo("t", now, now.plus(Duration.ofHours(
+				1)), "file-a", "alice"));
 	}
 
 	@Test
 	public void testCheckPutRelativeAllowed_rejectsScopedToken() {
-		LocalDateTime now = LocalDateTime.now();
+		Instant now = Instant.now();
 
 		try {
-			WopiPutRelativeFileWebScript.checkPutRelativeAllowed(new WOPIAccessTokenInfo("t", now, now.plusHours(1),
-					"input", "input", "alice", false));
+			WopiPutRelativeFileWebScript.checkPutRelativeAllowed(new WOPIAccessTokenInfo("t", now, now.plus(Duration
+					.ofHours(1)), "input", "input", "alice", WopiTokenKind.TASK));
 			fail("Expected WebScriptException for a non-renewable token");
 		} catch (WebScriptException expectedException) {
 			assertEquals(Status.STATUS_UNAUTHORIZED, expectedException.getStatus());

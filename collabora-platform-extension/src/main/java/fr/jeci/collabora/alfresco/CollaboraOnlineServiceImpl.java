@@ -11,6 +11,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.lock.mem.Lifetime;
 import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ContentData;
@@ -20,15 +21,15 @@ import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.net.URL;
-import java.time.Duration;
 import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.HashMap;
@@ -52,6 +53,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	private static final int DEFAULT_TOKEN_TTL_MS = ONE_HOUR_MS * 24;
 	private int tokenTtlMs = -1;
+
+	private static final long DEFAULT_TOKEN_MAX_LIFETIME_MS = DEFAULT_TOKEN_TTL_MS * 7L;
+	private long tokenMaxLifetimeMs = DEFAULT_TOKEN_MAX_LIFETIME_MS;
 
 	private URL collaboraPublicUrl;
 	private URL alfrescoPublicURL;
@@ -119,7 +123,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 		final String userName = AuthenticationUtil.getRunAsUser();
 		final String fileId = nodeRef.getId();
-		LocalDateTime now = LocalDateTime.now();
+		Instant now = Instant.now();
 		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now), fileId,
 				userName);
 		this.tokenStore.save(tokenInfo);
@@ -131,23 +135,25 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	@Override
 	public WOPIAccessTokenInfo createScopedAccessToken(final NodeRef input, final NodeRef output, final Duration ttl) {
 		if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Cannot create a scoped token for System user");
+			throw new AccessDeniedException("Cannot create a scoped token for System user");
 		}
 		final String userName = AuthenticationUtil.getRunAsUser();
 		if (userName == null) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No authenticated user");
+			throw new AccessDeniedException("No authenticated user");
 		}
 		if (ttl == null || ttl.isZero() || ttl.isNegative()) {
 			throw new IllegalArgumentException("ttl must be positive");
 		}
+		requireExistingNode(input, "input");
 		requirePermission(input, PermissionService.READ);
 		if (output != null) {
+			requireExistingNode(output, "output");
 			requirePermission(output, PermissionService.WRITE);
 		}
 
-		final LocalDateTime now = LocalDateTime.now();
-		final WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, now.plusMillis(Math
-				.toIntExact(ttl.toMillis())), input.getId(), output == null ? null : output.getId(), userName, false);
+		final Instant now = Instant.now();
+		final WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, now.plus(ttl), input
+				.getId(), output == null ? null : output.getId(), userName, WopiTokenKind.TASK);
 		this.tokenStore.save(tokenInfo);
 
 		logger.debug("Created scoped Access Token for user '{}' reading '{}' writing '{}'", userName, input, output);
@@ -164,20 +170,34 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		if (!stored.isRenewable()) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token expired for " + stored.getMaskedToken());
 		}
+		final Instant now = Instant.now();
+		final Instant maxExpiresAt = stored.getIssuedAt()
+				.plusMillis(this.tokenMaxLifetimeMs);
+		if (!now.isBefore(maxExpiresAt)) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token reached its maximum lifetime for " + stored
+					.getMaskedToken());
+		}
 		final NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, stored.getFileId());
 		final AccessStatus perm = AuthenticationUtil.runAs(() -> this.permissionService.hasPermission(nodeRef,
 				PermissionService.READ), stored.getUserName());
 		if (AccessStatus.ALLOWED != perm) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Not allow to READ " + nodeRef);
 		}
-		stored.setExpiresAt(newExpiresAt(LocalDateTime.now()));
+		final Instant expiresAt = newExpiresAt(now);
+		stored.setExpiresAt(expiresAt.isAfter(maxExpiresAt) ? maxExpiresAt : expiresAt);
 		this.tokenStore.save(stored);
 		return stored;
 	}
 
+	private void requireExistingNode(final NodeRef nodeRef, final String name) {
+		if (nodeRef == null || !this.nodeService.exists(nodeRef)) {
+			throw new IllegalArgumentException(name + " node does not exist: " + nodeRef);
+		}
+	}
+
 	private void requirePermission(final NodeRef nodeRef, final String permission) {
 		if (AccessStatus.ALLOWED != this.permissionService.hasPermission(nodeRef, permission)) {
-			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Not allow to " + permission + " " + nodeRef);
+			throw new AccessDeniedException("Not allow to " + permission + " " + nodeRef);
 		}
 	}
 
@@ -186,7 +206,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 *
 	 * @return Now + tokenTtlMs
 	 */
-	private LocalDateTime newExpiresAt(final LocalDateTime now) {
+	private Instant newExpiresAt(final Instant now) {
 		if (this.tokenTtlMs < 1) {
 			this.tokenTtlMs = DEFAULT_TOKEN_TTL_MS;
 		} else if (this.tokenTtlMs < ONE_HOUR_MS) {
@@ -265,9 +285,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No authenticated user");
 		}
 
-		LocalDateTime now = LocalDateTime.now();
+		Instant now = Instant.now();
 		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now),
-				SETTINGS_FILE_ID, SETTINGS_FILE_ID, userName, false);
+				SETTINGS_FILE_ID, SETTINGS_FILE_ID, userName, WopiTokenKind.SETTINGS);
 		this.tokenStore.save(tokenInfo);
 
 		logger.debug("Created settings access token for user '{}'", userName);
@@ -483,6 +503,14 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 	public void setTokenTtlMs(int tokenTtlMs) {
 		this.tokenTtlMs = tokenTtlMs;
+	}
+
+	/**
+	 * @param tokenMaxLifetimeMs how long, in milliseconds after its creation, a Collabora token may still be renewed;
+	 *                           a value below 1 restores the default of 7 days
+	 */
+	public void setTokenMaxLifetimeMs(long tokenMaxLifetimeMs) {
+		this.tokenMaxLifetimeMs = tokenMaxLifetimeMs < 1 ? DEFAULT_TOKEN_MAX_LIFETIME_MS : tokenMaxLifetimeMs;
 	}
 
 	public void setAlfrescoPrivateURL(URL alfrescoPrivateURL) {

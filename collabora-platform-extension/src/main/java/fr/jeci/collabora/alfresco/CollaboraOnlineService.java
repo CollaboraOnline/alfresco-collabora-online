@@ -50,19 +50,22 @@ public interface CollaboraOnlineService {
 	 * @param output node the token can write, or {@code null}
 	 * @param ttl    lifetime of the token, strictly positive
 	 * @return Access Token
-	 * @throws org.springframework.extensions.webscripts.WebScriptException 401 for the System user, or when the user
+	 * @throws IllegalArgumentException                                     when {@code ttl} is not positive or a node
+	 *                                                                      does not exist
+	 * @throws org.alfresco.repo.security.permissions.AccessDeniedException for the System user, or when the user
 	 *                                                                      cannot read {@code input} or write
 	 *                                                                      {@code output}
 	 */
 	WOPIAccessTokenInfo createScopedAccessToken(NodeRef input, NodeRef output, Duration ttl);
 
 	/**
-	 * Extend an expired token by the default lifetime, keeping its value.
+	 * Extend an expired token by the default lifetime, keeping its value, up to its maximum lifetime.
 	 *
 	 * @param tokenInfo expired token
 	 * @return the same token with a new expiry date
-	 * @throws org.springframework.extensions.webscripts.WebScriptException 401 when the token is not renewable or its
-	 *                                                                      user can no longer read its file
+	 * @throws org.springframework.extensions.webscripts.WebScriptException 401 when the token is not renewable, has
+	 *                                                                      reached its maximum lifetime, or its user
+	 *                                                                      can no longer read its file
 	 */
 	WOPIAccessTokenInfo renewAccessToken(WOPIAccessTokenInfo tokenInfo);
 

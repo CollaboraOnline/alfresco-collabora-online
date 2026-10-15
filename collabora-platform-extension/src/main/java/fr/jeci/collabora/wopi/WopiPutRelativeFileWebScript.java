@@ -8,6 +8,7 @@ import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.HeaderSanitizer;
 import fr.jeci.collabora.alfresco.LogSanitizer;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import fr.jeci.collabora.alfresco.WopiTokenKind;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -129,7 +130,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	}
 
 	static void checkPutRelativeAllowed(final WOPIAccessTokenInfo wopiToken) {
-		if (!wopiToken.isRenewable()) {
+		if (wopiToken.getKind() != WopiTokenKind.COLLABORA) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow PutRelativeFile");
 		}
 	}

@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +25,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.joda.time.LocalDateTime;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import org.alfresco.model.ContentModel;
@@ -84,6 +85,9 @@ public class CollaboraOnlineServiceImplTest {
 		this.tokenStore = new WopiTokenStore();
 		this.tokenStore.setAttributeService(new InMemoryAttributeService());
 		this.collaboraOnlineService.setTokenStore(this.tokenStore);
+
+		when(nodeService.exists(nodeRef)).thenReturn(true);
+		when(nodeService.exists(outputRef)).thenReturn(true);
 	}
 
 	@After
@@ -319,9 +323,9 @@ public class CollaboraOnlineServiceImplTest {
 
 	@Test
 	public void testResolveToken_returnsStoredTokenWithoutFileCheck() {
-		LocalDateTime now = LocalDateTime.now();
-		WOPIAccessTokenInfo stored = new WOPIAccessTokenInfo("settings-token", now.minusMinutes(1), now.plusHours(1),
-				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
+		Instant now = Instant.now();
+		WOPIAccessTokenInfo stored = new WOPIAccessTokenInfo("settings-token", now.minus(Duration.ofMinutes(1)), now.plus(
+				Duration.ofHours(1)), CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
 		this.tokenStore.save(stored);
 
 		WOPIAccessTokenInfo resolved = this.collaboraOnlineService.resolveToken("settings-token");
@@ -343,9 +347,9 @@ public class CollaboraOnlineServiceImplTest {
 
 	@Test
 	public void testResolveToken_rejectsExpiredToken() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("expired-token", past, past.plusHours(1),
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("expired-token", past, past.plus(Duration.ofHours(1)),
 				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
 		this.tokenStore.save(expired);
 
@@ -392,8 +396,8 @@ public class CollaboraOnlineServiceImplTest {
 		assertTrue(stored.canWrite(outputRef.getId()));
 		assertFalse(stored.isRenewable());
 		assertTrue(stored.getExpiresAt()
-				.isAfter(LocalDateTime.now()
-						.plusHours(7)));
+				.isAfter(Instant.now()
+						.plus(Duration.ofHours(7))));
 	}
 
 	@Test
@@ -408,14 +412,36 @@ public class CollaboraOnlineServiceImplTest {
 				.canWrite(nodeRef.getId()));
 	}
 
-	@Test(expected = WebScriptException.class)
+	@Test
+	public void testCreateScopedAccessToken_acceptsTtlLongerThanIntMillis() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(nodeRef, PermissionService.READ);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createScopedAccessToken(nodeRef, null, Duration.ofDays(
+				30));
+
+		assertEquals(created.getIssuedAt()
+				.plus(Duration.ofDays(30)), created.getExpiresAt());
+		assertEquals(WopiTokenKind.TASK, created.getKind());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateScopedAccessToken_rejectsMissingInput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		NodeRef missing = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "missing");
+		allow(missing, PermissionService.READ);
+
+		this.collaboraOnlineService.createScopedAccessToken(missing, null, Duration.ofHours(8));
+	}
+
+	@Test(expected = AccessDeniedException.class)
 	public void testCreateScopedAccessToken_rejectsSystemUser() {
 		AuthenticationUtil.setRunAsUserSystem();
 
 		this.collaboraOnlineService.createScopedAccessToken(nodeRef, null, Duration.ofHours(8));
 	}
 
-	@Test(expected = WebScriptException.class)
+	@Test(expected = AccessDeniedException.class)
 	public void testCreateScopedAccessToken_rejectsMissingWriteOnOutput() {
 		AuthenticationUtil.setRunAsUser("alice");
 		allow(nodeRef, PermissionService.READ);
@@ -425,9 +451,9 @@ public class CollaboraOnlineServiceImplTest {
 
 	@Test
 	public void testCheckAccessToken_acceptsOutputOfScopedToken() {
-		LocalDateTime now = LocalDateTime.now();
-		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minusMinutes(1), now.plusHours(1), nodeRef.getId(),
-				outputRef.getId(), "alice", false));
+		Instant now = Instant.now();
+		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minus(Duration.ofMinutes(1)), now.plus(Duration
+				.ofHours(1)), nodeRef.getId(), outputRef.getId(), "alice", WopiTokenKind.TASK));
 
 		WOPIAccessTokenInfo checked = this.collaboraOnlineService.checkAccessToken("scoped", outputRef);
 
@@ -436,19 +462,19 @@ public class CollaboraOnlineServiceImplTest {
 
 	@Test(expected = WebScriptException.class)
 	public void testCheckAccessToken_rejectsNodeOutsideScope() {
-		LocalDateTime now = LocalDateTime.now();
-		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minusMinutes(1), now.plusHours(1), nodeRef.getId(),
-				null, "alice", false));
+		Instant now = Instant.now();
+		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minus(Duration.ofMinutes(1)), now.plus(Duration
+				.ofHours(1)), nodeRef.getId(), null, "alice", WopiTokenKind.TASK));
 
 		this.collaboraOnlineService.checkAccessToken("scoped", outputRef);
 	}
 
 	@Test
 	public void testRenewAccessToken_extendsRenewableToken() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plusHours(1), nodeRef.getId(),
-				"alice");
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plus(Duration.ofHours(1)), nodeRef
+				.getId(), "alice");
 		this.tokenStore.save(expired);
 		allow(nodeRef, PermissionService.READ);
 
@@ -456,18 +482,54 @@ public class CollaboraOnlineServiceImplTest {
 
 		assertEquals("collabora", renewed.getAccessToken());
 		assertTrue(renewed.getExpiresAt()
-				.isAfter(LocalDateTime.now()
-						.minusSeconds(1)));
+				.isAfter(Instant.now()
+						.minus(Duration.ofSeconds(1))));
 		assertEquals(renewed.getExpiresAt(), this.tokenStore.get("collabora")
 				.getExpiresAt());
 	}
 
 	@Test
+	public void testRenewAccessToken_capsExpiryAtMaxLifetime() {
+		this.collaboraOnlineService.setTokenMaxLifetimeMs(Duration.ofHours(3)
+				.toMillis());
+		this.collaboraOnlineService.setTokenTtlMs((int) Duration.ofHours(24)
+				.toMillis());
+		Instant issuedAt = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", issuedAt, issuedAt.plus(Duration.ofHours(1)),
+				nodeRef.getId(), "alice");
+		this.tokenStore.save(expired);
+		allow(nodeRef, PermissionService.READ);
+
+		WOPIAccessTokenInfo renewed = this.collaboraOnlineService.renewAccessToken(expired);
+
+		assertEquals(renewed.getIssuedAt()
+				.plus(Duration.ofHours(3)), renewed.getExpiresAt());
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsTokenPastMaxLifetime() {
+		Instant issuedAt = Instant.now()
+				.minus(Duration.ofDays(8));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", issuedAt, Instant.now()
+				.minus(Duration.ofHours(1)), nodeRef.getId(), "alice");
+		this.tokenStore.save(expired);
+		allow(nodeRef, PermissionService.READ);
+
+		try {
+			this.collaboraOnlineService.renewAccessToken(expired);
+			fail("Expected WebScriptException for a token past its maximum lifetime");
+		} catch (WebScriptException expectedException) {
+			assertEquals(401, expectedException.getStatus());
+		}
+	}
+
+	@Test
 	public void testRenewAccessToken_rejectsScopedToken() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("scoped", past, past.plusHours(1), nodeRef.getId(), null,
-				"alice", false);
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("scoped", past, past.plus(Duration.ofHours(1)), nodeRef
+				.getId(), null, "alice", WopiTokenKind.TASK);
 		this.tokenStore.save(expired);
 		allow(nodeRef, PermissionService.READ);
 
@@ -476,34 +538,34 @@ public class CollaboraOnlineServiceImplTest {
 			fail("Expected WebScriptException for a non-renewable token");
 		} catch (WebScriptException expectedException) {
 			assertEquals(401, expectedException.getStatus());
-			assertEquals(past.plusHours(1), this.tokenStore.get("scoped")
+			assertEquals(expired.getExpiresAt(), this.tokenStore.get("scoped")
 					.getExpiresAt());
 		}
 	}
 
 	@Test
 	public void testRenewAccessToken_rejectsUserWithoutRead() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plusHours(1), nodeRef.getId(),
-				"alice");
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plus(Duration.ofHours(1)), nodeRef
+				.getId(), "alice");
 		this.tokenStore.save(expired);
 
 		try {
 			this.collaboraOnlineService.renewAccessToken(expired);
 			fail("Expected WebScriptException when the user cannot read the file");
 		} catch (WebScriptException expectedException) {
-			assertEquals(past.plusHours(1), this.tokenStore.get("collabora")
+			assertEquals(expired.getExpiresAt(), this.tokenStore.get("collabora")
 					.getExpiresAt());
 		}
 	}
 
 	@Test
 	public void testRenewAccessToken_rejectsUnknownToken() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo unknown = new WOPIAccessTokenInfo("never-saved", past, past.plusHours(1), nodeRef.getId(),
-				"alice");
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo unknown = new WOPIAccessTokenInfo("never-saved", past, past.plus(Duration.ofHours(1)), nodeRef
+				.getId(), "alice");
 		allow(nodeRef, PermissionService.READ);
 
 		try {
@@ -516,10 +578,11 @@ public class CollaboraOnlineServiceImplTest {
 
 	@Test
 	public void testRenewAccessToken_rejectsSettingsToken() {
-		LocalDateTime past = LocalDateTime.now()
-				.minusHours(2);
-		WOPIAccessTokenInfo settings = new WOPIAccessTokenInfo("settings-token", past, past.plusHours(1),
-				CollaboraOnlineService.SETTINGS_FILE_ID, CollaboraOnlineService.SETTINGS_FILE_ID, "alice", false);
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo settings = new WOPIAccessTokenInfo("settings-token", past, past.plus(Duration.ofHours(1)),
+				CollaboraOnlineService.SETTINGS_FILE_ID, CollaboraOnlineService.SETTINGS_FILE_ID, "alice",
+				WopiTokenKind.SETTINGS);
 		this.tokenStore.save(settings);
 
 		try {

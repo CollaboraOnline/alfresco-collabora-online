@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import fr.jeci.collabora.alfresco.WopiTokenKind;
 import fr.jeci.collabora.alfresco.settings.CollaboraSettingsService;
 
 /**
@@ -86,7 +87,7 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 	}
 
 	static void checkSettingsAccess(final WOPIAccessTokenInfo token) {
-		if (!token.isRenewable() && !CollaboraOnlineService.SETTINGS_FILE_ID.equals(token.getFileId())) {
+		if (token.getKind() != WopiTokenKind.COLLABORA && token.getKind() != WopiTokenKind.SETTINGS) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow settings access");
 		}
 	}

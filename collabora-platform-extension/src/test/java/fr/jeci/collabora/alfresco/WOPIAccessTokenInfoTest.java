@@ -8,16 +8,18 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.joda.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
+
 import org.junit.Test;
 
 public class WOPIAccessTokenInfoTest {
 
-	private static final LocalDateTime NOW = LocalDateTime.now();
+	private static final Instant NOW = Instant.now();
 
 	@Test
 	public void legacyConstructorGrantsReadWriteOnFileAndIsRenewable() {
-		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plusHours(1), "file-a", "alice");
+		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plus(Duration.ofHours(1)), "file-a", "alice");
 
 		assertTrue(info.canRead("file-a"));
 		assertTrue(info.canWrite("file-a"));
@@ -27,7 +29,8 @@ public class WOPIAccessTokenInfoTest {
 
 	@Test
 	public void scopedTokenReadsInputAndWritesOutputOnly() {
-		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plusHours(1), "input", "output", "alice", false);
+		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plus(Duration.ofHours(1)), "input", "output",
+				"alice", WopiTokenKind.TASK);
 
 		assertTrue(info.canRead("input"));
 		assertTrue(info.canRead("output"));
@@ -39,7 +42,8 @@ public class WOPIAccessTokenInfoTest {
 
 	@Test
 	public void readOnlyTokenWritesNothing() {
-		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plusHours(1), "input", null, "alice", false);
+		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plus(Duration.ofHours(1)), "input", null,
+				"alice", WopiTokenKind.TASK);
 
 		assertTrue(info.canRead("input"));
 		assertFalse(info.canWrite("input"));
@@ -49,7 +53,7 @@ public class WOPIAccessTokenInfoTest {
 
 	@Test
 	public void tokenIsValidAtItsIssueInstant() {
-		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plusHours(1), "file-a", "alice");
+		WOPIAccessTokenInfo info = new WOPIAccessTokenInfo("t", NOW, NOW.plus(Duration.ofHours(1)), "file-a", "alice");
 
 		assertTrue(info.isValid(NOW));
 	}

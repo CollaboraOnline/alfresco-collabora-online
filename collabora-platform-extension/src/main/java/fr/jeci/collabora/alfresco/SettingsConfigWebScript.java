@@ -70,8 +70,7 @@ public class SettingsConfigWebScript extends DeclarativeWebScript {
 		final Map<String, Object> model = new HashMap<>(5);
 		model.put(ACCESS_TOKEN, token.getAccessToken());
 		model.put(ACCESS_TOKEN_TTL, token.getExpiresAt()
-				.toDate()
-				.getTime());
+				.toEpochMilli());
 		model.put(SETTINGS_URL, settingsUrl);
 		model.put(WOPI_SETTING_BASE_URL, collaboraSettingsService.getWopiBaseUrl());
 		model.put(IFRAME_TYPE, type);

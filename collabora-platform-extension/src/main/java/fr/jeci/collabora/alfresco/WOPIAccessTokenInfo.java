@@ -5,9 +5,10 @@
 package fr.jeci.collabora.alfresco;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.joda.time.LocalDateTime;
 
 /**
  * POJO to hold info about a WOPI access token.
@@ -19,32 +20,34 @@ public class WOPIAccessTokenInfo implements Serializable {
 	private static final long serialVersionUID = 8344283129580208330L;
 
 	private String accessToken;
-	private LocalDateTime issuedAt;
-	private LocalDateTime expiresAt;
+	private Instant issuedAt;
+	private Instant expiresAt;
 	private String fileId;
 	private String userName;
 	private String writeFileId;
-	private boolean renewable;
+	private WopiTokenKind kind;
 
-	public WOPIAccessTokenInfo(String accessToken, LocalDateTime issuedAt, LocalDateTime expiresAt, String fileId,
-			String userName) {
-		this(accessToken, issuedAt, expiresAt, fileId, fileId, userName, true);
+	/**
+	 * Collabora token reading and writing {@code fileId}.
+	 */
+	public WOPIAccessTokenInfo(String accessToken, Instant issuedAt, Instant expiresAt, String fileId, String userName) {
+		this(accessToken, issuedAt, expiresAt, fileId, fileId, userName, WopiTokenKind.COLLABORA);
 	}
 
 	/**
 	 * Token reading {@code fileId}, writing {@code writeFileId} (none when {@code null}).
 	 *
-	 * @param renewable whether an expired token may be extended instead of rejected
+	 * @param kind what the token may be used for
 	 */
-	public WOPIAccessTokenInfo(String accessToken, LocalDateTime issuedAt, LocalDateTime expiresAt, String fileId,
-			String writeFileId, String userName, boolean renewable) {
+	public WOPIAccessTokenInfo(String accessToken, Instant issuedAt, Instant expiresAt, String fileId,
+			String writeFileId, String userName, WopiTokenKind kind) {
 		this.accessToken = accessToken;
-		this.issuedAt = issuedAt;
-		this.expiresAt = expiresAt;
+		this.issuedAt = toMillis(issuedAt);
+		this.expiresAt = toMillis(expiresAt);
 		this.fileId = fileId;
 		this.writeFileId = writeFileId;
 		this.userName = userName;
-		this.renewable = renewable;
+		this.kind = kind;
 	}
 
 	/**
@@ -67,30 +70,30 @@ public class WOPIAccessTokenInfo implements Serializable {
 	 * Return whether the access token has been issued and not expired at the current time.
 	 */
 	public boolean isValid() {
-		return isValid(LocalDateTime.now());
+		return isValid(Instant.now());
 	}
 
 	/**
 	 * Return whether the access token is valid for the given date.
 	 */
-	public boolean isValid(LocalDateTime when) {
+	public boolean isValid(Instant when) {
 		return !when.isBefore(issuedAt) && when.isBefore(expiresAt);
 	}
 
-	public LocalDateTime getIssuedAt() {
+	public Instant getIssuedAt() {
 		return issuedAt;
 	}
 
-	public void setIssuedAt(LocalDateTime issuedAt) {
-		this.issuedAt = issuedAt;
+	public void setIssuedAt(Instant issuedAt) {
+		this.issuedAt = toMillis(issuedAt);
 	}
 
-	public LocalDateTime getExpiresAt() {
+	public Instant getExpiresAt() {
 		return expiresAt;
 	}
 
-	public void setExpiresAt(LocalDateTime expiresAt) {
-		this.expiresAt = expiresAt;
+	public void setExpiresAt(Instant expiresAt) {
+		this.expiresAt = toMillis(expiresAt);
 	}
 
 	public String getFileId() {
@@ -127,14 +130,21 @@ public class WOPIAccessTokenInfo implements Serializable {
 	 * @return whether an expired token may be extended instead of rejected
 	 */
 	public boolean isRenewable() {
-		return renewable;
+		return kind != null && kind.isRenewable();
 	}
 
 	/**
-	 * @param renewable whether an expired token may be extended instead of rejected
+	 * @return what the token may be used for
 	 */
-	public void setRenewable(boolean renewable) {
-		this.renewable = renewable;
+	public WopiTokenKind getKind() {
+		return kind;
+	}
+
+	/**
+	 * @param kind what the token may be used for
+	 */
+	public void setKind(WopiTokenKind kind) {
+		this.kind = kind;
 	}
 
 	public String getAccessToken() {
@@ -169,6 +179,10 @@ public class WOPIAccessTokenInfo implements Serializable {
 		return "****" + token.substring(token.length() - 4);
 	}
 
+	private static Instant toMillis(Instant instant) {
+		return instant == null ? null : instant.truncatedTo(ChronoUnit.MILLIS);
+	}
+
 	@Override
 	public String toString() {
 		return new ToStringBuilder(this).append("accessToken", getMaskedToken())
@@ -177,7 +191,7 @@ public class WOPIAccessTokenInfo implements Serializable {
 				.append("fileId", fileId)
 				.append("writeFileId", writeFileId)
 				.append("userName", userName)
-				.append("renewable", renewable)
+				.append("kind", kind)
 				.toString();
 	}
 }

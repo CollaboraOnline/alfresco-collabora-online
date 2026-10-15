@@ -9,10 +9,11 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.joda.time.LocalDateTime;
 import org.junit.After;
 import org.junit.Test;
 import org.quartz.JobDataMap;
@@ -34,9 +35,11 @@ public class PurgeWopiTokensJobTest {
 	public void jobPurgesExpiredTokens() throws Exception {
 		WopiTokenStore store = new WopiTokenStore();
 		store.setAttributeService(new InMemoryAttributeService());
-		LocalDateTime now = LocalDateTime.now();
-		store.save(new WOPIAccessTokenInfo("expired", now.minusHours(2), now.minusHours(1), "file", "alice"));
-		store.save(new WOPIAccessTokenInfo("valid", now.minusHours(1), now.plusHours(1), "file", "alice"));
+		Instant now = Instant.now();
+		store.save(new WOPIAccessTokenInfo("expired", now.minus(Duration.ofHours(2)), now.minus(Duration.ofHours(1)),
+				"file", "alice"));
+		store.save(new WOPIAccessTokenInfo("valid", now.minus(Duration.ofHours(1)), now.plus(Duration.ofHours(1)), "file",
+				"alice"));
 
 		JobDetail jobDetail = mock(JobDetail.class);
 		when(jobDetail.getJobDataMap()).thenReturn(new JobDataMap(Map.of("tokenStore", store)));
