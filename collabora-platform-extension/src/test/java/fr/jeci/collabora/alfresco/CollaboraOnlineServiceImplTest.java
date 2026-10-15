@@ -8,44 +8,41 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.alfresco.repo.cache.SimpleCache;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.joda.time.LocalDateTime;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.permissions.impl.AllowPermissionServiceImpl;
 import org.alfresco.repo.version.NodeServiceImpl;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.transaction.annotation.Transactional;
 
 import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
+import fr.jeci.collabora.alfresco.token.InMemoryAttributeService;
+import fr.jeci.collabora.alfresco.token.WopiTokenStore;
 
 @Transactional
 public class CollaboraOnlineServiceImplTest {
@@ -56,37 +53,37 @@ public class CollaboraOnlineServiceImplTest {
 
 	NodeRef nodeRef = null;
 	NodeService nodeService = null;
-	SimpleCache<String, WOPIAccessTokenInfo> tokenCache = null;
+	WopiTokenStore tokenStore = null;
+	PermissionService permissionService = null;
+	NodeRef outputRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "test-output");
 
 	static String LOCALHOST_SERVER = "http://localhost:8080/";
 	static String PUBLICHOST_SERVER = "https://my.server.demo.com/";
 
 	@Before
 	public void setUp() throws Exception {
+		AuthenticationUtil authenticationUtil = new AuthenticationUtil();
+		authenticationUtil.setDefaultAdminUserName("admin");
+		authenticationUtil.setDefaultGuestUserName("guest");
+		authenticationUtil.afterPropertiesSet();
+
 		nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "test-collabora");
 
 		this.collaboraOnlineService = new CollaboraOnlineServiceImpl();
 
 		nodeService = mock(NodeServiceImpl.class);
 		this.collaboraOnlineService.setNodeService(nodeService);
-		this.collaboraOnlineService.setPermissionService(mock(AllowPermissionServiceImpl.class));
+		permissionService = mock(PermissionService.class);
+		this.collaboraOnlineService.setPermissionService(permissionService);
 
 		this.collaboraOnlineService.setCollaboraPublicUrl(new URL(PUBLICHOST_SERVER));
 		this.collaboraOnlineService.setTokenTtlMs(1000);
 		this.collaboraOnlineService.setAlfrescoPrivateURL(new URL(LOCALHOST_SERVER));
 		this.collaboraOnlineService.setAlfrescoPublicURL(new URL(PUBLICHOST_SERVER));
 
-		// Minimal in-memory cache backing the token map
-		final Map<String, WOPIAccessTokenInfo> backing = new HashMap<>();
-		@SuppressWarnings("unchecked") SimpleCache<String, WOPIAccessTokenInfo> cache = mock(SimpleCache.class);
-		when(cache.get(anyString())).thenAnswer(i -> backing.get(i.getArgument(0)));
-		doAnswer(i -> {
-			backing.put(i.getArgument(0), i.getArgument(1));
-			return null;
-		}).when(cache)
-				.put(anyString(), any());
-		this.tokenCache = cache;
-		this.collaboraOnlineService.setTokenMap(cache);
+		this.tokenStore = new WopiTokenStore();
+		this.tokenStore.setAttributeService(new InMemoryAttributeService());
+		this.collaboraOnlineService.setTokenStore(this.tokenStore);
 	}
 
 	@After
@@ -325,11 +322,11 @@ public class CollaboraOnlineServiceImplTest {
 		LocalDateTime now = LocalDateTime.now();
 		WOPIAccessTokenInfo stored = new WOPIAccessTokenInfo("settings-token", now.minusMinutes(1), now.plusHours(1),
 				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
-		this.tokenCache.put("settings-token", stored);
+		this.tokenStore.save(stored);
 
 		WOPIAccessTokenInfo resolved = this.collaboraOnlineService.resolveToken("settings-token");
 
-		assertSame("resolveToken must not bind to a file", stored, resolved);
+		assertEquals("settings-token", resolved.getAccessToken());
 		assertEquals("alice", resolved.getUserName());
 		assertEquals(CollaboraOnlineService.SETTINGS_FILE_ID, resolved.getFileId());
 	}
@@ -350,13 +347,186 @@ public class CollaboraOnlineServiceImplTest {
 				.minusHours(2);
 		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("expired-token", past, past.plusHours(1),
 				CollaboraOnlineService.SETTINGS_FILE_ID, "alice");
-		this.tokenCache.put("expired-token", expired);
+		this.tokenStore.save(expired);
 
 		try {
 			this.collaboraOnlineService.resolveToken("expired-token");
 			fail("Expected WebScriptException for expired token");
 		} catch (WebScriptException expectedException) {
 			// expected
+		}
+	}
+
+	// ========== Persistent and scoped tokens ==========
+
+	private void allow(NodeRef node, String permission) {
+		when(permissionService.hasPermission(node, permission)).thenReturn(AccessStatus.ALLOWED);
+	}
+
+	@Test
+	public void testCreateAccessToken_isPersistedAndRenewable() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(nodeRef, PermissionService.READ);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createAccessToken(nodeRef);
+
+		WOPIAccessTokenInfo stored = this.tokenStore.get(created.getAccessToken());
+		assertNotNull(stored);
+		assertTrue(stored.isRenewable());
+		assertTrue(stored.canWrite(nodeRef.getId()));
+	}
+
+	@Test
+	public void testCreateScopedAccessToken_readsInputWritesOutput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(nodeRef, PermissionService.READ);
+		allow(outputRef, PermissionService.WRITE);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createScopedAccessToken(nodeRef, outputRef, Duration
+				.ofHours(8));
+
+		WOPIAccessTokenInfo stored = this.tokenStore.get(created.getAccessToken());
+		assertEquals("alice", stored.getUserName());
+		assertTrue(stored.canRead(nodeRef.getId()));
+		assertFalse(stored.canWrite(nodeRef.getId()));
+		assertTrue(stored.canWrite(outputRef.getId()));
+		assertFalse(stored.isRenewable());
+		assertTrue(stored.getExpiresAt()
+				.isAfter(LocalDateTime.now()
+						.plusHours(7)));
+	}
+
+	@Test
+	public void testCreateScopedAccessToken_readOnlyWhenNoOutput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(nodeRef, PermissionService.READ);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createScopedAccessToken(nodeRef, null, Duration.ofHours(
+				8));
+
+		assertFalse(this.tokenStore.get(created.getAccessToken())
+				.canWrite(nodeRef.getId()));
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testCreateScopedAccessToken_rejectsSystemUser() {
+		AuthenticationUtil.setRunAsUserSystem();
+
+		this.collaboraOnlineService.createScopedAccessToken(nodeRef, null, Duration.ofHours(8));
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testCreateScopedAccessToken_rejectsMissingWriteOnOutput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(nodeRef, PermissionService.READ);
+
+		this.collaboraOnlineService.createScopedAccessToken(nodeRef, outputRef, Duration.ofHours(8));
+	}
+
+	@Test
+	public void testCheckAccessToken_acceptsOutputOfScopedToken() {
+		LocalDateTime now = LocalDateTime.now();
+		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minusMinutes(1), now.plusHours(1), nodeRef.getId(),
+				outputRef.getId(), "alice", false));
+
+		WOPIAccessTokenInfo checked = this.collaboraOnlineService.checkAccessToken("scoped", outputRef);
+
+		assertEquals("scoped", checked.getAccessToken());
+	}
+
+	@Test(expected = WebScriptException.class)
+	public void testCheckAccessToken_rejectsNodeOutsideScope() {
+		LocalDateTime now = LocalDateTime.now();
+		this.tokenStore.save(new WOPIAccessTokenInfo("scoped", now.minusMinutes(1), now.plusHours(1), nodeRef.getId(),
+				null, "alice", false));
+
+		this.collaboraOnlineService.checkAccessToken("scoped", outputRef);
+	}
+
+	@Test
+	public void testRenewAccessToken_extendsRenewableToken() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plusHours(1), nodeRef.getId(),
+				"alice");
+		this.tokenStore.save(expired);
+		allow(nodeRef, PermissionService.READ);
+
+		WOPIAccessTokenInfo renewed = this.collaboraOnlineService.renewAccessToken(expired);
+
+		assertEquals("collabora", renewed.getAccessToken());
+		assertTrue(renewed.getExpiresAt()
+				.isAfter(LocalDateTime.now()
+						.minusSeconds(1)));
+		assertEquals(renewed.getExpiresAt(), this.tokenStore.get("collabora")
+				.getExpiresAt());
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsScopedToken() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("scoped", past, past.plusHours(1), nodeRef.getId(), null,
+				"alice", false);
+		this.tokenStore.save(expired);
+		allow(nodeRef, PermissionService.READ);
+
+		try {
+			this.collaboraOnlineService.renewAccessToken(expired);
+			fail("Expected WebScriptException for a non-renewable token");
+		} catch (WebScriptException expectedException) {
+			assertEquals(401, expectedException.getStatus());
+			assertEquals(past.plusHours(1), this.tokenStore.get("scoped")
+					.getExpiresAt());
+		}
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsUserWithoutRead() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plusHours(1), nodeRef.getId(),
+				"alice");
+		this.tokenStore.save(expired);
+
+		try {
+			this.collaboraOnlineService.renewAccessToken(expired);
+			fail("Expected WebScriptException when the user cannot read the file");
+		} catch (WebScriptException expectedException) {
+			assertEquals(past.plusHours(1), this.tokenStore.get("collabora")
+					.getExpiresAt());
+		}
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsUnknownToken() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo unknown = new WOPIAccessTokenInfo("never-saved", past, past.plusHours(1), nodeRef.getId(),
+				"alice");
+		allow(nodeRef, PermissionService.READ);
+
+		try {
+			this.collaboraOnlineService.renewAccessToken(unknown);
+			fail("Expected WebScriptException for an unknown token");
+		} catch (WebScriptException expectedException) {
+			assertEquals(401, expectedException.getStatus());
+		}
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsSettingsToken() {
+		LocalDateTime past = LocalDateTime.now()
+				.minusHours(2);
+		WOPIAccessTokenInfo settings = new WOPIAccessTokenInfo("settings-token", past, past.plusHours(1),
+				CollaboraOnlineService.SETTINGS_FILE_ID, CollaboraOnlineService.SETTINGS_FILE_ID, "alice", false);
+		this.tokenStore.save(settings);
+
+		try {
+			this.collaboraOnlineService.renewAccessToken(settings);
+			fail("Expected WebScriptException for a settings token");
+		} catch (WebScriptException expectedException) {
+			assertEquals(401, expectedException.getStatus());
 		}
 	}
 

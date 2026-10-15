@@ -4,6 +4,7 @@
 
 package fr.jeci.collabora.wopi;
 
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import fr.jeci.collabora.alfresco.ConflictException;
 import fr.jeci.collabora.alfresco.HeaderSanitizer;
 import fr.jeci.collabora.alfresco.LogSanitizer;
@@ -47,8 +48,8 @@ public class WopiPutFileWebScript extends AbstractWopiWebScript {
 	private static final Logger logger = LoggerFactory.getLogger(WopiPutFileWebScript.class);
 
 	@Override
-	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
-			throws IOException {
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
+			final WOPIAccessTokenInfo wopiToken) throws IOException {
 		final boolean isAutosave = hasAutosaveHeader(req);
 
 		checkWopiTimestamp(req, res, nodeRef);

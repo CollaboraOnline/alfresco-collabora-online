@@ -4,6 +4,7 @@
 
 package fr.jeci.collabora.wopi;
 
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -28,7 +29,13 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
 	private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 
 	@Override
-	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef) {
+	protected boolean isWriteOperation() {
+		return false;
+	}
+
+	@Override
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
+			final WOPIAccessTokenInfo wopiToken) {
 		final ContentData contentProp = (ContentData) nodeService.getProperty(nodeRef, ContentModel.PROP_CONTENT);
 		res.setContentType(contentProp.getMimetype());
 		res.setContentEncoding(contentProp.getEncoding());

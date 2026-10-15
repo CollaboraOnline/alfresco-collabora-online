@@ -48,15 +48,15 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	private CopyService copyService;
 
 	@Override
-	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
-			throws IOException {
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
+			final WOPIAccessTokenInfo wopiToken) throws IOException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
 		}
 
 		try {
-			Map<String, String> model = wopiOverrideSwitch(req, res, nodeRef);
+			Map<String, String> model = wopiOverrideSwitch(req, res, nodeRef, wopiToken);
 			jsonResponse(res, Status.STATUS_OK, model);
 
 		} catch (ConflictException e) {
@@ -70,7 +70,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 	}
 
 	private Map<String, String> wopiOverrideSwitch(final WebScriptRequest req, final WebScriptResponse res,
-			final NodeRef nodeRef) throws ConflictException {
+			final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) throws ConflictException {
 		final String wopiOverrideHeader = req.getHeader(X_WOPI_OVERRIDE);
 		if (wopiOverrideHeader == null) {
 			throw new WebScriptException(X_WOPI_OVERRIDE + " header must be present");
@@ -85,6 +85,10 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 		}
 
 		logger.debug("WopiOverride={}", override.name());
+
+		if (override == WopiOverride.PUT_RELATIVE) {
+			checkPutRelativeAllowed(wopiToken);
+		}
 
 		final String lockId = req.getHeader(X_WOPI_LOCK);
 		collaboraOnlineService.lockSteal(nodeRef, lockId);
@@ -122,6 +126,12 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 
 		return model;
 
+	}
+
+	static void checkPutRelativeAllowed(final WOPIAccessTokenInfo wopiToken) {
+		if (!wopiToken.isRenewable()) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow PutRelativeFile");
+		}
 	}
 
 	private Map<String, String> saveAs(WebScriptRequest req, NodeRef newNodeRef) {
@@ -170,7 +180,7 @@ public class WopiPutRelativeFileWebScript extends AbstractWopiWebScript {
 				return newUrl;
 			}
 		};
-		return retryingTransactionHelper.doInTransaction(cb, true);
+		return retryingTransactionHelper.doInTransaction(cb, false);
 
 	}
 

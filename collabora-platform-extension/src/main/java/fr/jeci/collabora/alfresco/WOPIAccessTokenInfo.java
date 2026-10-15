@@ -23,14 +23,44 @@ public class WOPIAccessTokenInfo implements Serializable {
 	private LocalDateTime expiresAt;
 	private String fileId;
 	private String userName;
+	private String writeFileId;
+	private boolean renewable;
 
 	public WOPIAccessTokenInfo(String accessToken, LocalDateTime issuedAt, LocalDateTime expiresAt, String fileId,
 			String userName) {
+		this(accessToken, issuedAt, expiresAt, fileId, fileId, userName, true);
+	}
+
+	/**
+	 * Token reading {@code fileId}, writing {@code writeFileId} (none when {@code null}).
+	 *
+	 * @param renewable whether an expired token may be extended instead of rejected
+	 */
+	public WOPIAccessTokenInfo(String accessToken, LocalDateTime issuedAt, LocalDateTime expiresAt, String fileId,
+			String writeFileId, String userName, boolean renewable) {
 		this.accessToken = accessToken;
 		this.issuedAt = issuedAt;
 		this.expiresAt = expiresAt;
 		this.fileId = fileId;
+		this.writeFileId = writeFileId;
 		this.userName = userName;
+		this.renewable = renewable;
+	}
+
+	/**
+	 * @param id file id
+	 * @return whether this token may read the given file
+	 */
+	public boolean canRead(String id) {
+		return id != null && (id.equals(fileId) || id.equals(writeFileId));
+	}
+
+	/**
+	 * @param id file id
+	 * @return whether this token may write the given file
+	 */
+	public boolean canWrite(String id) {
+		return id != null && id.equals(writeFileId);
 	}
 
 	/**
@@ -44,7 +74,7 @@ public class WOPIAccessTokenInfo implements Serializable {
 	 * Return whether the access token is valid for the given date.
 	 */
 	public boolean isValid(LocalDateTime when) {
-		return when.isAfter(issuedAt) && when.isBefore(expiresAt);
+		return !when.isBefore(issuedAt) && when.isBefore(expiresAt);
 	}
 
 	public LocalDateTime getIssuedAt() {
@@ -77,6 +107,34 @@ public class WOPIAccessTokenInfo implements Serializable {
 
 	public void setUserName(String userName) {
 		this.userName = userName;
+	}
+
+	/**
+	 * @return the id of the only file this token may write, or {@code null}
+	 */
+	public String getWriteFileId() {
+		return writeFileId;
+	}
+
+	/**
+	 * @param writeFileId the id of the only file this token may write, or {@code null}
+	 */
+	public void setWriteFileId(String writeFileId) {
+		this.writeFileId = writeFileId;
+	}
+
+	/**
+	 * @return whether an expired token may be extended instead of rejected
+	 */
+	public boolean isRenewable() {
+		return renewable;
+	}
+
+	/**
+	 * @param renewable whether an expired token may be extended instead of rejected
+	 */
+	public void setRenewable(boolean renewable) {
+		this.renewable = renewable;
 	}
 
 	public String getAccessToken() {
@@ -117,7 +175,9 @@ public class WOPIAccessTokenInfo implements Serializable {
 				.append("issuedAt", issuedAt)
 				.append("expiresAt", expiresAt)
 				.append("fileId", fileId)
+				.append("writeFileId", writeFileId)
 				.append("userName", userName)
+				.append("renewable", renewable)
 				.toString();
 	}
 }

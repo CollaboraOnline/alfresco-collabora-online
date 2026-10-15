@@ -6,11 +6,18 @@ package fr.jeci.collabora.wopi;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import org.joda.time.LocalDateTime;
 import org.junit.Test;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+
+import fr.jeci.collabora.alfresco.CollaboraOnlineService;
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 
 /**
  * Tests {@link AbstractWopiSettingsWebScript#queryParam(WebScriptRequest, String)}, which reads parameters from the
@@ -123,5 +130,41 @@ public class AbstractWopiSettingsWebScriptTest {
 		when(req.getHeader("Authorization")).thenReturn("Basic dXNlcjpwYXNz");
 
 		assertNull(AbstractWopiSettingsWebScript.resolveAccessToken(req));
+	}
+
+	private static final LocalDateTime NOW = LocalDateTime.now();
+	private static final String SETTINGS = CollaboraOnlineService.SETTINGS_FILE_ID;
+
+	private static void assertSettingsRejected(WOPIAccessTokenInfo token) {
+		try {
+			AbstractWopiSettingsWebScript.checkSettingsAccess(token);
+			fail("expected WebScriptException");
+		} catch (WebScriptException e) {
+			assertEquals(Status.STATUS_UNAUTHORIZED, e.getStatus());
+		}
+	}
+
+	@Test
+	public void testCheckSettingsAccess_collaboraDocumentTokenIsAccepted() {
+		AbstractWopiSettingsWebScript.checkSettingsAccess(new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(
+				1), "input", "alice"));
+	}
+
+	@Test
+	public void testCheckSettingsAccess_settingsTokenIsAccepted() {
+		AbstractWopiSettingsWebScript.checkSettingsAccess(new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(
+				1), SETTINGS, SETTINGS, "alice", false));
+	}
+
+	@Test
+	public void testCheckSettingsAccess_readOnlyTaskTokenIsRejected() {
+		assertSettingsRejected(new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(1), "input", null, "alice",
+				false));
+	}
+
+	@Test
+	public void testCheckSettingsAccess_writingTaskTokenIsRejected() {
+		assertSettingsRejected(new WOPIAccessTokenInfo("t", NOW.minusMinutes(1), NOW.plusHours(1), "input", "input",
+				"alice", false));
 	}
 }

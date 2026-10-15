@@ -6,6 +6,7 @@ package fr.jeci.collabora.alfresco;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -38,6 +39,32 @@ public interface CollaboraOnlineService {
 	 * @return Access Token
 	 */
 	WOPIAccessTokenInfo createAccessToken(NodeRef nodeRef);
+
+	/**
+	 * Generate and store an access token scoped to a processing task, for the user running the call.
+	 * <p>
+	 * The token reads {@code input} and writes {@code output}; with a {@code null} output it writes nothing. It is
+	 * never renewed and expires after {@code ttl}.
+	 *
+	 * @param input  node the token can read
+	 * @param output node the token can write, or {@code null}
+	 * @param ttl    lifetime of the token, strictly positive
+	 * @return Access Token
+	 * @throws org.springframework.extensions.webscripts.WebScriptException 401 for the System user, or when the user
+	 *                                                                      cannot read {@code input} or write
+	 *                                                                      {@code output}
+	 */
+	WOPIAccessTokenInfo createScopedAccessToken(NodeRef input, NodeRef output, Duration ttl);
+
+	/**
+	 * Extend an expired token by the default lifetime, keeping its value.
+	 *
+	 * @param tokenInfo expired token
+	 * @return the same token with a new expiry date
+	 * @throws org.springframework.extensions.webscripts.WebScriptException 401 when the token is not renewable or its
+	 *                                                                      user can no longer read its file
+	 */
+	WOPIAccessTokenInfo renewAccessToken(WOPIAccessTokenInfo tokenInfo);
 
 	/**
 	 * Check if access token is valid and match nodeRef

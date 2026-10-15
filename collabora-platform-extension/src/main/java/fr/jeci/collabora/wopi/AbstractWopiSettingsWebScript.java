@@ -12,6 +12,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -65,6 +66,7 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 		final WOPIAccessTokenInfo token;
 		try {
 			token = this.collaboraOnlineService.resolveToken(accessToken);
+			checkSettingsAccess(token);
 		} catch (final WebScriptException e) {
 			// Surface rejected authentication: until now these failures were silent, which made the
 			// settings round-trip (e.g. wordbook upload) hard to diagnose.
@@ -80,6 +82,12 @@ public abstract class AbstractWopiSettingsWebScript extends AbstractWebScript {
 			executeAsUser(req, res);
 		} finally {
 			AuthenticationUtil.popAuthentication();
+		}
+	}
+
+	static void checkSettingsAccess(final WOPIAccessTokenInfo token) {
+		if (!token.isRenewable() && !CollaboraOnlineService.SETTINGS_FILE_ID.equals(token.getFileId())) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow settings access");
 		}
 	}
 

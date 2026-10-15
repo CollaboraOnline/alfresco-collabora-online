@@ -5,9 +5,9 @@
 package fr.jeci.collabora.alfresco;
 
 import fr.jeci.collabora.alfresco.WopiDiscovery.DiscoveryAction;
+import fr.jeci.collabora.alfresco.token.WopiTokenStore;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.cache.SimpleCache;
 import org.alfresco.repo.lock.mem.Lifetime;
 import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -16,6 +16,7 @@ import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.net.URL;
+import java.time.Duration;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Collections;
@@ -90,22 +92,13 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		this.serverInfo = Collections.unmodifiableMap(info);
 	}
 
-	/**
-	 * This holds a map of the "token info(s)" mapped to a file. Each token info is mapped to a user, so in essence a
-	 * user may only have one token info per file. <FileId, <userName, tokenInfo> >
-	 * <p>
-	 * { fileId: { <== The id of the nodeRef that refers to the file userName: WOPIAccessTokenInfo } }
-	 * <p>
-	 *
-	 * fileIdAccessTokenMap is an Hazelcast IMap see:
-	 * <a href="https://docs.hazelcast.org/docs/2.4/javadoc/com/hazelcast/core/IMap.html">...</a> The get(Object key)
-	 * method returns a clone of original value, modifying the returned value does not change the actual value in the
-	 * map. One should put modified value back to make changes visible to all nodes.
-	 */
-	private SimpleCache<String, WOPIAccessTokenInfo> tokenMap;
+	private WopiTokenStore tokenStore;
 
-	public void setTokenMap(SimpleCache<String, WOPIAccessTokenInfo> tokenMap) {
-		this.tokenMap = tokenMap;
+	/**
+	 * @param tokenStore the store persisting the access tokens
+	 */
+	public void setTokenStore(WopiTokenStore tokenStore) {
+		this.tokenStore = tokenStore;
 	}
 
 	/**
@@ -129,10 +122,63 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		LocalDateTime now = LocalDateTime.now();
 		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now), fileId,
 				userName);
-		this.tokenMap.put(tokenInfo.getAccessToken(), tokenInfo);
+		this.tokenStore.save(tokenInfo);
 
 		logger.debug("Created Access Token for user '{}' and nodeRef '{}'", userName, nodeRef);
 		return tokenInfo;
+	}
+
+	@Override
+	public WOPIAccessTokenInfo createScopedAccessToken(final NodeRef input, final NodeRef output, final Duration ttl) {
+		if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Cannot create a scoped token for System user");
+		}
+		final String userName = AuthenticationUtil.getRunAsUser();
+		if (userName == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No authenticated user");
+		}
+		if (ttl == null || ttl.isZero() || ttl.isNegative()) {
+			throw new IllegalArgumentException("ttl must be positive");
+		}
+		requirePermission(input, PermissionService.READ);
+		if (output != null) {
+			requirePermission(output, PermissionService.WRITE);
+		}
+
+		final LocalDateTime now = LocalDateTime.now();
+		final WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, now.plusMillis(Math
+				.toIntExact(ttl.toMillis())), input.getId(), output == null ? null : output.getId(), userName, false);
+		this.tokenStore.save(tokenInfo);
+
+		logger.debug("Created scoped Access Token for user '{}' reading '{}' writing '{}'", userName, input, output);
+		return tokenInfo;
+	}
+
+	@Override
+	public WOPIAccessTokenInfo renewAccessToken(final WOPIAccessTokenInfo tokenInfo) {
+		final WOPIAccessTokenInfo stored = this.tokenStore.get(tokenInfo == null ? null : tokenInfo.getAccessToken());
+		if (stored == null) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + WOPIAccessTokenInfo
+					.maskToken(tokenInfo == null ? null : tokenInfo.getAccessToken()));
+		}
+		if (!stored.isRenewable()) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token expired for " + stored.getMaskedToken());
+		}
+		final NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, stored.getFileId());
+		final AccessStatus perm = AuthenticationUtil.runAs(() -> this.permissionService.hasPermission(nodeRef,
+				PermissionService.READ), stored.getUserName());
+		if (AccessStatus.ALLOWED != perm) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Not allow to READ " + nodeRef);
+		}
+		stored.setExpiresAt(newExpiresAt(LocalDateTime.now()));
+		this.tokenStore.save(stored);
+		return stored;
+	}
+
+	private void requirePermission(final NodeRef nodeRef, final String permission) {
+		if (AccessStatus.ALLOWED != this.permissionService.hasPermission(nodeRef, permission)) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Not allow to " + permission + " " + nodeRef);
+		}
 	}
 
 	/**
@@ -172,15 +218,14 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "AccessToken is null");
 		}
 
-		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
+		WOPIAccessTokenInfo tokenInfo = this.tokenStore.get(accessToken);
 
 		if (tokenInfo == null) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + WOPIAccessTokenInfo
 					.maskToken(accessToken));
 		}
 
-		if (!tokenInfo.getFileId()
-				.equals(nodeRef.getId())) {
+		if (!tokenInfo.canRead(nodeRef.getId())) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not match the given file " + nodeRef
 					.getId());
 		}
@@ -194,7 +239,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "AccessToken is null");
 		}
 
-		WOPIAccessTokenInfo tokenInfo = this.tokenMap.get(accessToken);
+		WOPIAccessTokenInfo tokenInfo = this.tokenStore.get(accessToken);
 
 		if (tokenInfo == null) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "No token access found for " + WOPIAccessTokenInfo
@@ -222,8 +267,8 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 
 		LocalDateTime now = LocalDateTime.now();
 		WOPIAccessTokenInfo tokenInfo = new WOPIAccessTokenInfo(generateAccessToken(), now, newExpiresAt(now),
-				SETTINGS_FILE_ID, userName);
-		this.tokenMap.put(tokenInfo.getAccessToken(), tokenInfo);
+				SETTINGS_FILE_ID, SETTINGS_FILE_ID, userName, false);
+		this.tokenStore.save(tokenInfo);
 
 		logger.debug("Created settings access token for user '{}'", userName);
 		return tokenInfo;

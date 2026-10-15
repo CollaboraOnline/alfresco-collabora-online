@@ -63,14 +63,22 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected RenditionService2 renditionService;
 	protected BehaviourFilter behaviourFilter;
 
-	public abstract void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
-			throws IOException;
+	public abstract void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
+			final WOPIAccessTokenInfo wopiToken) throws IOException;
+
+	/**
+	 * @return whether this operation modifies the file, and so requires a token allowed to write it
+	 */
+	protected boolean isWriteOperation() {
+		return true;
+	}
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
 		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
+		final NodeRef nodeRef = getFileNodeRef(fileId(req));
+		checkWriteScope(wopiToken, nodeRef, isWriteOperation());
 		forceCurrentUser(wopiToken);
-		final NodeRef nodeRef = getFileNodeRef(wopiToken.getFileId());
 		validateNodeExists(nodeRef);
 
 		if (logger.isDebugEnabled()) {
@@ -79,7 +87,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 					currentLockId);
 		}
 		try {
-			this.executeAsUser(req, res, nodeRef);
+			this.executeAsUser(req, res, nodeRef, wopiToken);
 		} catch (Throwable e) {
 			if (logger.isDebugEnabled()) {
 				logger.debug("Caught exception; decorating with appropriate status template", e);
@@ -109,9 +117,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @return WOPI Token
 	 */
 	protected WOPIAccessTokenInfo wopiToken(WebScriptRequest req) {
-		final String fileId = req.getServiceMatch()
-				.getTemplateVars()
-				.get(FILE_ID);
+		final String fileId = fileId(req);
 		final NodeRef nodeRef = getFileNodeRef(fileId);
 		final String accessToken = req.getParameter(ACCESS_TOKEN);
 
@@ -122,16 +128,21 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		WOPIAccessTokenInfo wopiToken = this.collaboraOnlineService.checkAccessToken(accessToken, nodeRef);
 
 		if (!wopiToken.isValid()) {
-			// try to renew
-			AuthenticationUtil.pushAuthentication();
-			try {
-				AuthenticationUtil.setRunAsUser(wopiToken.getUserName());
-				return this.collaboraOnlineService.createAccessToken(nodeRef);
-			} finally {
-				AuthenticationUtil.popAuthentication();
-			}
+			return this.collaboraOnlineService.renewAccessToken(wopiToken);
 		}
 		return wopiToken;
+	}
+
+	private static String fileId(final WebScriptRequest req) {
+		return req.getServiceMatch()
+				.getTemplateVars()
+				.get(FILE_ID);
+	}
+
+	static void checkWriteScope(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef, final boolean write) {
+		if (write && !wopiToken.canWrite(nodeRef.getId())) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow writing " + nodeRef.getId());
+		}
 	}
 
 	/**

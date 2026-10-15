@@ -50,5 +50,33 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="enabled" value="${job.fr.jeci.collabora.cleanLock.enabled}" />
 	</bean>
 
+	<bean id="job.fr.jeci.collabora.purgeWopiTokens.jobDetail"
+				class="org.springframework.scheduling.quartz.JobDetailFactoryBean">
+		<property name="jobClass">
+			<value>fr.jeci.collabora.alfresco.job.PurgeWopiTokensJob</value>
+		</property>
+		<property name="jobDataAsMap">
+			<map>
+				<entry key="tokenStore" value-ref="WopiTokenStore" />
+				<entry key="jobLockService" value-ref="jobLockService" />
+			</map>
+		</property>
+	</bean>
+	<bean id="job.fr.jeci.collabora.purgeWopiTokens.trigger"
+				class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail" ref="job.fr.jeci.collabora.purgeWopiTokens.jobDetail" />
+		<property name="cronExpression" value="${job.fr.jeci.collabora.purgeWopiTokens.cron}" />
+		<property name="startDelay" value="${job.fr.jeci.collabora.purgeWopiTokens.cronstartdelay}" />
+	</bean>
+	<bean id="job.fr.jeci.collabora.purgeWopiTokens.SchedulerAccessor"
+				class="org.alfresco.schedule.AlfrescoSchedulerAccessorBean">
+		<property name="scheduler" ref="schedulerFactory"/>
+		<property name="triggers">
+		<list>
+			<ref bean="job.fr.jeci.collabora.purgeWopiTokens.trigger"/>
+		</list>
+		</property>
+		<property name="enabled" value="${job.fr.jeci.collabora.purgeWopiTokens.enabled}" />
+	</bean>
 
 </beans>

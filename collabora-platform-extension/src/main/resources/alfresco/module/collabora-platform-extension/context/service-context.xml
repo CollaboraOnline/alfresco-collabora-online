@@ -11,21 +11,13 @@ SPDX-License-Identifier: Apache-2.0
        xsi:schemaLocation="http://www.springframework.org/schema/beans
           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-  <!-- Shared Cache for fileIdAccessTokenMap -->
-  <bean name="lool-fileIdAccessTokenMapSharedCache" factory-bean="cacheFactory" factory-method="createCache">
-      <constructor-arg value="lool.cache.fileIdAccessTokenMapSharedCache"/>
-  </bean>
-  <bean name="lool-fileIdAccessTokenMapCache" class="org.alfresco.repo.cache.TransactionalCache">
-      <property name="sharedCache" ref="lool-fileIdAccessTokenMapSharedCache"/>
-      <property name="name" value="lool-fileIdAccessTokenMapCache"/>
-      <property name="maxCacheSize" value="${lool.cache.fileIdAccessTokenMapSharedCache.tx.maxItems}"/>
-      <property name="cacheStats" ref="cacheStatistics"/>
-      <property name="cacheStatsEnabled" value="${lool.cache.fileIdAccessTokenMapSharedCache.tx.statsEnabled}"/>
+  <bean id="WopiTokenStore" class="fr.jeci.collabora.alfresco.token.WopiTokenStore">
+      <property name="attributeService" ref="AttributeService"/>
   </bean>
 
   <bean id="CollaboraOnlineService"
         class="fr.jeci.collabora.alfresco.CollaboraOnlineServiceImpl" init-method="init">
-      <property name="tokenMap" ref="lool-fileIdAccessTokenMapSharedCache"/>
+      <property name="tokenStore" ref="WopiTokenStore"/>
       <property name="collaboraPublicUrl" value="${collabora.public.url}"/>
       
       <property name="alfrescoPublicURL" value="${alfresco.public.url}"/>

@@ -4,6 +4,7 @@
 
 package fr.jeci.collabora.wopi;
 
+import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -69,8 +70,13 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private CollaboraSettingsService collaboraSettingsService;
 
 	@Override
-	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef)
-			throws IOException {
+	protected boolean isWriteOperation() {
+		return false;
+	}
+
+	@Override
+	public void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
+			final WOPIAccessTokenInfo wopiToken) throws IOException {
 		final Map<String, String> model = this.collaboraOnlineService.serverInfo();
 		final Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
@@ -82,7 +88,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
 					.print(modifiedDatetime));
 			model.put(VERSION, currentVersion.getVersionLabel());
-		} else if (userCanWrite(nodeRef)) {
+		} else if (userCanWrite(nodeRef, wopiToken)) {
 			ensureVersioningEnabled(nodeRef);
 		}
 
@@ -96,7 +102,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 
 		String userName = AuthenticationUtil.getRunAsUser();
 		model.put(USER_ID, userName);
-		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef)));
+		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef, wopiToken)));
 		model.put(USER_FRIENDLY_NAME, resolveUserFriendlyName(userName));
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
@@ -147,9 +153,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		}
 	}
 
-	private boolean userCanWrite(final NodeRef nodeRef) {
+	private boolean userCanWrite(final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) {
 		AccessStatus perm = permissionService.hasPermission(nodeRef, PermissionService.WRITE);
-		return AccessStatus.ALLOWED == perm;
+		return AccessStatus.ALLOWED == perm && wopiToken.canWrite(nodeRef.getId());
 	}
 
 	/**
