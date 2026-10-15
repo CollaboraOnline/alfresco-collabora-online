@@ -269,7 +269,7 @@ fr.jeci.collabora.discovery.readTimeoutMs=2000
 **Type:** Integer (milliseconds)
 **Default:** `86400000` (24 hours)
 
-Time-to-live for WOPI access tokens in milliseconds. After this period, tokens expire and users must reload the document.
+Time-to-live for WOPI access tokens in milliseconds. After this period, an editing token is renewed while its user can still read the document, up to `lool.wopi.token.maxLifetime`.
 
 **Examples:**
 ```properties
@@ -284,6 +284,23 @@ lool.wopi.token.ttl=172800000
 ```
 
 **Note:** Tokens shorter than 1 hour (3600000 ms) will generate a warning in the logs.
+
+#### `lool.wopi.token.maxLifetime` (Optional)
+**Type:** Long (milliseconds)
+**Default:** `604800000` (7 days)
+
+How long after its creation an editing token may still be renewed.
+
+#### `lool.wopi.token.renewalRetention` (Optional)
+**Type:** Long (milliseconds)
+**Default:** `86400000` (24 hours)
+
+How long an expired editing token is kept, and so can still be renewed, before the purge job removes it.
+
+#### `job.fr.jeci.collabora.purgeWopiTokens.*` (Optional)
+**Defaults:** `cron=0 17 * * * ?`, `cronstartdelay=240000`, `enabled=true`
+
+Hourly job removing expired tokens from the database. See [docs/WopiTokens.md](docs/WopiTokens.md).
 
 ### Renditions
 
@@ -522,6 +539,8 @@ alfresco.private.url=http://alfresco-internal:8080/alfresco/
 
 # Token configuration
 lool.wopi.token.ttl=86400000
+lool.wopi.token.maxLifetime=604800000
+lool.wopi.token.renewalRetention=86400000
 
 # Discovery timeout (optional, default 500ms)
 #fr.jeci.collabora.discovery.readTimeoutMs=500
@@ -548,9 +567,23 @@ job.fr.jeci.collabora.cleanLock.cronstartdelay=240000
 
 For detailed release history and changelog, see [CHANGELOG.md](CHANGELOG.md).
 
-**Current version:** 1.4.0
-
 ## Migration Guide
+
+### Migrating to version 2.0
+
+WOPI access tokens are now stored in the database (`AttributeService`) instead of the Hazelcast cache. See
+[docs/WopiTokens.md](docs/WopiTokens.md).
+
+- Remove the `lool.cache.fileIdAccessTokenMapSharedCache.*` properties and any override of the
+  `lool-fileIdAccessTokenMapSharedCache` / `lool-fileIdAccessTokenMapCache` beans: they no longer exist.
+- Collabora sessions open during the upgrade must reopen their document.
+- Java API changes, for modules built against this AMP:
+  - `WOPIAccessTokenInfo` dates are `java.time.Instant` (Joda `LocalDateTime` before), and its kind is a
+    `WopiTokenKind` (`setRenewable` is removed);
+  - `CollaboraOnlineServiceImpl.setTokenMap` is replaced by `setTokenStore`;
+  - `AbstractWopiWebScript.executeAsUser` takes the `WOPIAccessTokenInfo` as a fourth argument;
+  - `CollaboraOnlineService` adds `createScopedAccessToken` and `renewAccessToken`.
+- Pristy Kafka processing tasks need this version.
 
 ### Migrating from version < 0.3.1 to version 1.0+
 

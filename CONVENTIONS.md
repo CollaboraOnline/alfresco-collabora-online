@@ -511,9 +511,9 @@ node-header.get_en.properties
 
 ### WOPI Authentication
 
-- **Tokens**: Randomly generated (BigInteger 130 bits, base 32)
+- **Tokens**: Randomly generated (256 bits, Base64 URL-safe)
 - **TTL**: 24h by default, configurable
-- **Storage**: Hazelcast distributed cache
+- **Storage**: `AttributeService`, keyed by the SHA-256 of the token (see `docs/WopiTokens.md`)
 - **Validation**: Token + NodeRef + User
 
 ### Permissions
