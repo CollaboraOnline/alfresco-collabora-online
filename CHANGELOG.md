@@ -1,6 +1,35 @@
 # Changelog
 
 
+## [2.0.0] - 2026-10-16
+
+### Breaking Changes
+
+- *(wopi)* WOPI access tokens are stored in the database (`AttributeService`) instead of the Hazelcast cache: the
+  `lool.cache.fileIdAccessTokenMapSharedCache.*` properties and the `lool-fileIdAccessTokenMap*` beans are removed, and
+  Collabora sessions open during the upgrade must reopen their document
+- *(wopi)* `WOPIAccessTokenInfo` dates are `java.time.Instant` instead of Joda `LocalDateTime`, and its kind is a
+  `WopiTokenKind` (`setRenewable` is removed)
+- *(wopi)* `CollaboraOnlineServiceImpl.setTokenMap` is replaced by `setTokenStore`
+- *(wopi)* `AbstractWopiWebScript.executeAsUser` takes the `WOPIAccessTokenInfo` as a fourth argument
+
+See "Migrating to version 2.0" in the [README](README.md#migrating-to-version-20).
+
+### Features
+
+- *(ci)* Add dependency CVE scanning gate
+- *(wopi)* Persist and scope access tokens
+
+### Bug Fixes
+
+- *(remoteconfig)* Handle disabled fonts folder
+- *(wopi)* Cap token renewal and type tokens
+
+### Documentation
+
+- Document 2.0 token settings and migration
+
+
 ## [1.8.0] - 2026-09-17
 
 ### Features
