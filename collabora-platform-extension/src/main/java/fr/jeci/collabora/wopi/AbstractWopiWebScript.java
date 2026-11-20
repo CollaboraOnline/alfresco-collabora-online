@@ -16,6 +16,7 @@ import org.alfresco.repo.rendition2.RenditionService2;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.version.VersionBaseModel;
+import org.alfresco.repo.version.Version2Model;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.*;
@@ -328,6 +329,14 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 							+ "GET /alfresco/s/fr/jeci/pristy/version/repair-version-store?nodeRef={}", nodeRef, nodeRef);
 			throw e;
 		}
+	}
+
+	protected String itemVersion(final NodeRef nodeRef) {
+		if (WopiFileIds.isVersionNode(nodeRef)) {
+			return (String) nodeService.getProperty(nodeRef, Version2Model.PROP_QNAME_VERSION_LABEL);
+		}
+		final Version version = getCurrentVersion(nodeRef);
+		return version == null ? null : version.getVersionLabel();
 	}
 
 	protected void askForRendition(final NodeRef nodeRef) {

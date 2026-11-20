@@ -5,6 +5,8 @@
 package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import fr.jeci.collabora.alfresco.WopiFileIds;
+import org.alfresco.repo.version.Version2Model;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -80,13 +82,14 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		final Map<String, String> model = this.collaboraOnlineService.serverInfo();
 		final Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
-		final Version currentVersion = getCurrentVersion(nodeRef);
+		final boolean frozen = WopiFileIds.isVersionNode(nodeRef);
+		final Version currentVersion = frozen ? null : getCurrentVersion(nodeRef);
 
-		if (currentVersion != null) {
-			Date lastModifiedDate = currentVersion.getFrozenModifiedDate();
-			LocalDateTime modifiedDatetime = new LocalDateTime(lastModifiedDate);
-			model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
-					.print(modifiedDatetime));
+		if (frozen) {
+			putLastModified(model, (Date) properties.get(Version2Model.PROP_QNAME_FROZEN_MODIFIED));
+			model.put(VERSION, (String) properties.get(Version2Model.PROP_QNAME_VERSION_LABEL));
+		} else if (currentVersion != null) {
+			putLastModified(model, currentVersion.getFrozenModifiedDate());
 			model.put(VERSION, currentVersion.getVersionLabel());
 		} else if (userCanWrite(nodeRef, wopiToken)) {
 			ensureVersioningEnabled(nodeRef);
@@ -95,8 +98,11 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		// BaseFileName need extension, else COL load it in read-only mode
 		model.put(BASE_FILE_NAME, (String) properties.get(ContentModel.PROP_NAME));
 
-		model.put(OWNER_ID, properties.get(ContentModel.PROP_CREATOR)
-				.toString());
+		final QName creatorProperty = frozen ? Version2Model.PROP_QNAME_FROZEN_CREATOR : ContentModel.PROP_CREATOR;
+		final Serializable owner = properties.get(creatorProperty);
+		if (owner != null) {
+			model.put(OWNER_ID, owner.toString());
+		}
 		final ContentData contentData = (ContentData) properties.get(ContentModel.PROP_CONTENT);
 		model.put(SIZE, Long.toString(contentData.getSize()));
 
@@ -138,6 +144,14 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		return ref;
 	}
 
+	private static void putLastModified(final Map<String, String> model, final Date modified) {
+		if (modified == null) {
+			return;
+		}
+		model.put(LAST_MODIFIED_TIME, ISODateTimeFormat.dateTime()
+				.print(new LocalDateTime(modified)));
+	}
+
 	private void ensureVersioningEnabled(final NodeRef nodeRef) {
 		// Force Versioning
 		if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_VERSIONABLE)) {
@@ -154,6 +168,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	}
 
 	private boolean userCanWrite(final NodeRef nodeRef, final WOPIAccessTokenInfo wopiToken) {
+		if (WopiFileIds.isVersionNode(nodeRef)) {
+			return false;
+		}
 		AccessStatus perm = permissionService.hasPermission(nodeRef, PermissionService.WRITE);
 		return AccessStatus.ALLOWED == perm && wopiToken.canWrite(nodeRef.getId());
 	}

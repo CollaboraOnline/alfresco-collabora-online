@@ -40,6 +40,11 @@ public class WopiGetFileWebScript extends AbstractWopiWebScript {
 		res.setContentType(contentProp.getMimetype());
 		res.setContentEncoding(contentProp.getEncoding());
 
+		final String itemVersion = itemVersion(nodeRef);
+		if (itemVersion != null) {
+			res.setHeader(X_WOPI_ITEM_VERSION, itemVersion);
+		}
+
 		final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
 
 		if (reader == null) {
