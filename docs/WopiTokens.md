@@ -41,8 +41,15 @@ the `pristy-kafka` repository).
 
 ## Version files
 
-A WOPI file ID is resolved in `workspace://SpacesStore` first, then in `workspace://version2Store`. A frozen version node is therefore served by its own UUID.
+A WOPI file ID is resolved in `workspace://SpacesStore` first, then in `workspace://version2Store`. A frozen version
+node is therefore served by its own UUID.
 
-- Version files are read-only: `CheckFileInfo` answers `UserCanWrite` `false` and every write operation answers `401`, whatever the token.
-- `CheckFileInfo` reads the frozen properties (`Version` from the version label, `LastModifiedTime` from the frozen modified date, `OwnerId` from the frozen creator) and never calls `getCurrentVersion` or enables versioning.
-- `GetFile` sends the standard `X-WOPI-ItemVersion` header, equal to the `Version` returned by `CheckFileInfo`. It is absent for an unversioned live node.
+- Version files are read-only: `CheckFileInfo` answers `UserCanWrite` `false` and `UserCanNotWriteRelative` `true`,
+  and every write operation answers `401`, whatever the token. This covers the whole `PutRelativeFile` endpoint,
+  `GET_LOCK` included.
+- A token may be created for a version NodeRef; it only grants reading.
+- A version whose live document is in the trash answers `404`, and no token is created or renewed for it.
+- `CheckFileInfo` reads the frozen properties (`Version` from the version label, `LastModifiedTime` from the frozen
+  modified date, `OwnerId` from the frozen creator) and never calls `getCurrentVersion` or enables versioning.
+- `GetFile` sends the standard `X-WOPI-ItemVersion` header, equal to the `Version` returned by `CheckFileInfo`. It is
+  absent for an unversioned live node.
