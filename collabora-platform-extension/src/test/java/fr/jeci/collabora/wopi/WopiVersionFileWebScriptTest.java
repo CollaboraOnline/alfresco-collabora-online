@@ -189,6 +189,8 @@ public class WopiVersionFileWebScriptTest {
 				.asText());
 		assertEquals("false", json.get("UserCanWrite")
 				.asText());
+		assertEquals("true", json.get("UserCanNotWriteRelative")
+				.asText());
 		assertEquals("frozen.docx", json.get("BaseFileName")
 				.asText());
 		assertEquals("bob", json.get("OwnerId")
@@ -230,6 +232,7 @@ public class WopiVersionFileWebScriptTest {
 				.asText());
 		assertEquals("true", json.get("UserCanWrite")
 				.asText());
+		assertNull(json.get("UserCanNotWriteRelative"));
 	}
 
 	@Test

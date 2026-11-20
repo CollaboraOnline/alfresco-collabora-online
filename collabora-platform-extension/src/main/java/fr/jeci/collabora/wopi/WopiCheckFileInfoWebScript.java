@@ -46,6 +46,7 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 	private static final String VERSION = "Version";
 	private static final String USER_FRIENDLY_NAME = "UserFriendlyName";
 	private static final String USER_CAN_WRITE = "UserCanWrite";
+	private static final String USER_CAN_NOT_WRITE_RELATIVE = "UserCanNotWriteRelative";
 	private static final String IS_ADMIN_USER = "IsAdminUser";
 	private static final String IS_ANONYMOUS_USER = "IsAnonymousUser";
 	private static final String IS_USER_LOCKED = "IsUserLocked";
@@ -109,6 +110,9 @@ public class WopiCheckFileInfoWebScript extends AbstractWopiWebScript {
 		String userName = AuthenticationUtil.getRunAsUser();
 		model.put(USER_ID, userName);
 		model.put(USER_CAN_WRITE, Boolean.toString(userCanWrite(nodeRef, wopiToken)));
+		if (frozen) {
+			model.put(USER_CAN_NOT_WRITE_RELATIVE, Boolean.TRUE.toString());
+		}
 		model.put(USER_FRIENDLY_NAME, resolveUserFriendlyName(userName));
 		boolean isAdmin = authorityService.isAdminAuthority(userName);
 		model.put(IS_ADMIN_USER, Boolean.toString(isAdmin));
