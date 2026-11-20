@@ -77,8 +77,8 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 
 	@Override
 	public void execute(final WebScriptRequest req, final WebScriptResponse res) throws IOException {
-		final WOPIAccessTokenInfo wopiToken = wopiToken(req);
 		final NodeRef nodeRef = getFileNodeRef(fileId(req));
+		final WOPIAccessTokenInfo wopiToken = wopiToken(req, nodeRef);
 		checkWriteScope(wopiToken, nodeRef, isWriteOperation());
 		forceCurrentUser(wopiToken);
 		validateNodeExists(nodeRef);
@@ -114,18 +114,12 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	/**
 	 * Check and renew token if needed
 	 *
-	 * @param req Request
+	 * @param req     Request
+	 * @param nodeRef the node the request file id resolves to
 	 * @return WOPI Token
 	 */
-	protected WOPIAccessTokenInfo wopiToken(WebScriptRequest req) {
-		final String fileId = fileId(req);
-		final NodeRef nodeRef = getFileNodeRef(fileId);
+	protected WOPIAccessTokenInfo wopiToken(WebScriptRequest req, NodeRef nodeRef) {
 		final String accessToken = req.getParameter(ACCESS_TOKEN);
-
-		if (fileId == null) {
-			throw new WebScriptException("No 'file_id' parameter supplied");
-		}
-
 		WOPIAccessTokenInfo wopiToken = this.collaboraOnlineService.checkAccessToken(accessToken, nodeRef);
 
 		if (!wopiToken.isValid()) {

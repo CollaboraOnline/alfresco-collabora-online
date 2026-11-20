@@ -11,6 +11,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -26,6 +27,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.version.Version2Model;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -169,6 +171,20 @@ public class WopiVersionFileWebScriptTest {
 
 		verify(res).setHeader(WopiHeader.X_WOPI_ITEM_VERSION, "1.3");
 		verify(versionService, never()).getCurrentVersion(any());
+		assertEquals("hello", bodyOut.toString());
+	}
+
+	@Test
+	public void testExecute_resolvesFileIdOnce() throws Exception {
+		AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
+		try {
+			getFile().execute(req, res);
+		} finally {
+			AuthenticationUtil.clearCurrentSecurityContext();
+		}
+
+		verify(wopiFileIds, times(1)).resolve("x");
+		verify(collaboraOnlineService).checkAccessToken("t", FROZEN);
 		assertEquals("hello", bodyOut.toString());
 	}
 
