@@ -26,10 +26,12 @@ import java.util.regex.Pattern;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
+import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.version.NodeServiceImpl;
+import org.alfresco.repo.version.Version2Model;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -68,7 +70,7 @@ public class CollaboraOnlineServiceImplTest {
 		authenticationUtil.setDefaultGuestUserName("guest");
 		authenticationUtil.afterPropertiesSet();
 
-		nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "test-collabora");
+		nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, "aaaaaaaa-0000-0000-0000-000000000001");
 
 		this.collaboraOnlineService = new CollaboraOnlineServiceImpl();
 
@@ -76,6 +78,7 @@ public class CollaboraOnlineServiceImplTest {
 		this.collaboraOnlineService.setNodeService(nodeService);
 		permissionService = mock(PermissionService.class);
 		this.collaboraOnlineService.setPermissionService(permissionService);
+		this.collaboraOnlineService.setWopiFileIds(new WopiFileIds(nodeService));
 
 		this.collaboraOnlineService.setCollaboraPublicUrl(new URL(PUBLICHOST_SERVER));
 		this.collaboraOnlineService.setTokenTtlMs(1000);
@@ -447,6 +450,119 @@ public class CollaboraOnlineServiceImplTest {
 		allow(nodeRef, PermissionService.READ);
 
 		this.collaboraOnlineService.createScopedAccessToken(nodeRef, outputRef, Duration.ofHours(8));
+	}
+
+	private static final NodeRef VERSION_REF = new NodeRef(new StoreRef("workspace", "version2Store"),
+			"bbbbbbbb-0000-0000-0000-000000000002");
+
+	private void versionOf(final NodeRef liveRef, final boolean liveExists) {
+		when(nodeService.exists(VERSION_REF)).thenReturn(true);
+		when(nodeService.getProperty(VERSION_REF, Version2Model.PROP_QNAME_FROZEN_NODE_REF)).thenReturn(liveRef);
+		when(nodeService.exists(liveRef)).thenReturn(liveExists);
+	}
+
+	private static final NodeRef TRASHED_REF = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE,
+			"cccccccc-0000-0000-0000-000000000003");
+
+	private static void assertNotFound(final Runnable call) {
+		try {
+			call.run();
+			fail("expected WebScriptException");
+		} catch (WebScriptException e) {
+			assertEquals(Status.STATUS_NOT_FOUND, e.getStatus());
+		}
+	}
+
+	@Test
+	public void testCreateAccessToken_acceptsVersionOfLiveDocument() {
+		AuthenticationUtil.setRunAsUser("alice");
+		versionOf(nodeRef, true);
+		allow(VERSION_REF, PermissionService.READ);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createAccessToken(VERSION_REF);
+
+		assertTrue(this.tokenStore.get(created.getAccessToken())
+				.canRead(VERSION_REF.getId()));
+	}
+
+	@Test
+	public void testCreateAccessToken_rejectsVersionOfTrashedDocument() {
+		AuthenticationUtil.setRunAsUser("alice");
+		versionOf(TRASHED_REF, false);
+		allow(VERSION_REF, PermissionService.READ);
+
+		assertNotFound(() -> this.collaboraOnlineService.createAccessToken(VERSION_REF));
+	}
+
+	@Test
+	public void testCreateAccessToken_rejectsMissingNode() {
+		AuthenticationUtil.setRunAsUser("alice");
+		allow(TRASHED_REF, PermissionService.READ);
+
+		assertNotFound(() -> this.collaboraOnlineService.createAccessToken(TRASHED_REF));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateScopedAccessToken_rejectsVersionOfTrashedDocument() {
+		AuthenticationUtil.setRunAsUser("alice");
+		versionOf(TRASHED_REF, false);
+		allow(VERSION_REF, PermissionService.READ);
+
+		this.collaboraOnlineService.createScopedAccessToken(VERSION_REF, null, Duration.ofHours(8));
+	}
+
+	@Test
+	public void testRenewAccessToken_rejectsVersionOfTrashedDocument() {
+		versionOf(TRASHED_REF, false);
+		allow(VERSION_REF, PermissionService.READ);
+		allow(new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, VERSION_REF.getId()), PermissionService.READ);
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("trashed", past, past.plus(Duration.ofHours(1)), VERSION_REF
+				.getId(), "alice");
+		this.tokenStore.save(expired);
+
+		assertNotFound(() -> this.collaboraOnlineService.renewAccessToken(expired));
+	}
+
+	@Test
+	public void testCreateScopedAccessToken_acceptsVersionNodeAsInput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		versionOf(nodeRef, true);
+		allow(VERSION_REF, PermissionService.READ);
+
+		WOPIAccessTokenInfo created = this.collaboraOnlineService.createScopedAccessToken(VERSION_REF, null, Duration
+				.ofHours(8));
+
+		assertTrue(this.tokenStore.get(created.getAccessToken())
+				.canRead(VERSION_REF.getId()));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateScopedAccessToken_rejectsVersionNodeAsOutput() {
+		AuthenticationUtil.setRunAsUser("alice");
+		when(nodeService.exists(VERSION_REF)).thenReturn(true);
+		allow(nodeRef, PermissionService.READ);
+		allow(VERSION_REF, PermissionService.WRITE);
+
+		this.collaboraOnlineService.createScopedAccessToken(nodeRef, VERSION_REF, Duration.ofHours(8));
+	}
+
+	@Test
+	public void testRenewAccessToken_checksReadOnVersionNode() {
+		versionOf(nodeRef, true);
+		allow(VERSION_REF, PermissionService.READ);
+		Instant past = Instant.now()
+				.minus(Duration.ofHours(2));
+		WOPIAccessTokenInfo expired = new WOPIAccessTokenInfo("collabora", past, past.plus(Duration.ofHours(1)),
+				VERSION_REF.getId(), "alice");
+		this.tokenStore.save(expired);
+
+		WOPIAccessTokenInfo renewed = this.collaboraOnlineService.renewAccessToken(expired);
+
+		assertTrue(renewed.getExpiresAt()
+				.isAfter(Instant.now()
+						.minus(Duration.ofSeconds(1))));
 	}
 
 	@Test

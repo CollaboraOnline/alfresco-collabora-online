@@ -6,8 +6,8 @@ package fr.jeci.collabora.wopi;
 
 import fr.jeci.collabora.alfresco.CollaboraOnlineService;
 import fr.jeci.collabora.alfresco.LogSanitizer;
-import fr.jeci.collabora.alfresco.NodeRefValidator;
 import fr.jeci.collabora.alfresco.WOPIAccessTokenInfo;
+import fr.jeci.collabora.alfresco.WopiFileIds;
 import net.sf.acegisecurity.Authentication;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -62,6 +62,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	protected DictionaryService dictionaryService;
 	protected RenditionService2 renditionService;
 	protected BehaviourFilter behaviourFilter;
+	protected WopiFileIds wopiFileIds;
 
 	public abstract void executeAsUser(final WebScriptRequest req, final WebScriptResponse res, final NodeRef nodeRef,
 			final WOPIAccessTokenInfo wopiToken) throws IOException;
@@ -106,8 +107,7 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	 * @throws WebScriptException if fileId is invalid or node does not exist
 	 */
 	protected NodeRef getFileNodeRef(String fileId) {
-		NodeRefValidator.validateUUID(fileId);
-		return new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, fileId);
+		return this.wopiFileIds.resolve(fileId);
 	}
 
 	/**
@@ -140,6 +140,9 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	static void checkWriteScope(final WOPIAccessTokenInfo wopiToken, final NodeRef nodeRef, final boolean write) {
+		if (write && WopiFileIds.isVersionNode(nodeRef)) {
+			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "A version node is read-only " + nodeRef.getId());
+		}
 		if (write && !wopiToken.canWrite(nodeRef.getId())) {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token does not allow writing " + nodeRef.getId());
 		}

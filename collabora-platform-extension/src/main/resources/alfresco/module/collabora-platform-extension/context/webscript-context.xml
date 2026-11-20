@@ -51,6 +51,7 @@ SPDX-License-Identifier: Apache-2.0
 		<property name="collaboraOnlineService"
 			ref="CollaboraOnlineService" />
 		<property name="nodeService" ref="NodeService" />
+		<property name="wopiFileIds" ref="WopiFileIds" />
 		<property name="contentService" ref="ContentService" />
 		<property name="retryingTransactionHelper"
 			ref="retryingTransactionHelper" />

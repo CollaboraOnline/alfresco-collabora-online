@@ -17,7 +17,6 @@ import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.apache.commons.lang3.StringUtils;
@@ -65,6 +64,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private NodeService nodeService;
 	private PermissionService permissionService;
 	private LockService lockService;
+	private WopiFileIds wopiFileIds;
 
 	private final SecureRandom random = new SecureRandom();
 
@@ -99,6 +99,13 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	private WopiTokenStore tokenStore;
 
 	/**
+	 * @param wopiFileIds the resolver of WOPI file ids to nodes
+	 */
+	public void setWopiFileIds(WopiFileIds wopiFileIds) {
+		this.wopiFileIds = wopiFileIds;
+	}
+
+	/**
 	 * @param tokenStore the store persisting the access tokens
 	 */
 	public void setTokenStore(WopiTokenStore tokenStore) {
@@ -112,6 +119,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	 */
 	@Override
 	public WOPIAccessTokenInfo createAccessToken(NodeRef nodeRef) {
+		if (!this.wopiFileIds.exists(nodeRef)) {
+			throw new WebScriptException(Status.STATUS_NOT_FOUND, "Node not found: " + nodeRef);
+		}
 		if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
 			logger.warn("Create token for System user, it is not desirable");
 		} else {
@@ -147,6 +157,9 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 		requireExistingNode(input, "input");
 		requirePermission(input, PermissionService.READ);
 		if (output != null) {
+			if (WopiFileIds.isVersionNode(output)) {
+				throw new IllegalArgumentException("output must not be a version node: " + output);
+			}
 			requireExistingNode(output, "output");
 			requirePermission(output, PermissionService.WRITE);
 		}
@@ -177,7 +190,10 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 			throw new WebScriptException(Status.STATUS_UNAUTHORIZED, "Token reached its maximum lifetime for " + stored
 					.getMaskedToken());
 		}
-		final NodeRef nodeRef = new NodeRef(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, stored.getFileId());
+		final NodeRef nodeRef = this.wopiFileIds.resolve(stored.getFileId());
+		if (!this.wopiFileIds.exists(nodeRef)) {
+			throw new WebScriptException(Status.STATUS_NOT_FOUND, "Node not found: " + nodeRef.getId());
+		}
 		final AccessStatus perm = AuthenticationUtil.runAs(() -> this.permissionService.hasPermission(nodeRef,
 				PermissionService.READ), stored.getUserName());
 		if (AccessStatus.ALLOWED != perm) {
@@ -190,7 +206,7 @@ public class CollaboraOnlineServiceImpl implements CollaboraOnlineService {
 	}
 
 	private void requireExistingNode(final NodeRef nodeRef, final String name) {
-		if (nodeRef == null || !this.nodeService.exists(nodeRef)) {
+		if (!this.wopiFileIds.exists(nodeRef)) {
 			throw new IllegalArgumentException(name + " node does not exist: " + nodeRef);
 		}
 	}

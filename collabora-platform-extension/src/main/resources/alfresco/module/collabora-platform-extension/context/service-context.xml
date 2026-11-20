@@ -16,6 +16,10 @@ SPDX-License-Identifier: Apache-2.0
       <property name="renewalRetentionMs" value="${lool.wopi.token.renewalRetention}"/>
   </bean>
 
+  <bean id="WopiFileIds" class="fr.jeci.collabora.alfresco.WopiFileIds">
+      <property name="nodeService" ref="nodeService"/>
+  </bean>
+
   <bean id="CollaboraOnlineService"
         class="fr.jeci.collabora.alfresco.CollaboraOnlineServiceImpl" init-method="init">
       <property name="tokenStore" ref="WopiTokenStore"/>
@@ -29,6 +33,7 @@ SPDX-License-Identifier: Apache-2.0
       <property name="nodeService" ref="NodeService"/>
       <property name="permissionService" ref="PermissionService"/>
       <property name="lockService" ref="LockService"/>
+      <property name="wopiFileIds" ref="WopiFileIds"/>
       
       <property name="wopiDiscovery" ref="WopiDiscovery"/>
   </bean>

@@ -97,6 +97,28 @@ public class AbstractWopiWebScriptTest {
 	}
 
 	@Test
+	public void testCheckWriteScope_versionNodeIsNeverWritable() {
+		NodeRef version = new NodeRef(new StoreRef("workspace", "version2Store"), "input");
+		WOPIAccessTokenInfo collabora = new WOPIAccessTokenInfo("t", NOW.minus(Duration.ofMinutes(1)), NOW.plus(Duration
+				.ofHours(1)), "input", "alice");
+
+		assertTrue(collabora.canWrite(version.getId()));
+		try {
+			AbstractWopiWebScript.checkWriteScope(collabora, version, true);
+			fail("expected WebScriptException");
+		} catch (WebScriptException e) {
+			assertEquals(Status.STATUS_UNAUTHORIZED, e.getStatus());
+		}
+	}
+
+	@Test
+	public void testCheckWriteScope_versionNodeIsReadable() {
+		NodeRef version = new NodeRef(new StoreRef("workspace", "version2Store"), "input");
+
+		AbstractWopiWebScript.checkWriteScope(scoped(null), version, false);
+	}
+
+	@Test
 	public void testCheckWriteScope_collaboraTokenWritesItsFile() {
 		WOPIAccessTokenInfo collabora = new WOPIAccessTokenInfo("t", NOW.minus(Duration.ofMinutes(1)), NOW.plus(Duration
 				.ofHours(1)), "input", "alice");
