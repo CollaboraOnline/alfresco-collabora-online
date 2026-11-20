@@ -439,6 +439,10 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 		this.nodeService = nodeService;
 	}
 
+	public void setWopiFileIds(WopiFileIds wopiFileIds) {
+		this.wopiFileIds = wopiFileIds;
+	}
+
 	public void setCollaboraOnlineService(CollaboraOnlineService service) {
 		this.collaboraOnlineService = service;
 	}
