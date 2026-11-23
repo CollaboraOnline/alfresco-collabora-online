@@ -316,6 +316,10 @@ List of renditions to automatically regenerate after a document is saved with Co
 - `doclib` - Document library thumbnail
 - `pdf` - PDF rendition
 
+Only the renditions the rendition registry supports for the saved content (mimetype and size) are requested. An
+unsupported one is skipped: `RenditionService2` would throw through its transactional proxy, which marks the save
+transaction for rollback and silently discards the written content while the client still receives `200`.
+
 **Example:**
 ```properties
 # Generate only essential renditions

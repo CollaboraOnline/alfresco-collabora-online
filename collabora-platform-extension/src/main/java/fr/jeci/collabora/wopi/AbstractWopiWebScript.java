@@ -41,6 +41,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 public abstract class AbstractWopiWebScript extends AbstractWebScript implements WopiHeader {
 	private static final Logger logger = LoggerFactory.getLogger(AbstractWopiWebScript.class);
@@ -334,7 +335,17 @@ public abstract class AbstractWopiWebScript extends AbstractWebScript implements
 	}
 
 	protected void askForRendition(final NodeRef nodeRef) {
+		final ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+		if (reader == null || !reader.exists()) {
+			return;
+		}
+		final Set<String> supported = renditionService.getRenditionDefinitionRegistry2()
+				.getRenditionNamesFrom(reader.getMimetype(), reader.getSize());
 		for (String name : renditions) {
+			if (!supported.contains(name)) {
+				logger.debug("Rendition '{}' not supported for {} ({})", name, nodeRef, reader.getMimetype());
+				continue;
+			}
 			try {
 				this.renditionService.render(nodeRef, name);
 			} catch (UnsupportedOperationException | java.lang.IllegalArgumentException exp) {
