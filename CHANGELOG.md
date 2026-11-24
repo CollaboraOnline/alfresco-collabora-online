@@ -1,6 +1,29 @@
 # Changelog
 
 
+## [2.1.0] - 2026-11-24
+
+### Features
+
+- *(wopi)* Resolve version nodes as file ids
+- *(wopi)* Serve frozen versions read-only
+
+### Bug Fixes
+
+- *(share)* Use Java locale suffix for i18n files
+- *(wopi)* Request only supported renditions
+- *(vue)* Patch npm audit advisories
+
+### Documentation
+
+- *(wopi)* Complete the version files rules
+- Add the Pristy trademark notice
+
+### Refactor
+
+- *(wopi)* Resolve the file id once
+
+
 ## [2.0.0] - 2026-10-16
 
 ### Breaking Changes
