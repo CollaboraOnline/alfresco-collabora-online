@@ -678,3 +678,7 @@ fr.jeci.collabora.renditions=imgpreview,medium,doclib,pdf
 This project is maintained by [Jeci](https://jeci.fr) a french company that specializes in Free and Open Source technologies (FLOSS).
 
 For any question or professional services, please send us an email info@jeci.fr
+
+## Trademark
+
+"Pristy" is a registered trademark of Jeci SARL (INPI FR 4801689). This license grants no right to use it.
